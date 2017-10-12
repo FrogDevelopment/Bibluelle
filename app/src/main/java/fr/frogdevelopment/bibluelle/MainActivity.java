@@ -1,5 +1,6 @@
 package fr.frogdevelopment.bibluelle;
 
+import android.app.Fragment;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -12,7 +13,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 
 public class MainActivity extends AppCompatActivity
 		implements NavigationView.OnNavigationItemSelectedListener {
@@ -25,14 +25,9 @@ public class MainActivity extends AppCompatActivity
 		setSupportActionBar(toolbar);
 
 		FloatingActionButton fab = findViewById(R.id.fab);
-		fab.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View view) {
-				Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-						.setAction("Action", null)
-						.show();
-			}
-		});
+		fab.setOnClickListener(view -> Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+				.setAction("Action", null)
+				.show());
 
 		DrawerLayout drawer = findViewById(R.id.drawer_layout);
 		ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -91,16 +86,13 @@ public class MainActivity extends AppCompatActivity
 	}
 
 	private void showFragment(int id) {
+		Fragment fragment = null;
 		switch (id) {
 			case R.id.nav_camera:
-				// Handle the camera action
+				fragment = new ScanFragment();
 				break;
 			case R.id.nav_gallery:
-				HomeFragment fragment = new HomeFragment();
-				getFragmentManager().beginTransaction()
-						.replace(R.id.content_frame, fragment)
-						.addToBackStack(null)
-						.commit();
+				fragment = new GalleryFragment();
 				break;
 			case R.id.nav_slideshow:
 
@@ -114,6 +106,13 @@ public class MainActivity extends AppCompatActivity
 			case R.id.nav_send:
 
 				break;
+		}
+
+		if (fragment != null) {
+			getFragmentManager().beginTransaction()
+					.replace(R.id.content_frame, fragment)
+					.addToBackStack(null)
+					.commit();
 		}
 	}
 }
