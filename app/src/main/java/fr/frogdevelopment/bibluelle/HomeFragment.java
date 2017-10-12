@@ -23,12 +23,15 @@ public class HomeFragment extends Fragment {
 	public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 
+		// https://github.com/Azoft/CarouselLayoutManager
 		final CarouselLayoutManager layoutManager = new CarouselLayoutManager(CarouselLayoutManager.HORIZONTAL);
 
 		final RecyclerView recyclerView = view.findViewById(R.id.recycler_view);
 		recyclerView.setLayoutManager(layoutManager);
 		recyclerView.setHasFixedSize(true);
 		recyclerView.addOnScrollListener(new CenterScrollListener());
+
+		// tester aussi https://github.com/GoodieBag/CarouselPicker
 	}
 
 }
