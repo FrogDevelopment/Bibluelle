@@ -42,6 +42,8 @@ public class MainActivity extends AppCompatActivity
 
 		NavigationView navigationView = findViewById(R.id.nav_view);
 		navigationView.setNavigationItemSelectedListener(this);
+
+		showFragment(R.id.nav_gallery);
 	}
 
 	@Override
@@ -81,6 +83,14 @@ public class MainActivity extends AppCompatActivity
 		// Handle navigation view item clicks here.
 		int id = item.getItemId();
 
+		showFragment(id);
+
+		DrawerLayout drawer = findViewById(R.id.drawer_layout);
+		drawer.closeDrawer(GravityCompat.START);
+		return true;
+	}
+
+	private void showFragment(int id) {
 		switch (id) {
 			case R.id.nav_camera:
 				// Handle the camera action
@@ -105,9 +115,5 @@ public class MainActivity extends AppCompatActivity
 
 				break;
 		}
-
-		DrawerLayout drawer = findViewById(R.id.drawer_layout);
-		drawer.closeDrawer(GravityCompat.START);
-		return true;
 	}
 }

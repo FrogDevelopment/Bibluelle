@@ -1,7 +1,6 @@
 package fr.frogdevelopment.bibluelle;
 
 import android.app.Fragment;
-import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
@@ -13,12 +12,6 @@ import com.azoft.carousellayoutmanager.CarouselLayoutManager;
 import com.azoft.carousellayoutmanager.CenterScrollListener;
 
 public class HomeFragment extends Fragment {
-
-	public interface OnFragmentInteractionListener {
-		void onFragmentInteraction();
-	}
-
-	private OnFragmentInteractionListener mListener;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -36,22 +29,6 @@ public class HomeFragment extends Fragment {
 		recyclerView.setLayoutManager(layoutManager);
 		recyclerView.setHasFixedSize(true);
 		recyclerView.addOnScrollListener(new CenterScrollListener());
-	}
-
-	@Override
-	public void onAttach(Context context) {
-		super.onAttach(context);
-		if (context instanceof OnFragmentInteractionListener) {
-			mListener = (OnFragmentInteractionListener) context;
-		} else {
-			throw new RuntimeException(context.toString() + " must implement "+ OnFragmentInteractionListener.class.getSimpleName());
-		}
-	}
-
-	@Override
-	public void onDetach() {
-		super.onDetach();
-		mListener = null;
 	}
 
 }
