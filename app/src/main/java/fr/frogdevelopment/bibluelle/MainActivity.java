@@ -87,12 +87,15 @@ public class MainActivity extends AppCompatActivity
 
 	private void showFragment(int id) {
 		Fragment fragment = null;
+		String tag = null;
 		switch (id) {
-			case R.id.nav_camera:
-				fragment = new ScanFragment();
+			case R.id.nav_search:
+				fragment = new SearchFragment();
+				tag = "SEARCH_FRAGMENT";
 				break;
 			case R.id.nav_gallery:
 				fragment = new GalleryFragment();
+				tag = "GALLERY_FRAGMENT";
 				break;
 			case R.id.nav_slideshow:
 
@@ -110,7 +113,7 @@ public class MainActivity extends AppCompatActivity
 
 		if (fragment != null) {
 			getFragmentManager().beginTransaction()
-					.replace(R.id.content_frame, fragment)
+					.replace(R.id.content_frame, fragment, tag)
 					.addToBackStack(null)
 					.commit();
 		}
