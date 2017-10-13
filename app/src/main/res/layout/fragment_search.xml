@@ -61,7 +61,7 @@
     </android.support.design.widget.TextInputLayout>
 
     <android.support.design.widget.TextInputLayout
-        android:id="@+id/search_textInputLayout_editor"
+        android:id="@+id/search_textInputLayout_publisher"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
@@ -72,10 +72,10 @@
         app:layout_constraintTop_toBottomOf="@+id/search_textInputLayout_author">
 
         <android.support.design.widget.TextInputEditText
-            android:id="@+id/search_by_editor"
+            android:id="@+id/search_by_publisher"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Editor"
+            android:hint="Publisher"
             android:imeOptions="actionNext"
             android:inputType="textAutoCorrect"/>
     </android.support.design.widget.TextInputLayout>
@@ -89,7 +89,7 @@
         android:layout_marginTop="8dp"
         app:layout_constraintEnd_toStartOf="@+id/search_scan"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/search_textInputLayout_editor">
+        app:layout_constraintTop_toBottomOf="@+id/search_textInputLayout_publisher">
 
         <android.support.design.widget.TextInputEditText
             android:id="@+id/search_by_isbn"
@@ -108,7 +108,7 @@
         android:layout_marginTop="16dp"
         android:src="@drawable/ic_menu_camera"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/search_textInputLayout_editor"/>
+        app:layout_constraintTop_toBottomOf="@+id/search_textInputLayout_publisher"/>
 
     <Button
         android:id="@+id/search_button"
