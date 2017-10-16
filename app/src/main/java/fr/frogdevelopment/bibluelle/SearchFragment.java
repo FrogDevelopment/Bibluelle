@@ -17,8 +17,14 @@ import com.google.gson.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.HttpURLConnection;
+import java.util.ArrayList;
+import java.util.List;
+
+import fr.frogdevelopment.bibluelle.data.Book;
 import fr.frogdevelopment.bibluelle.rest.RestServiceFactory;
 import fr.frogdevelopment.bibluelle.rest.google.GoogleApisRestService;
+import fr.frogdevelopment.bibluelle.rest.google.GoogleBook;
 import fr.frogdevelopment.bibluelle.rest.google.GoogleBooks;
 import fr.frogdevelopment.bibluelle.rest.isbndb.ISBNDBApisRestService;
 import retrofit2.Call;
@@ -64,16 +70,69 @@ public class SearchFragment extends Fragment {
 						.commit()
 		);
 		Button searchButton = view.findViewById(R.id.search_button);
-		searchButton.setOnClickListener(v -> {
-			// https://www.googleapis.com/books/v1/volumes?q=isbn:9780134092669
-			mGoogleApisRestService.getBooks("isbn:9780134092669").enqueue(new Callback<GoogleBooks>() {
+		searchButton.setOnClickListener(v -> onSearch());
+
+		mGoogleApisRestService = RestServiceFactory.getGoogleApisRestService();
+		mIsbnDbApisRestService = RestServiceFactory.getISBNDBApisRestService();
+	}
+
+	private void onSearch() {
+		String title = searchByTitle.getText().toString();
+		String author = searchByAuthor.getText().toString();
+		String publisher = searchByPublisher.getText().toString();
+		String isbn = searchByIsbn.getText().toString();
+
+		// GOOGLE API
+		callGoogleApi(title, author, publisher, isbn);
+	}
+
+	private void callGoogleApi(String title, String author, String publisher, String isbn) {
+		List<String> parameters = new ArrayList<>();
+		if (!TextUtils.isEmpty(title)) {
+			parameters.add("intitle:" + title);
+		}
+
+		if (!TextUtils.isEmpty(author)) {
+			parameters.add("inauthor:" + author);
+		}
+
+		if (!TextUtils.isEmpty(publisher)) {
+			parameters.add("inpublisher:" + publisher);
+		}
+
+		if (!TextUtils.isEmpty(isbn)) {
+			parameters.add("isbn:" + isbn);
+		}
+
+		if (!parameters.isEmpty()) {
+			String urlParameters = TextUtils.join("+", parameters);
+			mGoogleApisRestService.getBooks(urlParameters).enqueue(new Callback<GoogleBooks>() {
 				@Override
 				public void onResponse(@NonNull Call<GoogleBooks> call, @NonNull Response<GoogleBooks> response) {
-					LOGGER.debug(response.message());
+					if (response.code() == HttpURLConnection.HTTP_OK) {
+						GoogleBooks googleBooks = response.body();
 
-					GoogleBooks googleBooks = response.body();
+						ArrayList<Book> books = new ArrayList<>();
+						for (GoogleBook googleBook : googleBooks.getItems()) {
+							Book book = new Book();
+							book.setTitle(googleBook.getVolumeInfo().getTitle());
+							book.setAuthor(googleBook.getVolumeInfo().getAuthors().toString());
 
-					LOGGER.debug(googleBooks.toString());
+							books.add(book);
+						}
+
+						Bundle args = new Bundle();
+						args.putSerializable("books", books);
+
+						Fragment fragment = new GalleryFragment();
+						fragment.setArguments(args);
+
+						String tag = "GALLERY_FRAGMENT";
+						getFragmentManager().beginTransaction()
+								.replace(R.id.content_frame, fragment, tag)
+								.addToBackStack(null)
+								.commit();
+					}
 				}
 
 				@Override
@@ -81,29 +140,26 @@ public class SearchFragment extends Fragment {
 					LOGGER.error("", t);
 				}
 			});
+		}
+	}
 
-			// http://isbndb.com/api/v2/json/SI7AC64Q/book/9780134092669
-			mIsbnDbApisRestService.getBook("SI7AC64Q", "9780134092669").enqueue(new Callback<JsonObject>() {
-				@Override
-				public void onResponse(@NonNull Call<JsonObject> call, @NonNull Response<JsonObject> response) {
-					LOGGER.debug(response.message());
+	private void callIsbnDbApi(String title, String author, String publisher, String isbn) {
+		// http://isbndb.com/api/v2/json/SI7AC64Q/book/9780134092669
+		mIsbnDbApisRestService.getBook("SI7AC64Q", "9780134092669").enqueue(new Callback<JsonObject>() {
+			@Override
+			public void onResponse(@NonNull Call<JsonObject> call, @NonNull Response<JsonObject> response) {
+				LOGGER.debug(response.message());
 
-					JsonObject book = response.body();
+				JsonObject book = response.body();
 
-					LOGGER.debug(book.toString());
-				}
+				LOGGER.debug(book.toString());
+			}
 
-				@Override
-				public void onFailure(@NonNull Call<JsonObject> call, @NonNull Throwable t) {
+			@Override
+			public void onFailure(@NonNull Call<JsonObject> call, @NonNull Throwable t) {
 
-				}
-			});
+			}
 		});
-
-
-
-		mGoogleApisRestService = RestServiceFactory.getGoogleApisRestService();
-		mIsbnDbApisRestService = RestServiceFactory.getISBNDBApisRestService();
 	}
 
 	String isbn;
