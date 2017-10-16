@@ -11,6 +11,8 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
+import fr.frogdevelopment.bibluelle.rest.google.GoogleApisRestService;
+import fr.frogdevelopment.bibluelle.rest.isbndb.ISBNDBApisRestService;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -18,33 +20,25 @@ import okhttp3.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-public class DefaultRestServiceFactory {
+public class RestServiceFactory {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(DefaultRestServiceFactory.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(RestServiceFactory.class);
+
+	private static final RestServiceFactory INSTANCE = new RestServiceFactory();
+
+	public static GoogleApisRestService getGoogleApisRestService() {
+		return INSTANCE.getService(GoogleApisRestService.class);
+	}
+
+	public static ISBNDBApisRestService getISBNDBApisRestService() {
+		return INSTANCE.getService(ISBNDBApisRestService.class);
+	}
 
 	// ******************************
 	// Common to all Retrofit factory
 	// ******************************
-	private static Gson gson;
+	private static Gson                 gson;
 	private static GsonConverterFactory gsonConverterFactory;
-
-	public static void init() {
-		if (gson == null) {
-			gson = new GsonBuilder()
-					.setDateFormat("yyyy-MM-dd\\'T\\'HH:mm:ss")
-					.create();
-
-			gsonConverterFactory = GsonConverterFactory.create(gson);
-		}
-	}
-
-	public static String toJson(Object src) {
-		return gson.toJson(src);
-	}
-
-	public static <T> T fromJson(String json, Class<T> classOfT) {
-		return gson.fromJson(json, classOfT);
-	}
 
 	// ******************************
 	// Specific to each Retrofit Factory
@@ -52,16 +46,23 @@ public class DefaultRestServiceFactory {
 
 	private Retrofit retrofit;
 
-	protected DefaultRestServiceFactory(String baseUrl) {
-		init();
+	private RestServiceFactory() {
+		if (gson == null) {
+			gson = new GsonBuilder()
+					.setDateFormat("yyyy-MM-dd\\'T\\'HH:mm:ss")
+					.create();
+
+			gsonConverterFactory = GsonConverterFactory.create(gson);
+		}
+
 		retrofit = new Retrofit.Builder()
-				.baseUrl(baseUrl)
+				.baseUrl("http://www.frogdevelopment.fr")
 				.addConverterFactory(gsonConverterFactory)
 				.client(getClientBuilder().build())
 				.build();
 	}
 
-	public <T> T getService(Class<T> clazz) {
+	private <T> T getService(Class<T> clazz) {
 		return retrofit.create(clazz);
 	}
 

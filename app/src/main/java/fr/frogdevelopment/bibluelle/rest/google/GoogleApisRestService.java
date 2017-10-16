@@ -6,6 +6,6 @@ import retrofit2.http.Query;
 
 public interface GoogleApisRestService {
 
-	@GET("/books/v1/volumes")
+	@GET("https://www.googleapis.com/books/v1/volumes")
 	Call<GoogleBooks> getBooks(@Query("q") String parameter);
 }
