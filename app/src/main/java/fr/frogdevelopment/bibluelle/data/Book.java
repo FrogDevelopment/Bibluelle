@@ -7,6 +7,7 @@ public class Book implements Serializable {
 	private String title;
 	private String author;
 	private String isbn;
+	private String thumbnail;
 
 	public String getTitle() {
 		return title;
@@ -30,5 +31,13 @@ public class Book implements Serializable {
 
 	public void setIsbn(String isbn) {
 		this.isbn = isbn;
+	}
+
+	public String getThumbnail() {
+		return thumbnail;
+	}
+
+	public void setThumbnail(String thumbnail) {
+		this.thumbnail = thumbnail.replaceAll("&edge=curl","");
 	}
 }

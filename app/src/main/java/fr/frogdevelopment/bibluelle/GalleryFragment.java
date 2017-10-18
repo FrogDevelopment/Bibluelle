@@ -8,9 +8,11 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.azoft.carousellayoutmanager.CenterScrollListener;
+import com.bumptech.glide.Glide;
 
 import java.util.ArrayList;
 
@@ -47,12 +49,14 @@ public class GalleryFragment extends Fragment {
 	public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.ViewHolder> {
 
 		public class ViewHolder extends RecyclerView.ViewHolder {
+			public final ImageView mThumbnail;
 			public final TextView mTitle;
 			public final TextView mAuthor;
 
 			public ViewHolder(View itemView) {
 				super(itemView);
 
+				mThumbnail = itemView.findViewById(R.id.item_thumbnail);
 				mTitle = itemView.findViewById(R.id.item_title);
 				mAuthor = itemView.findViewById(R.id.item_author);
 			}
@@ -85,6 +89,11 @@ public class GalleryFragment extends Fragment {
 			// Set item views based on your views and data model
 			viewHolder.mTitle.setText(contact.getTitle());
 			viewHolder.mAuthor.setText(contact.getAuthor());
+
+
+			Glide.with(viewHolder.itemView.getContext())
+					.load(contact.getThumbnail())
+					.into(viewHolder.mThumbnail);
 		}
 
 		// Returns the total count of items in the list

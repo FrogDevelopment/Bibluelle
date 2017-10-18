@@ -1,8 +1,9 @@
 package fr.frogdevelopment.bibluelle.rest.google;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class VolumeInfo {
+public class VolumeInfo implements Serializable {
 
 	private String title;
 	private String subtitle;
@@ -10,6 +11,7 @@ public class VolumeInfo {
 	private String publisher;
 	private String publishedDate;
 	private String description;
+	private ImageLinks imageLinks;
 
 	public String getTitle() {
 		return title;
@@ -57,5 +59,13 @@ public class VolumeInfo {
 
 	public void setDescription(String description) {
 		this.description = description;
+	}
+
+	public ImageLinks getImageLinks() {
+		return imageLinks;
+	}
+
+	public void setImageLinks(ImageLinks imageLinks) {
+		this.imageLinks = imageLinks;
 	}
 }

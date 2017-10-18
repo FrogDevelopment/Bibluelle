@@ -26,6 +26,7 @@ import fr.frogdevelopment.bibluelle.rest.RestServiceFactory;
 import fr.frogdevelopment.bibluelle.rest.google.GoogleApisRestService;
 import fr.frogdevelopment.bibluelle.rest.google.GoogleBook;
 import fr.frogdevelopment.bibluelle.rest.google.GoogleBooks;
+import fr.frogdevelopment.bibluelle.rest.google.VolumeInfo;
 import fr.frogdevelopment.bibluelle.rest.isbndb.ISBNDBApisRestService;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -35,11 +36,11 @@ public class SearchFragment extends Fragment {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(SearchFragment.class);
 
-	private TextInputEditText     searchByTitle;
-	private TextInputEditText     searchByAuthor;
-	private TextInputEditText     searchByPublisher;
-	private TextInputEditText     searchByIsbn;
-	private ImageButton           searchScan;
+	private TextInputEditText searchByTitle;
+	private TextInputEditText searchByAuthor;
+	private TextInputEditText searchByPublisher;
+	private TextInputEditText searchByIsbn;
+	private ImageButton searchScan;
 	private GoogleApisRestService mGoogleApisRestService;
 	private ISBNDBApisRestService mIsbnDbApisRestService;
 
@@ -106,7 +107,10 @@ public class SearchFragment extends Fragment {
 
 		if (!parameters.isEmpty()) {
 			String urlParameters = TextUtils.join("+", parameters);
-			mGoogleApisRestService.getBooks(urlParameters).enqueue(new Callback<GoogleBooks>() {
+
+			String fields = "kind,totalItems,items/volumeInfo(title,subtitle,authors,publisher,publishedDate,description,imageLinks)";
+
+			mGoogleApisRestService.getBooks(urlParameters, fields, 40, "books", "en,fr").enqueue(new Callback<GoogleBooks>() {
 				@Override
 				public void onResponse(@NonNull Call<GoogleBooks> call, @NonNull Response<GoogleBooks> response) {
 					if (response.code() == HttpURLConnection.HTTP_OK) {
@@ -115,8 +119,12 @@ public class SearchFragment extends Fragment {
 						ArrayList<Book> books = new ArrayList<>();
 						for (GoogleBook googleBook : googleBooks.getItems()) {
 							Book book = new Book();
-							book.setTitle(googleBook.getVolumeInfo().getTitle());
-							book.setAuthor(googleBook.getVolumeInfo().getAuthors().toString());
+							VolumeInfo volumeInfo = googleBook.getVolumeInfo();
+							book.setTitle(volumeInfo.getTitle());
+							book.setAuthor(volumeInfo.getAuthors().toString());
+							if (volumeInfo.getImageLinks() != null) {
+								book.setThumbnail(volumeInfo.getImageLinks().getSmallThumbnail());
+							}
 
 							books.add(book);
 						}

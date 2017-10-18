@@ -33,6 +33,7 @@
             android:id="@+id/search_by_title"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:fontFamily="casual"
             android:hint="Title"
             android:imeOptions="actionNext"
             android:inputType="textAutoCorrect"/>
@@ -55,6 +56,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Author"
+            android:fontFamily="casual"
+            android:text="Brandon Sanderson"
             android:imeOptions="actionNext"
             android:inputType="textAutoCorrect"/>
 
@@ -76,6 +79,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Publisher"
+            android:fontFamily="casual"
             android:imeOptions="actionNext"
             android:inputType="textAutoCorrect"/>
     </android.support.design.widget.TextInputLayout>
@@ -96,6 +100,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="ISBN"
+            android:fontFamily="casual"
             android:imeOptions="actionSearch"
             android:inputType="number"/>
     </android.support.design.widget.TextInputLayout>
