@@ -55,11 +55,11 @@
             android:id="@+id/search_by_author"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Author"
             android:fontFamily="casual"
-            android:text="Brandon Sanderson"
+            android:hint="Author"
             android:imeOptions="actionNext"
-            android:inputType="textAutoCorrect"/>
+            android:inputType="textAutoCorrect"
+            android:text="Brandon Sanderson"/>
 
     </android.support.design.widget.TextInputLayout>
 
@@ -78,8 +78,8 @@
             android:id="@+id/search_by_publisher"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Publisher"
             android:fontFamily="casual"
+            android:hint="Publisher"
             android:imeOptions="actionNext"
             android:inputType="textAutoCorrect"/>
     </android.support.design.widget.TextInputLayout>
@@ -99,8 +99,8 @@
             android:id="@+id/search_by_isbn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="ISBN"
             android:fontFamily="casual"
+            android:hint="ISBN"
             android:imeOptions="actionSearch"
             android:inputType="number"/>
     </android.support.design.widget.TextInputLayout>
@@ -124,6 +124,16 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:text="Search"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/search_textInputLayout_isbn"/>
+
+    <ProgressBar
+        android:id="@+id/search_progress"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

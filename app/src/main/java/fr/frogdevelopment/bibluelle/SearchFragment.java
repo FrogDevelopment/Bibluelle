@@ -10,7 +10,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageButton;
 
 import com.google.gson.JsonObject;
 
@@ -40,9 +39,10 @@ public class SearchFragment extends Fragment {
 	private TextInputEditText searchByAuthor;
 	private TextInputEditText searchByPublisher;
 	private TextInputEditText searchByIsbn;
-	private ImageButton searchScan;
 	private GoogleApisRestService mGoogleApisRestService;
 	private ISBNDBApisRestService mIsbnDbApisRestService;
+	private Button searchButton;
+	private View progress;
 
 	public SearchFragment() {
 		// Required empty public constructor
@@ -62,16 +62,16 @@ public class SearchFragment extends Fragment {
 		searchByAuthor = view.findViewById(R.id.search_by_author);
 		searchByPublisher = view.findViewById(R.id.search_by_publisher);
 		searchByIsbn = view.findViewById(R.id.search_by_isbn);
-		searchScan = view.findViewById(R.id.search_scan);
-		searchScan.setOnClickListener(v ->
+		view.findViewById(R.id.search_scan).setOnClickListener(v ->
 				getFragmentManager()
 						.beginTransaction()
 						.replace(R.id.content_frame, new ScanFragment(), "SCAN")
 						.addToBackStack(null)
 						.commit()
 		);
-		Button searchButton = view.findViewById(R.id.search_button);
+		searchButton = view.findViewById(R.id.search_button);
 		searchButton.setOnClickListener(v -> onSearch());
+		progress = view.findViewById(R.id.search_progress);
 
 		mGoogleApisRestService = RestServiceFactory.getGoogleApisRestService();
 		mIsbnDbApisRestService = RestServiceFactory.getISBNDBApisRestService();
@@ -82,6 +82,9 @@ public class SearchFragment extends Fragment {
 		String author = searchByAuthor.getText().toString();
 		String publisher = searchByPublisher.getText().toString();
 		String isbn = searchByIsbn.getText().toString();
+
+		searchButton.setVisibility(View.GONE);
+		progress.setVisibility(View.VISIBLE);
 
 		// GOOGLE API
 		callGoogleApi(title, author, publisher, isbn);
@@ -140,12 +143,19 @@ public class SearchFragment extends Fragment {
 								.replace(R.id.content_frame, fragment, tag)
 								.addToBackStack(null)
 								.commit();
+
+					} else {
+						// fixme
+						progress.setVisibility(View.GONE);
+						searchButton.setVisibility(View.VISIBLE);
 					}
 				}
 
 				@Override
 				public void onFailure(@NonNull Call<GoogleBooks> call, @NonNull Throwable t) {
 					LOGGER.error("", t);
+					progress.setVisibility(View.GONE);
+					searchButton.setVisibility(View.VISIBLE);
 				}
 			});
 		}
