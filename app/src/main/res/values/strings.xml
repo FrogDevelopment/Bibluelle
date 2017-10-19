@@ -7,6 +7,5 @@
     <string name="title_search">Search</string>
     <string name="title_manage">manage</string>
     <string name="title_book_list">Books</string>
-    <string name="title_book_detail">Book Detail</string>
 
 </resources>

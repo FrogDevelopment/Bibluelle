@@ -7,8 +7,11 @@ public class Book implements Serializable {
 	private Origin origin;
 	private String title;
 	private String author;
+	private String publisher;
+	private String publishedDate;
 	private String isbn;
 	private String thumbnail;
+	private String image;
 	private String description;
 
 	public Origin getOrigin() {
@@ -35,6 +38,22 @@ public class Book implements Serializable {
 		this.author = author;
 	}
 
+	public String getPublisher() {
+		return publisher;
+	}
+
+	public void setPublisher(String publisher) {
+		this.publisher = publisher;
+	}
+
+	public String getPublishedDate() {
+		return publishedDate;
+	}
+
+	public void setPublishedDate(String publishedDate) {
+		this.publishedDate = publishedDate;
+	}
+
 	public String getIsbn() {
 		return isbn;
 	}
@@ -48,7 +67,23 @@ public class Book implements Serializable {
 	}
 
 	public void setThumbnail(String thumbnail) {
-		this.thumbnail = thumbnail.replaceAll("&edge=curl","");
+		if (thumbnail != null) {
+			this.thumbnail = thumbnail.replaceAll("&edge=curl", "");
+		} else {
+			this.thumbnail = null;
+		}
+	}
+
+	public String getImage() {
+		return image;
+	}
+
+	public void setImage(String image) {
+		if (image != null) {
+			this.image = image.replaceAll("&edge=curl", "");
+		} else {
+			this.image = null;
+		}
 	}
 
 	public String getDescription() {

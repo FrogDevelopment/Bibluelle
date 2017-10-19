@@ -138,8 +138,11 @@ public class SearchFragment extends Fragment {
 								VolumeInfo volumeInfo = googleBook.getVolumeInfo();
 								book.setTitle(volumeInfo.getTitle());
 								book.setAuthor(volumeInfo.getAuthors().toString());
+								book.setPublisher(volumeInfo.getPublisher());
+								book.setPublishedDate(volumeInfo.getPublishedDate());
 								if (volumeInfo.getImageLinks() != null) {
-									book.setThumbnail(volumeInfo.getImageLinks().getSmallThumbnail());
+									book.setThumbnail(volumeInfo.getImageLinks().getThumbnail());
+									book.setImage(volumeInfo.getImageLinks().getMedium());
 								}
 								book.setDescription(volumeInfo.getDescription());
 
@@ -164,9 +167,9 @@ public class SearchFragment extends Fragment {
 
 				@Override
 				public void onFailure(@NonNull Call<GoogleBooks> call, @NonNull Throwable t) {
-					Toast.makeText(getActivity(), "Failure : " + t.getMessage(), Toast.LENGTH_LONG).show();
-					LOGGER.error("", t);
 					showLoading(false);
+					LOGGER.error("", t);
+					Toast.makeText(getActivity(), "Failure : " + t.getMessage(), Toast.LENGTH_LONG).show();
 				}
 			});
 		}
