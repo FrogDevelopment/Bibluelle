@@ -49,17 +49,14 @@ public class MainActivity extends AppCompatActivity {
 		if (mNavigationView.getSelectedItemId() == R.id.navigation_dashboard) {
 			if (doubleBackToExitPressedOnce) {
 				super.onBackPressed();
-				return;
 			} else {
 				this.doubleBackToExitPressedOnce = true;
 				Toast.makeText(this, "R.string.exit_press_back_twice_message", Toast.LENGTH_SHORT).show();
-				return;
 			}
 		} else {
+			this.doubleBackToExitPressedOnce =  false;
 			mNavigationView.setSelectedItemId(R.id.navigation_dashboard);
 		}
-
-		super.onBackPressed();
 	}
 
 	private boolean switchFragment(int itemId) {
