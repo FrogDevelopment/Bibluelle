@@ -4,10 +4,20 @@ import java.io.Serializable;
 
 public class Book implements Serializable {
 
+	private Origin origin;
 	private String title;
 	private String author;
 	private String isbn;
 	private String thumbnail;
+	private String description;
+
+	public Origin getOrigin() {
+		return origin;
+	}
+
+	public void setOrigin(Origin origin) {
+		this.origin = origin;
+	}
 
 	public String getTitle() {
 		return title;
@@ -39,5 +49,13 @@ public class Book implements Serializable {
 
 	public void setThumbnail(String thumbnail) {
 		this.thumbnail = thumbnail.replaceAll("&edge=curl","");
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
 	}
 }

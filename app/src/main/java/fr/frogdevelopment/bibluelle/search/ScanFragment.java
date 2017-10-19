@@ -1,4 +1,4 @@
-package fr.frogdevelopment.bibluelle;
+package fr.frogdevelopment.bibluelle.search;
 
 import android.Manifest;
 import android.app.Fragment;

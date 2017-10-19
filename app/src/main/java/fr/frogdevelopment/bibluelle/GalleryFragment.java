@@ -41,12 +41,12 @@ public class GalleryFragment extends Fragment {
 		Bundle arguments = getArguments();
 		ArrayList<Book> books = (ArrayList<Book>) arguments.getSerializable("books");
 
-		recyclerView.setAdapter(new ContactsAdapter(books));
+		recyclerView.setAdapter(new BooksAdapter(books));
 
 		// tester aussi https://github.com/GoodieBag/CarouselPicker
 	}
 
-	public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.ViewHolder> {
+	public class BooksAdapter extends RecyclerView.Adapter<BooksAdapter.ViewHolder> {
 
 		public class ViewHolder extends RecyclerView.ViewHolder {
 			public final ImageView mThumbnail;
@@ -66,12 +66,12 @@ public class GalleryFragment extends Fragment {
 		private final ArrayList<Book> book;
 
 		// Pass in the contact array into the constructor
-		public ContactsAdapter(ArrayList<Book> books) {
+		public BooksAdapter(ArrayList<Book> books) {
 			book = books;
 		}
 
 		@Override
-		public ContactsAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+		public BooksAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 			LayoutInflater inflater = LayoutInflater.from(parent.getContext());
 
 			// Inflate the custom layout
@@ -82,7 +82,7 @@ public class GalleryFragment extends Fragment {
 		}
 
 		@Override
-		public void onBindViewHolder(ContactsAdapter.ViewHolder viewHolder, int position) {
+		public void onBindViewHolder(BooksAdapter.ViewHolder viewHolder, int position) {
 			// Get the data model based on position
 			Book contact = book.get(position);
 

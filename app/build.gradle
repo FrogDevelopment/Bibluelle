@@ -25,7 +25,6 @@ android {
 }
 
 dependencies {
-    implementation 'com.android.support:support-v4:26.1.0'
     testImplementation 'junit:junit:4.12'
 
     androidTestImplementation('com.android.support.test.espresso:espresso-core:3.0.1', {
@@ -33,6 +32,8 @@ dependencies {
     })
 
 //    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'com.android.support:support-v4:26.1.0'
+    implementation 'com.android.support:recyclerview-v7:26.1.0'
     implementation 'com.android.support:appcompat-v7:26.1.0'
     implementation 'com.android.support.constraint:constraint-layout:1.0.2'
     implementation 'com.android.support:design:26.1.0'
@@ -42,19 +43,19 @@ dependencies {
     implementation 'me.dm7.barcodescanner:zxing:1.9.8'
 
     //   Retrofit
-    compile 'com.squareup.retrofit2:retrofit:2.3.0'
-    compile 'com.squareup.retrofit2:converter-gson:2.3.0'
+    implementation 'com.squareup.retrofit2:retrofit:2.3.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.3.0'
 
     // LOG https://github.com/tony19/logback-android
-    compile 'org.slf4j:slf4j-api:1.7.25'
-    compile 'com.github.tony19:logback-android-core:1.1.1-6'
-    compile('com.github.tony19:logback-android-classic:1.1.1-6') {
+    implementation 'org.slf4j:slf4j-api:1.7.25'
+    implementation 'com.github.tony19:logback-android-core:1.1.1-6'
+    implementation('com.github.tony19:logback-android-classic:1.1.1-6') {
         // workaround issue #73
         exclude group: 'com.google.android', module: 'android'
     }
 
     // image
-    compile ("com.github.bumptech.glide:recyclerview-integration:4.2.0") /*{
+    implementation("com.github.bumptech.glide:recyclerview-integration:4.2.0") /*{
         // Excludes the support library because it's already included by Glide.
         transitive = false
     }*/

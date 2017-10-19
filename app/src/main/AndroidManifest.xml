@@ -21,6 +21,24 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+        <activity
+            android:name=".search.BookListActivity"
+            android:label="@string/title_book_list"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="fr.frogdevelopment.bibluelle.MainActivity"/>
+        </activity>
+        <activity
+            android:name=".search.BookDetailActivity"
+            android:label="@string/title_book_detail"
+            android:parentActivityName=".search.BookListActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="fr.frogdevelopment.bibluelle.search.BookListActivity"/>
+        </activity>
     </application>
 
 </manifest>

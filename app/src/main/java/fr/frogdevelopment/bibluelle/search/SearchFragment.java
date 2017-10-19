@@ -1,6 +1,7 @@
-package fr.frogdevelopment.bibluelle;
+package fr.frogdevelopment.bibluelle.search;
 
 import android.app.Fragment;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -10,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.google.gson.JsonObject;
 
@@ -20,7 +22,9 @@ import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
+import fr.frogdevelopment.bibluelle.R;
 import fr.frogdevelopment.bibluelle.data.Book;
+import fr.frogdevelopment.bibluelle.data.Origin;
 import fr.frogdevelopment.bibluelle.rest.RestServiceFactory;
 import fr.frogdevelopment.bibluelle.rest.google.GoogleApisRestService;
 import fr.frogdevelopment.bibluelle.rest.google.GoogleBook;
@@ -75,6 +79,13 @@ public class SearchFragment extends Fragment {
 
 		mGoogleApisRestService = RestServiceFactory.getGoogleApisRestService();
 		mIsbnDbApisRestService = RestServiceFactory.getISBNDBApisRestService();
+
+		showLoading(false);
+	}
+
+	private void showLoading(boolean show) {
+		progress.setVisibility(show ? View.VISIBLE : View.GONE);
+		searchButton.setVisibility(show ? View.GONE : View.VISIBLE);
 	}
 
 	private void onSearch() {
@@ -83,8 +94,7 @@ public class SearchFragment extends Fragment {
 		String publisher = searchByPublisher.getText().toString();
 		String isbn = searchByIsbn.getText().toString();
 
-		searchButton.setVisibility(View.GONE);
-		progress.setVisibility(View.VISIBLE);
+		showLoading(true);
 
 		// GOOGLE API
 		callGoogleApi(title, author, publisher, isbn);
@@ -119,43 +129,44 @@ public class SearchFragment extends Fragment {
 					if (response.code() == HttpURLConnection.HTTP_OK) {
 						GoogleBooks googleBooks = response.body();
 
-						ArrayList<Book> books = new ArrayList<>();
-						for (GoogleBook googleBook : googleBooks.getItems()) {
-							Book book = new Book();
-							VolumeInfo volumeInfo = googleBook.getVolumeInfo();
-							book.setTitle(volumeInfo.getTitle());
-							book.setAuthor(volumeInfo.getAuthors().toString());
-							if (volumeInfo.getImageLinks() != null) {
-								book.setThumbnail(volumeInfo.getImageLinks().getSmallThumbnail());
+						if (googleBooks != null) {
+
+							ArrayList<Book> books = new ArrayList<>();
+							for (GoogleBook googleBook : googleBooks.getItems()) {
+								Book book = new Book();
+								book.setOrigin(Origin.GOOGLE);
+								VolumeInfo volumeInfo = googleBook.getVolumeInfo();
+								book.setTitle(volumeInfo.getTitle());
+								book.setAuthor(volumeInfo.getAuthors().toString());
+								if (volumeInfo.getImageLinks() != null) {
+									book.setThumbnail(volumeInfo.getImageLinks().getSmallThumbnail());
+								}
+								book.setDescription(volumeInfo.getDescription());
+
+								books.add(book);
 							}
 
-							books.add(book);
+							Intent intent = new Intent(getActivity(), BookListActivity.class);
+							intent.putExtra("books", books);
+
+							startActivity(intent);
+						} else {
+							// fixme
+							Toast.makeText(getActivity(), "No data", Toast.LENGTH_LONG).show();
+							showLoading(false);
 						}
-
-						Bundle args = new Bundle();
-						args.putSerializable("books", books);
-
-						Fragment fragment = new GalleryFragment();
-						fragment.setArguments(args);
-
-						String tag = "GALLERY_FRAGMENT";
-						getFragmentManager().beginTransaction()
-								.replace(R.id.content_frame, fragment, tag)
-								.addToBackStack(null)
-								.commit();
-
 					} else {
 						// fixme
-						progress.setVisibility(View.GONE);
-						searchButton.setVisibility(View.VISIBLE);
+						Toast.makeText(getActivity(), "Error code : " + response.code(), Toast.LENGTH_LONG).show();
+						showLoading(false);
 					}
 				}
 
 				@Override
 				public void onFailure(@NonNull Call<GoogleBooks> call, @NonNull Throwable t) {
+					Toast.makeText(getActivity(), "Failure : " + t.getMessage(), Toast.LENGTH_LONG).show();
 					LOGGER.error("", t);
-					progress.setVisibility(View.GONE);
-					searchButton.setVisibility(View.VISIBLE);
+					showLoading(false);
 				}
 			});
 		}
@@ -192,5 +203,7 @@ public class SearchFragment extends Fragment {
 		if (!TextUtils.isEmpty(isbn)) {
 			searchByIsbn.setText(isbn);
 		}
+
+		showLoading(false);
 	}
 }
