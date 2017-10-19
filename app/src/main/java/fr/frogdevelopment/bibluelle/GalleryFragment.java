@@ -38,8 +38,8 @@ public class GalleryFragment extends Fragment {
 		recyclerView.setHasFixedSize(true);
 		recyclerView.addOnScrollListener(new CenterScrollListener());
 
-		Bundle arguments = getArguments();
-		ArrayList<Book> books = (ArrayList<Book>) arguments.getSerializable("books");
+		// fixme get from provider
+		ArrayList<Book> books = new ArrayList<>();
 
 		recyclerView.setAdapter(new BooksAdapter(books));
 
