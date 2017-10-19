@@ -137,7 +137,9 @@ public class SearchFragment extends Fragment {
 								book.setOrigin(Origin.GOOGLE);
 								VolumeInfo volumeInfo = googleBook.getVolumeInfo();
 								book.setTitle(volumeInfo.getTitle());
-								book.setAuthor(volumeInfo.getAuthors().toString());
+								if (volumeInfo.getAuthors() != null) {
+									book.setAuthor(TextUtils.join(",", volumeInfo.getAuthors()));
+								}
 								book.setPublisher(volumeInfo.getPublisher());
 								book.setPublishedDate(volumeInfo.getPublishedDate());
 								if (volumeInfo.getImageLinks() != null) {

@@ -21,6 +21,7 @@ import java.util.List;
 
 import fr.frogdevelopment.bibluelle.R;
 import fr.frogdevelopment.bibluelle.data.Book;
+import fr.frogdevelopment.bibluelle.data.Origin;
 
 /**
  * An activity representing a list of Books. This activity
@@ -123,27 +124,15 @@ public class BookListActivity extends AppCompatActivity {
 		@Override
 		public void onBindViewHolder(final ViewHolder viewHolder, int position) {
 			// Get the data model based on position
-			Book contact = mBooks.get(position);
+			Book book = mBooks.get(position);
 
 			// Set item views based on your views and data model
 			Glide.with(viewHolder.itemView.getContext())
-					.load(contact.getThumbnail())
+					.load(book.getThumbnail())
 					.into(viewHolder.mThumbnail);
-			viewHolder.mTitle.setText(contact.getTitle());
-			viewHolder.mAuthor.setText(contact.getAuthor());
-
-			switch (contact.getOrigin()) {
-				case GOOGLE:
-					viewHolder.mOrigin.setImageResource(R.drawable.ic_google);
-					break;
-				case AMAZON:
-					viewHolder.mOrigin.setImageResource(R.drawable.ic_amazon);
-					break;
-				default:
-					viewHolder.mOrigin.setImageResource(-1);
-					break;
-			}
-
+			viewHolder.mTitle.setText(book.getTitle());
+			viewHolder.mAuthor.setText(book.getAuthor());
+			viewHolder.mOrigin.setImageResource(Origin.getResource(book.getOrigin()));
 			viewHolder.itemView.setTag(mBooks.get(position));
 			viewHolder.itemView.setOnClickListener(mOnClickListener);
 		}

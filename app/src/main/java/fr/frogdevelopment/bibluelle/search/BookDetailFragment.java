@@ -12,21 +12,13 @@ import android.widget.TextView;
 import fr.frogdevelopment.bibluelle.GlideApp;
 import fr.frogdevelopment.bibluelle.R;
 import fr.frogdevelopment.bibluelle.data.Book;
+import fr.frogdevelopment.bibluelle.data.Origin;
 
-/**
- * A fragment representing a single Book detail screen.
- * This fragment is either contained in a {@link BookListActivity}
- * in two-pane mode (on tablets) or a {@link BookDetailActivity}
- * on handsets.
- */
 public class BookDetailFragment extends Fragment {
 
 	public static final String ARG_KEY = "book";
 
 	private Book mBook;
-
-	public BookDetailFragment() {
-	}
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -46,22 +38,27 @@ public class BookDetailFragment extends Fragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View rootView = inflater.inflate(R.layout.book_detail, container, false);
 
-		ImageView background = rootView.findViewById(R.id.detail_background);
-		GlideApp.with(this)
-				.load(mBook.getThumbnail())
-				.into(background);
+		if (mBook != null) {
+			ImageView background = rootView.findViewById(R.id.detail_background);
+			GlideApp.with(this)
+					.load(mBook.getThumbnail())
+					.into(background);
 
-		TextView author = rootView.findViewById(R.id.detail_author);
-		author.setText(mBook.getAuthor());
+			ImageView origin = rootView.findViewById(R.id.detail_origin);
+			origin.setImageResource(Origin.getResource(mBook.getOrigin()));
 
-		TextView publisher = rootView.findViewById(R.id.detail_publisher);
-		publisher.setText(mBook.getPublisher());
+			TextView author = rootView.findViewById(R.id.detail_author);
+			author.setText(mBook.getAuthor());
 
-		TextView publishedDate = rootView.findViewById(R.id.detail_published_date);
-		publishedDate.setText(mBook.getPublishedDate());
+			TextView publisher = rootView.findViewById(R.id.detail_publisher);
+			publisher.setText(mBook.getPublisher());
 
-		TextView description = rootView.findViewById(R.id.book_description);
-		description.setText(mBook.getDescription());
+			TextView publishedDate = rootView.findViewById(R.id.detail_published_date);
+			publishedDate.setText(mBook.getPublishedDate());
+
+			TextView description = rootView.findViewById(R.id.book_description);
+			description.setText(mBook.getDescription());
+		}
 
 		return rootView;
 	}
