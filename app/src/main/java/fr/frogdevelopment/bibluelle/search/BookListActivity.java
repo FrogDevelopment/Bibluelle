@@ -125,7 +125,8 @@ public class BookListActivity extends AppCompatActivity {
 		});
 	}
 
-	private void callGoogleApi(int startIndex) {
+	private void callGoogleApi(int page) {
+		int startIndex = page * GoogleRestService.MAX_RESULTS;
 		mSpinner.setVisibility(View.VISIBLE);
 		mGoogleRestService.getBooks(mUrlParameters, GoogleRestService.FIELDS, startIndex, GoogleRestService.MAX_RESULTS, GoogleRestService.PRINT_TYPE, "en,fr").enqueue(new Callback<GoogleBooks>() {
 			@Override
@@ -136,30 +137,34 @@ public class BookListActivity extends AppCompatActivity {
 
 					if (googleBooks != null && googleBooks.getTotalItems() > 0) {
 						ArrayList<Book> books = new ArrayList<>();
-						for (GoogleBook googleBook : googleBooks.getItems()) {
-							Book book = new Book();
-							VolumeInfo volumeInfo = googleBook.getVolumeInfo();
-							book.setTitle(volumeInfo.getTitle());
-							if (volumeInfo.getAuthors() != null) {
-								book.setAuthor(TextUtils.join(",", volumeInfo.getAuthors()));
-							}
-							book.setPublisher(volumeInfo.getPublisher());
-							book.setPublishedDate(volumeInfo.getPublishedDate());
-							if (volumeInfo.getImageLinks() != null) {
-								book.setThumbnail(volumeInfo.getImageLinks().getThumbnail());
-								book.setImage(volumeInfo.getImageLinks().getMedium());
-							}
-							book.setDescription(volumeInfo.getDescription());
+						if (googleBooks.getItems() != null) {
+							for (GoogleBook googleBook : googleBooks.getItems()) {
+								Book book = new Book();
+								VolumeInfo volumeInfo = googleBook.getVolumeInfo();
+								book.setTitle(volumeInfo.getTitle());
+								if (volumeInfo.getAuthors() != null) {
+									book.setAuthor(TextUtils.join(",", volumeInfo.getAuthors()));
+								}
+								book.setPublisher(volumeInfo.getPublisher());
+								book.setPublishedDate(volumeInfo.getPublishedDate());
+								if (volumeInfo.getImageLinks() != null) {
+									book.setThumbnail(volumeInfo.getImageLinks().getThumbnail());
+									book.setImage(volumeInfo.getImageLinks().getMedium());
+								}
+								book.setDescription(volumeInfo.getDescription());
 
-							books.add(book);
-						}
+								books.add(book);
+							}
 
-						if (startIndex == 0 && books.size() == 1) {
-							showDetails(books.get(0));
+							if (startIndex == 0 && books.size() == 1) {
+								showDetails(books.get(0));
+							} else {
+								mAdapter.addBooks(books);
+							}
 						} else {
-							mAdapter.addBooks(books);
+							// fixme
+							Toast.makeText(BookListActivity.this, "No data", Toast.LENGTH_LONG).show();
 						}
-
 					} else {
 						// fixme
 						Toast.makeText(BookListActivity.this, "No data", Toast.LENGTH_LONG).show();
