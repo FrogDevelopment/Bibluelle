@@ -194,20 +194,73 @@ public class BookListActivity extends AppCompatActivity {
 	}
 
 	private void showDetails(Book book) {
-		if (mTwoPane) {
-			Bundle arguments = new Bundle();
-			arguments.putSerializable(BookDetailFragment.ARG_KEY, book.getIsbn());
-			BookDetailFragment fragment = new BookDetailFragment();
-			fragment.setArguments(arguments);
-			getSupportFragmentManager().beginTransaction()
-					.replace(R.id.book_detail_container, fragment)
-					.commit();
-		} else {
-			Intent intent = new Intent(getApplication(), BookDetailActivity.class);
-			intent.putExtra(BookDetailFragment.ARG_KEY, book.getIsbn());
+		mSpinner.setVisibility(View.VISIBLE);
+		// https://www.googleapis.com/books/v1/volumes?q=isbn:9781473209367&fields=kind,totalItems,items/volumeInfo(title,subtitle,authors,publisher,publishedDate,description,imageLinks,pageCount,categories)
+		mGoogleRestService.getDetailForBook("isbn:" + book.getIsbn(), GoogleRestService.DETAIL_FIELDS).enqueue(new Callback<GoogleBooks>() {
+			@Override
+			public void onResponse(@NonNull Call<GoogleBooks> call, @NonNull Response<GoogleBooks> response) {
+				mSpinner.setVisibility(View.GONE);
+				if (response.code() == HttpURLConnection.HTTP_OK) {
+					GoogleBooks googleBooks = response.body();
 
-			startActivity(intent);
-		}
+					if (googleBooks != null && googleBooks.getTotalItems() > 0) {
+						if (googleBooks.getItems() != null) {
+							GoogleBook googleBook = googleBooks.getItems().get(0);
+							VolumeInfo volumeInfo = googleBook.getVolumeInfo();
+
+							Book book = new Book();
+							book.setTitle(volumeInfo.getTitle());
+							// todo set subTitle
+//							book.se
+							//https://books.google.com/books/content/images/frontcover/3Cjz7DKv74MC?fife=w200-rw
+							String image = String.format("https://books.google.com/books/content/images/frontcover/%s?fife=w200-rw", googleBook.getId());
+							book.setImage(image);
+
+							if (volumeInfo.getAuthors() != null) {
+								book.setAuthor(TextUtils.join(",", volumeInfo.getAuthors()));
+							}
+							book.setPublisher(volumeInfo.getPublisher());
+							book.setPublishedDate(volumeInfo.getPublishedDate());
+							book.setDescription(volumeInfo.getDescription());
+
+							// todo set pageCount
+//							book.seP
+							// todo set categories
+//							book.seP
+
+
+							if (mTwoPane) {
+								Bundle arguments = new Bundle();
+								arguments.putSerializable(BookDetailFragment.ARG_KEY, book);
+								BookDetailFragment fragment = new BookDetailFragment();
+								fragment.setArguments(arguments);
+								getSupportFragmentManager().beginTransaction()
+										.replace(R.id.book_detail_container, fragment)
+										.commit();
+							} else {
+								Intent intent = new Intent(getApplication(), BookDetailActivity.class);
+								intent.putExtra(BookDetailFragment.ARG_KEY, book);
+
+								startActivity(intent);
+							}
+						} else {
+							// fixme
+							Toast.makeText(BookListActivity.this, "No data", Toast.LENGTH_LONG).show();
+						}
+					} else {
+						// fixme
+						Toast.makeText(BookListActivity.this, "Error code : " + response.code(), Toast.LENGTH_LONG).show();
+					}
+				}
+			}
+
+			@Override
+			public void onFailure(@NonNull Call<GoogleBooks> call, @NonNull Throwable t) {
+				mSpinner.setVisibility(View.GONE);
+				LOGGER.error("", t);
+				Toast.makeText(BookListActivity.this, "Failure : " + t.getMessage(), Toast.LENGTH_LONG).show();
+			}
+		});
 	}
 
 	public static class SimpleItemRecyclerViewAdapter extends RecyclerView.Adapter<SimpleItemRecyclerViewAdapter.ViewHolder> {
