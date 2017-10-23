@@ -12,7 +12,6 @@ import android.widget.TextView;
 import fr.frogdevelopment.bibluelle.GlideApp;
 import fr.frogdevelopment.bibluelle.R;
 import fr.frogdevelopment.bibluelle.data.Book;
-import fr.frogdevelopment.bibluelle.data.Origin;
 
 public class BookDetailFragment extends Fragment {
 
@@ -43,9 +42,6 @@ public class BookDetailFragment extends Fragment {
 			GlideApp.with(this)
 					.load(mBook.getThumbnail())
 					.into(background);
-
-			ImageView origin = rootView.findViewById(R.id.detail_origin);
-			origin.setImageResource(Origin.getResource(mBook.getOrigin()));
 
 			TextView author = rootView.findViewById(R.id.detail_author);
 			author.setText(mBook.getAuthor());

@@ -11,8 +11,6 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
-import fr.frogdevelopment.bibluelle.rest.google.GoogleApisRestService;
-import fr.frogdevelopment.bibluelle.rest.isbndb.ISBNDBApisRestService;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -20,49 +18,34 @@ import okhttp3.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-public class RestServiceFactory {
+public abstract class RestServiceFactory {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(RestServiceFactory.class);
-
-	private static final RestServiceFactory INSTANCE = new RestServiceFactory();
-
-	public static GoogleApisRestService getGoogleApisRestService() {
-		return INSTANCE.getService(GoogleApisRestService.class);
-	}
-
-	public static ISBNDBApisRestService getISBNDBApisRestService() {
-		return INSTANCE.getService(ISBNDBApisRestService.class);
-	}
-
-	// ******************************
-	// Common to all Retrofit factory
-	// ******************************
-	private static Gson                 gson;
-	private static GsonConverterFactory gsonConverterFactory;
 
 	// ******************************
 	// Specific to each Retrofit Factory
 	// ******************************
+	private static final GsonConverterFactory GSON_CONVERTER_FACTORY = buildGsonConverterFactory();
+
+	private static GsonConverterFactory buildGsonConverterFactory() {
+		Gson gson = new GsonBuilder()
+				.setDateFormat("yyyy-MM-dd\\'T\\'HH:mm:ss")
+				.create();
+
+		return GsonConverterFactory.create(gson);
+	}
 
 	private Retrofit retrofit;
 
-	private RestServiceFactory() {
-		if (gson == null) {
-			gson = new GsonBuilder()
-					.setDateFormat("yyyy-MM-dd\\'T\\'HH:mm:ss")
-					.create();
-
-			gsonConverterFactory = GsonConverterFactory.create(gson);
-		}
-
+	protected RestServiceFactory(String baseUrl) {
 		retrofit = new Retrofit.Builder()
-				.baseUrl("http://www.frogdevelopment.fr")
-				.addConverterFactory(gsonConverterFactory)
+				.baseUrl(baseUrl)
+				.addConverterFactory(GSON_CONVERTER_FACTORY)
 				.client(getClientBuilder().build())
 				.build();
 	}
 
-	private <T> T getService(Class<T> clazz) {
+	protected <T> T getService(Class<T> clazz) {
 		return retrofit.create(clazz);
 	}
 

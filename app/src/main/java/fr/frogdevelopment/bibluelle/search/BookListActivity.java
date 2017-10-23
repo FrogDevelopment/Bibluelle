@@ -3,25 +3,38 @@ package fr.frogdevelopment.bibluelle.search;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
+import fr.frogdevelopment.bibluelle.GlideApp;
 import fr.frogdevelopment.bibluelle.R;
 import fr.frogdevelopment.bibluelle.data.Book;
-import fr.frogdevelopment.bibluelle.data.Origin;
+import fr.frogdevelopment.bibluelle.rest.google.GoogleBook;
+import fr.frogdevelopment.bibluelle.rest.google.GoogleBooks;
+import fr.frogdevelopment.bibluelle.rest.google.GoogleRestService;
+import fr.frogdevelopment.bibluelle.rest.google.GoogleRestServiceFactory;
+import fr.frogdevelopment.bibluelle.rest.google.VolumeInfo;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 /**
  * An activity representing a list of Books. This activity
@@ -33,10 +46,20 @@ import fr.frogdevelopment.bibluelle.data.Origin;
  */
 public class BookListActivity extends AppCompatActivity {
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(BookListActivity.class);
+
+	private static final String PRINT_TYPE = "books";
+	private static final int MAX_RESULTS = 40;
+
 	/**
 	 * Whether or not the activity is in two-pane mode, i.e. running on a tablet device.
 	 */
 	private boolean mTwoPane;
+	private RecyclerView mRecyclerView;
+
+	private GoogleRestService mGoogleRestService;
+	private String mUrlParameters;
+	private SimpleItemRecyclerViewAdapter mAdapter;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -61,13 +84,92 @@ public class BookListActivity extends AppCompatActivity {
 			mTwoPane = true;
 		}
 
-		RecyclerView recyclerView = findViewById(R.id.book_list);
-		assert recyclerView != null;
+		mRecyclerView = findViewById(R.id.book_list);
+		mAdapter = new SimpleItemRecyclerViewAdapter(BookListActivity.this, mTwoPane);
+		mRecyclerView.setAdapter(mAdapter);
 
-		ArrayList<Book> books = (ArrayList<Book>) getIntent().getSerializableExtra("books");
-		assert books != null;
+		mGoogleRestService = GoogleRestServiceFactory.getGoogleRestService();
 
-		recyclerView.setAdapter(new SimpleItemRecyclerViewAdapter(this, books, mTwoPane));
+		String title = getIntent().getStringExtra("title");
+		List<String> parameters = new ArrayList<>();
+		if (!TextUtils.isEmpty(title)) {
+			parameters.add("intitle:" + title);
+		}
+
+		String author = getIntent().getStringExtra("author");
+		if (!TextUtils.isEmpty(author)) {
+			parameters.add("inauthor:" + author);
+		}
+
+		String publisher = getIntent().getStringExtra("publisher");
+		if (!TextUtils.isEmpty(publisher)) {
+			parameters.add("inpublisher:" + publisher);
+		}
+
+//		String isbn = getIntent().getStringExtra("isbn");
+//		if (!TextUtils.isEmpty(isbn)) {
+//			parameters.add("isbn:" + isbn);
+//		}
+
+		if (!parameters.isEmpty()) {
+			mUrlParameters = TextUtils.join("+", parameters);
+			callGoogleApi(0);
+		}
+
+		mRecyclerView.addOnScrollListener(new EndlessRecyclerViewScrollListener(mRecyclerView.getLayoutManager()) {
+			@Override
+			public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
+				callGoogleApi(page);
+			}
+		});
+	}
+
+	private void callGoogleApi(int startIndex) {
+		mGoogleRestService.getBooks(mUrlParameters, GoogleRestService.FIELDS, startIndex, MAX_RESULTS, PRINT_TYPE, "en,fr").enqueue(new Callback<GoogleBooks>() {
+			@Override
+			public void onResponse(@NonNull Call<GoogleBooks> call, @NonNull Response<GoogleBooks> response) {
+
+				if (response.code() == HttpURLConnection.HTTP_OK) {
+					GoogleBooks googleBooks = response.body();
+
+					if (googleBooks != null && googleBooks.getTotalItems() > 0) {
+						ArrayList<Book> books = new ArrayList<>();
+						for (GoogleBook googleBook : googleBooks.getItems()) {
+							Book book = new Book();
+							VolumeInfo volumeInfo = googleBook.getVolumeInfo();
+							book.setTitle(volumeInfo.getTitle());
+							if (volumeInfo.getAuthors() != null) {
+								book.setAuthor(TextUtils.join(",", volumeInfo.getAuthors()));
+							}
+							book.setPublisher(volumeInfo.getPublisher());
+							book.setPublishedDate(volumeInfo.getPublishedDate());
+							if (volumeInfo.getImageLinks() != null) {
+								book.setThumbnail(volumeInfo.getImageLinks().getThumbnail());
+								book.setImage(volumeInfo.getImageLinks().getMedium());
+							}
+							book.setDescription(volumeInfo.getDescription());
+
+							books.add(book);
+						}
+
+						mAdapter.addBooks(books);
+
+					} else {
+						// fixme
+						Toast.makeText(BookListActivity.this, "No data", Toast.LENGTH_LONG).show();
+					}
+				} else {
+					// fixme
+					Toast.makeText(BookListActivity.this, "Error code : " + response.code(), Toast.LENGTH_LONG).show();
+				}
+			}
+
+			@Override
+			public void onFailure(@NonNull Call<GoogleBooks> call, @NonNull Throwable t) {
+				LOGGER.error("", t);
+				Toast.makeText(BookListActivity.this, "Failure : " + t.getMessage(), Toast.LENGTH_LONG).show();
+			}
+		});
 	}
 
 	@Override
@@ -83,7 +185,7 @@ public class BookListActivity extends AppCompatActivity {
 	public static class SimpleItemRecyclerViewAdapter extends RecyclerView.Adapter<SimpleItemRecyclerViewAdapter.ViewHolder> {
 
 		private final BookListActivity mParentActivity;
-		private final List<Book> mBooks;
+		private final List<Book> mBooks = new ArrayList<>();
 		private final boolean mTwoPane;
 
 		private final View.OnClickListener mOnClickListener = new View.OnClickListener() {
@@ -109,10 +211,14 @@ public class BookListActivity extends AppCompatActivity {
 			}
 		};
 
-		SimpleItemRecyclerViewAdapter(BookListActivity parent, List<Book> books, boolean twoPane) {
-			mBooks = books;
+		SimpleItemRecyclerViewAdapter(BookListActivity parent, boolean twoPane) {
 			mParentActivity = parent;
 			mTwoPane = twoPane;
+		}
+
+		void addBooks(List<Book> books) {
+			mBooks.addAll(books);
+			notifyDataSetChanged();
 		}
 
 		@Override
@@ -127,12 +233,11 @@ public class BookListActivity extends AppCompatActivity {
 			Book book = mBooks.get(position);
 
 			// Set item views based on your views and data model
-			Glide.with(viewHolder.itemView.getContext())
+			GlideApp.with(mParentActivity)
 					.load(book.getThumbnail())
 					.into(viewHolder.mThumbnail);
 			viewHolder.mTitle.setText(book.getTitle());
 			viewHolder.mAuthor.setText(book.getAuthor());
-			viewHolder.mOrigin.setImageResource(Origin.getResource(book.getOrigin()));
 			viewHolder.itemView.setTag(mBooks.get(position));
 			viewHolder.itemView.setOnClickListener(mOnClickListener);
 		}
@@ -147,7 +252,6 @@ public class BookListActivity extends AppCompatActivity {
 			final ImageView mThumbnail;
 			final TextView mTitle;
 			final TextView mAuthor;
-			final ImageView mOrigin;
 
 			ViewHolder(View itemView) {
 				super(itemView);
@@ -155,7 +259,6 @@ public class BookListActivity extends AppCompatActivity {
 				mThumbnail = itemView.findViewById(R.id.item_thumbnail);
 				mTitle = itemView.findViewById(R.id.item_title);
 				mAuthor = itemView.findViewById(R.id.item_author);
-				mOrigin = itemView.findViewById(R.id.item_origin);
 			}
 		}
 	}

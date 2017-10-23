@@ -4,7 +4,6 @@ import java.io.Serializable;
 
 public class Book implements Serializable {
 
-	private Origin origin;
 	private String title;
 	private String author;
 	private String publisher;
@@ -13,14 +12,6 @@ public class Book implements Serializable {
 	private String thumbnail;
 	private String image;
 	private String description;
-
-	public Origin getOrigin() {
-		return origin;
-	}
-
-	public void setOrigin(Origin origin) {
-		this.origin = origin;
-	}
 
 	public String getTitle() {
 		return title;
