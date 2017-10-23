@@ -7,6 +7,8 @@ import retrofit2.http.Query;
 public interface GoogleRestService {
 
 	String FIELDS = "kind,totalItems,items/volumeInfo(title,subtitle,authors,publisher,publishedDate,description,imageLinks)";
+	String PRINT_TYPE = "books";
+	int MAX_RESULTS = 40;
 
 	// cf https://developers.google.com/books/docs/v1/using#query-params
 	// cf https://developers.google.com/books/docs/v1/using#PerformingSearch

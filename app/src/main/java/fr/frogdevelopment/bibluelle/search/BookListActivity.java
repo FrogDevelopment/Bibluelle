@@ -1,6 +1,5 @@
 package fr.frogdevelopment.bibluelle.search;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -13,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -48,22 +48,21 @@ public class BookListActivity extends AppCompatActivity {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(BookListActivity.class);
 
-	private static final String PRINT_TYPE = "books";
-	private static final int MAX_RESULTS = 40;
-
 	/**
 	 * Whether or not the activity is in two-pane mode, i.e. running on a tablet device.
 	 */
 	private boolean mTwoPane;
-	private RecyclerView mRecyclerView;
 
 	private GoogleRestService mGoogleRestService;
 	private String mUrlParameters;
 	private SimpleItemRecyclerViewAdapter mAdapter;
+	private View mSpinner;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+
 		setContentView(R.layout.activity_book_list);
 
 		Toolbar toolbar = findViewById(R.id.toolbar);
@@ -84,9 +83,11 @@ public class BookListActivity extends AppCompatActivity {
 			mTwoPane = true;
 		}
 
-		mRecyclerView = findViewById(R.id.book_list);
-		mAdapter = new SimpleItemRecyclerViewAdapter(BookListActivity.this, mTwoPane);
-		mRecyclerView.setAdapter(mAdapter);
+		mSpinner = findViewById(R.id.spinner);
+
+		RecyclerView recyclerView = findViewById(R.id.book_list);
+		mAdapter = new SimpleItemRecyclerViewAdapter(BookListActivity.this);
+		recyclerView.setAdapter(mAdapter);
 
 		mGoogleRestService = GoogleRestServiceFactory.getGoogleRestService();
 
@@ -116,7 +117,7 @@ public class BookListActivity extends AppCompatActivity {
 			callGoogleApi(0);
 		}
 
-		mRecyclerView.addOnScrollListener(new EndlessRecyclerViewScrollListener(mRecyclerView.getLayoutManager()) {
+		recyclerView.addOnScrollListener(new EndlessRecyclerViewScrollListener(recyclerView.getLayoutManager()) {
 			@Override
 			public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
 				callGoogleApi(page);
@@ -125,10 +126,11 @@ public class BookListActivity extends AppCompatActivity {
 	}
 
 	private void callGoogleApi(int startIndex) {
-		mGoogleRestService.getBooks(mUrlParameters, GoogleRestService.FIELDS, startIndex, MAX_RESULTS, PRINT_TYPE, "en,fr").enqueue(new Callback<GoogleBooks>() {
+		mSpinner.setVisibility(View.VISIBLE);
+		mGoogleRestService.getBooks(mUrlParameters, GoogleRestService.FIELDS, startIndex, GoogleRestService.MAX_RESULTS, GoogleRestService.PRINT_TYPE, "en,fr").enqueue(new Callback<GoogleBooks>() {
 			@Override
 			public void onResponse(@NonNull Call<GoogleBooks> call, @NonNull Response<GoogleBooks> response) {
-
+				mSpinner.setVisibility(View.GONE);
 				if (response.code() == HttpURLConnection.HTTP_OK) {
 					GoogleBooks googleBooks = response.body();
 
@@ -152,7 +154,11 @@ public class BookListActivity extends AppCompatActivity {
 							books.add(book);
 						}
 
-						mAdapter.addBooks(books);
+						if (startIndex == 0 && books.size() == 1) {
+							showDetails(books.get(0));
+						} else {
+							mAdapter.addBooks(books);
+						}
 
 					} else {
 						// fixme
@@ -166,6 +172,7 @@ public class BookListActivity extends AppCompatActivity {
 
 			@Override
 			public void onFailure(@NonNull Call<GoogleBooks> call, @NonNull Throwable t) {
+				mSpinner.setVisibility(View.GONE);
 				LOGGER.error("", t);
 				Toast.makeText(BookListActivity.this, "Failure : " + t.getMessage(), Toast.LENGTH_LONG).show();
 			}
@@ -182,38 +189,39 @@ public class BookListActivity extends AppCompatActivity {
 		return super.onOptionsItemSelected(item);
 	}
 
+	private void showDetails(Book book) {
+		if (mTwoPane) {
+			Bundle arguments = new Bundle();
+			arguments.putSerializable(BookDetailFragment.ARG_KEY, book);
+			BookDetailFragment fragment = new BookDetailFragment();
+			fragment.setArguments(arguments);
+			getSupportFragmentManager().beginTransaction()
+					.replace(R.id.book_detail_container, fragment)
+					.commit();
+		} else {
+			Intent intent = new Intent(getApplication(), BookDetailActivity.class);
+			intent.putExtra(BookDetailFragment.ARG_KEY, book);
+
+			startActivity(intent);
+		}
+	}
+
 	public static class SimpleItemRecyclerViewAdapter extends RecyclerView.Adapter<SimpleItemRecyclerViewAdapter.ViewHolder> {
 
 		private final BookListActivity mParentActivity;
 		private final List<Book> mBooks = new ArrayList<>();
-		private final boolean mTwoPane;
 
 		private final View.OnClickListener mOnClickListener = new View.OnClickListener() {
 
 			@Override
 			public void onClick(View view) {
 				Book book = (Book) view.getTag();
-				if (mTwoPane) {
-					Bundle arguments = new Bundle();
-					arguments.putSerializable(BookDetailFragment.ARG_KEY, book);
-					BookDetailFragment fragment = new BookDetailFragment();
-					fragment.setArguments(arguments);
-					mParentActivity.getSupportFragmentManager().beginTransaction()
-							.replace(R.id.book_detail_container, fragment)
-							.commit();
-				} else {
-					Context context = view.getContext();
-					Intent intent = new Intent(context, BookDetailActivity.class);
-					intent.putExtra(BookDetailFragment.ARG_KEY, book);
-
-					context.startActivity(intent);
-				}
+				mParentActivity.showDetails(book);
 			}
 		};
 
-		SimpleItemRecyclerViewAdapter(BookListActivity parent, boolean twoPane) {
+		SimpleItemRecyclerViewAdapter(BookListActivity parent) {
 			mParentActivity = parent;
-			mTwoPane = twoPane;
 		}
 
 		void addBooks(List<Book> books) {
@@ -233,9 +241,7 @@ public class BookListActivity extends AppCompatActivity {
 			Book book = mBooks.get(position);
 
 			// Set item views based on your views and data model
-			GlideApp.with(mParentActivity)
-					.load(book.getThumbnail())
-					.into(viewHolder.mThumbnail);
+			GlideApp.with(mParentActivity).load(book.getThumbnail()).into(viewHolder.mThumbnail);
 			viewHolder.mTitle.setText(book.getTitle());
 			viewHolder.mAuthor.setText(book.getAuthor());
 			viewHolder.itemView.setTag(mBooks.get(position));
