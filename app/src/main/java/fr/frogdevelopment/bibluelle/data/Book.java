@@ -13,6 +13,8 @@ public class Book implements Serializable {
 	private String image;
 	private String description;
 
+
+
 	public String getTitle() {
 		return title;
 	}

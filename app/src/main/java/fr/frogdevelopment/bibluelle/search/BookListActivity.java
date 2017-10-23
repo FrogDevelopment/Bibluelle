@@ -31,6 +31,7 @@ import fr.frogdevelopment.bibluelle.rest.google.GoogleBook;
 import fr.frogdevelopment.bibluelle.rest.google.GoogleBooks;
 import fr.frogdevelopment.bibluelle.rest.google.GoogleRestService;
 import fr.frogdevelopment.bibluelle.rest.google.GoogleRestServiceFactory;
+import fr.frogdevelopment.bibluelle.rest.google.IndustryIdentifiers;
 import fr.frogdevelopment.bibluelle.rest.google.VolumeInfo;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -107,11 +108,6 @@ public class BookListActivity extends AppCompatActivity {
 			parameters.add("inpublisher:" + publisher);
 		}
 
-//		String isbn = getIntent().getStringExtra("isbn");
-//		if (!TextUtils.isEmpty(isbn)) {
-//			parameters.add("isbn:" + isbn);
-//		}
-
 		if (!parameters.isEmpty()) {
 			mUrlParameters = TextUtils.join("+", parameters);
 			callGoogleApi(0);
@@ -128,7 +124,7 @@ public class BookListActivity extends AppCompatActivity {
 	private void callGoogleApi(int page) {
 		int startIndex = page * GoogleRestService.MAX_RESULTS;
 		mSpinner.setVisibility(View.VISIBLE);
-		mGoogleRestService.getBooks(mUrlParameters, GoogleRestService.FIELDS, startIndex, GoogleRestService.MAX_RESULTS, GoogleRestService.PRINT_TYPE, "en,fr").enqueue(new Callback<GoogleBooks>() {
+		mGoogleRestService.searchBooks(mUrlParameters, GoogleRestService.SEARCH_FIELDS, startIndex, GoogleRestService.MAX_RESULTS, GoogleRestService.PRINT_TYPE, "en,fr").enqueue(new Callback<GoogleBooks>() {
 			@Override
 			public void onResponse(@NonNull Call<GoogleBooks> call, @NonNull Response<GoogleBooks> response) {
 				mSpinner.setVisibility(View.GONE);
@@ -145,15 +141,18 @@ public class BookListActivity extends AppCompatActivity {
 								if (volumeInfo.getAuthors() != null) {
 									book.setAuthor(TextUtils.join(",", volumeInfo.getAuthors()));
 								}
-								book.setPublisher(volumeInfo.getPublisher());
-								book.setPublishedDate(volumeInfo.getPublishedDate());
 								if (volumeInfo.getImageLinks() != null) {
 									book.setThumbnail(volumeInfo.getImageLinks().getThumbnail());
-									book.setImage(volumeInfo.getImageLinks().getMedium());
 								}
-								book.setDescription(volumeInfo.getDescription());
 
-								books.add(book);
+								if (volumeInfo.getIndustryIdentifiers() != null) {
+									for (IndustryIdentifiers i : volumeInfo.getIndustryIdentifiers()) {
+										if (IndustryIdentifiers.Type.ISBN_13.equals(i.getType())) {
+											book.setIsbn(i.getIdentifier());
+											books.add(book);
+										}
+									}
+								}
 							}
 
 							if (startIndex == 0 && books.size() == 1) {
@@ -197,7 +196,7 @@ public class BookListActivity extends AppCompatActivity {
 	private void showDetails(Book book) {
 		if (mTwoPane) {
 			Bundle arguments = new Bundle();
-			arguments.putSerializable(BookDetailFragment.ARG_KEY, book);
+			arguments.putSerializable(BookDetailFragment.ARG_KEY, book.getIsbn());
 			BookDetailFragment fragment = new BookDetailFragment();
 			fragment.setArguments(arguments);
 			getSupportFragmentManager().beginTransaction()
@@ -205,7 +204,7 @@ public class BookListActivity extends AppCompatActivity {
 					.commit();
 		} else {
 			Intent intent = new Intent(getApplication(), BookDetailActivity.class);
-			intent.putExtra(BookDetailFragment.ARG_KEY, book);
+			intent.putExtra(BookDetailFragment.ARG_KEY, book.getIsbn());
 
 			startActivity(intent);
 		}

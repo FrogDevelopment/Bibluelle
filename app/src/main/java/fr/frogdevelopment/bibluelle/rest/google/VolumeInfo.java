@@ -12,6 +12,9 @@ public class VolumeInfo implements Serializable {
 	private String publishedDate;
 	private String description;
 	private ImageLinks imageLinks;
+	private List<IndustryIdentifiers>industryIdentifiers;
+	private int pageCount;
+	private List<String> categories;
 
 	public String getTitle() {
 		return title;
@@ -67,5 +70,29 @@ public class VolumeInfo implements Serializable {
 
 	public void setImageLinks(ImageLinks imageLinks) {
 		this.imageLinks = imageLinks;
+	}
+
+	public List<IndustryIdentifiers> getIndustryIdentifiers() {
+		return industryIdentifiers;
+	}
+
+	public void setIndustryIdentifiers(List<IndustryIdentifiers> industryIdentifiers) {
+		this.industryIdentifiers = industryIdentifiers;
+	}
+
+	public int getPageCount() {
+		return pageCount;
+	}
+
+	public void setPageCount(int pageCount) {
+		this.pageCount = pageCount;
+	}
+
+	public List<String> getCategories() {
+		return categories;
+	}
+
+	public void setCategories(List<String> categories) {
+		this.categories = categories;
 	}
 }
