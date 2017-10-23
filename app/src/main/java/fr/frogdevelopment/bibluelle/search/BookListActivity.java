@@ -3,6 +3,7 @@ package fr.frogdevelopment.bibluelle.search;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
@@ -156,7 +157,7 @@ public class BookListActivity extends AppCompatActivity {
 							}
 
 							if (startIndex == 0 && books.size() == 1) {
-								showDetails(books.get(0));
+								showDetails(null, books.get(0));
 							} else {
 								mAdapter.addBooks(books);
 							}
@@ -193,7 +194,7 @@ public class BookListActivity extends AppCompatActivity {
 		return super.onOptionsItemSelected(item);
 	}
 
-	private void showDetails(Book book) {
+	private void showDetails(ImageView coverView, Book book) {
 		mSpinner.setVisibility(View.VISIBLE);
 		// https://www.googleapis.com/books/v1/volumes?q=isbn:9781473209367&fields=kind,totalItems,items/volumeInfo(title,subtitle,authors,publisher,publishedDate,description,imageLinks,pageCount,categories)
 		mGoogleRestService.getDetailForBook("isbn:" + book.getIsbn(), GoogleRestService.DETAIL_FIELDS).enqueue(new Callback<GoogleBooks>() {
@@ -240,8 +241,14 @@ public class BookListActivity extends AppCompatActivity {
 							} else {
 								Intent intent = new Intent(getApplication(), BookDetailActivity.class);
 								intent.putExtra(BookDetailFragment.ARG_KEY, book);
+								if (coverView != null) {
+									// cf https://guides.codepath.com/android/Shared-Element-Activity-Transition#3-start-activity
+									ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(BookListActivity.this, coverView, "cover");
 
-								startActivity(intent);
+									startActivity(intent, options.toBundle());
+								} else {
+									startActivity(intent);
+								}
 							}
 						} else {
 							// fixme
@@ -268,15 +275,6 @@ public class BookListActivity extends AppCompatActivity {
 		private final BookListActivity mParentActivity;
 		private final List<Book> mBooks = new ArrayList<>();
 
-		private final View.OnClickListener mOnClickListener = new View.OnClickListener() {
-
-			@Override
-			public void onClick(View view) {
-				Book book = (Book) view.getTag();
-				mParentActivity.showDetails(book);
-			}
-		};
-
 		SimpleItemRecyclerViewAdapter(BookListActivity parent) {
 			mParentActivity = parent;
 		}
@@ -302,7 +300,7 @@ public class BookListActivity extends AppCompatActivity {
 			viewHolder.mTitle.setText(book.getTitle());
 			viewHolder.mAuthor.setText(book.getAuthor());
 			viewHolder.itemView.setTag(mBooks.get(position));
-			viewHolder.itemView.setOnClickListener(mOnClickListener);
+			viewHolder.itemView.setOnClickListener(v -> mParentActivity.showDetails(viewHolder.mThumbnail, book));
 		}
 
 		@Override

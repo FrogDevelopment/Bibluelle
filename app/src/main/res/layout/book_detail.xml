@@ -19,6 +19,7 @@
             android:layout_marginTop="8dp"
             android:minHeight="128dp"
             android:minWidth="128dp"
+            android:transitionName="cover"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"/>
 
