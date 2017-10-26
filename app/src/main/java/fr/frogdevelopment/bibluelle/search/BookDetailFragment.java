@@ -1,5 +1,7 @@
 package fr.frogdevelopment.bibluelle.search;
 
+import android.graphics.Matrix;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.Fragment;
@@ -9,6 +11,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.bumptech.glide.request.target.SimpleTarget;
+import com.bumptech.glide.request.transition.Transition;
 
 import fr.frogdevelopment.bibluelle.GlideApp;
 import fr.frogdevelopment.bibluelle.R;
@@ -30,6 +35,28 @@ public class BookDetailFragment extends Fragment {
 		if (appBarLayout != null) {
 			appBarLayout.setTitle(mBook.getTitle());
 		}
+		ImageView toolbarCover = getActivity().findViewById(R.id.toolbar_cover);
+		if (toolbarCover != null) {
+			GlideApp.with(this)
+					.asDrawable()
+					.load(mBook.getImage())
+					.into(new SimpleTarget<Drawable>() {
+
+						@Override
+						public void onResourceReady(Drawable resource, Transition<? super Drawable> transition) {
+							final float imageWidth = resource.getIntrinsicWidth();
+							final int screenWidth = getResources().getDisplayMetrics().widthPixels;
+							final float scaleRatio = screenWidth / imageWidth;
+
+							final Matrix matrix = toolbarCover.getImageMatrix();
+							matrix.postScale(scaleRatio, scaleRatio);
+							toolbarCover.setImageMatrix(matrix);
+
+							toolbarCover.setImageDrawable(resource);
+
+						}
+					});
+		}
 	}
 
 	@Override
@@ -39,7 +66,7 @@ public class BookDetailFragment extends Fragment {
 		// todo if present, show subTitle
 
 		ImageView background = rootView.findViewById(R.id.detail_background);
-		GlideApp.with(container).load(mBook.getImage()).into(background);
+		GlideApp.with(this).load(mBook.getImage()).into(background);
 
 		TextView author = rootView.findViewById(R.id.detail_author);
 		author.setText(mBook.getAuthor());
