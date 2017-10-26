@@ -52,7 +52,8 @@ public class GoogleRestHelper {
 									book.setAuthor(TextUtils.join(",", volumeInfo.getAuthors()));
 								}
 								if (volumeInfo.getImageLinks() != null) {
-									book.setThumbnail(volumeInfo.getImageLinks().getThumbnail());
+									String thumbnail = volumeInfo.getImageLinks().getThumbnail();
+									book.setThumbnail(thumbnail.replaceAll("&edge=curl", ""));
 								}
 
 								if (volumeInfo.getIndustryIdentifiers() != null) {
@@ -104,38 +105,32 @@ public class GoogleRestHelper {
 				if (response.code() == HttpURLConnection.HTTP_OK) {
 					GoogleBooks googleBooks = response.body();
 
-					if (googleBooks != null && googleBooks.getTotalItems() > 0) {
-						if (googleBooks.getItems() != null) {
-							GoogleBook googleBook = googleBooks.getItems().get(0);
-							VolumeInfo volumeInfo = googleBook.getVolumeInfo();
+					if (googleBooks != null && googleBooks.getItems() != null) {
+						GoogleBook googleBook = googleBooks.getItems().get(0);
+						VolumeInfo volumeInfo = googleBook.getVolumeInfo();
 
-							book = new Book();
-							book.setTitle(volumeInfo.getTitle());
-							// todo set subTitle
-//							book.se
-							//https://books.google.com/books/content/images/frontcover/3Cjz7DKv74MC?fife=w200-rw
-							String image = String.format("https://books.google.com/books/content/images/frontcover/%s?fife=w200-rw", googleBook.getId());
-							book.setImage(image);
+						book = new Book();
+						book.setTitle(volumeInfo.getTitle());
+						book.setSubTitle(volumeInfo.getSubtitle());
+						//https://books.google.com/books/content/images/frontcover/3Cjz7DKv74MC?fife=w200-rw
+						String image = String.format("https://books.google.com/books/content/images/frontcover/%s?fife=w200-rw", googleBook.getId());
+						book.setImage(image);
 
-							if (volumeInfo.getAuthors() != null) {
-								book.setAuthor(TextUtils.join(",", volumeInfo.getAuthors()));
-							}
-							book.setPublisher(volumeInfo.getPublisher());
-							book.setPublishedDate(volumeInfo.getPublishedDate());
-							book.setDescription(volumeInfo.getDescription());
-
-							// todo set pageCount
-//							book.seP
-							// todo set categories
-//							book.seP
-						} else {
-							// fixme
-							Toast.makeText(context, "No data", Toast.LENGTH_LONG).show();
+						if (volumeInfo.getAuthors() != null) {
+							book.setAuthor(TextUtils.join(",", volumeInfo.getAuthors()));
 						}
+						book.setPublisher(volumeInfo.getPublisher());
+						book.setPublishedDate(volumeInfo.getPublishedDate());
+						book.setDescription(volumeInfo.getDescription());
+						book.setPageCount(volumeInfo.getPageCount());
+						book.setCategories(volumeInfo.getCategories());
 					} else {
 						// fixme
-						Toast.makeText(context, "Error code : " + response.code(), Toast.LENGTH_LONG).show();
+						Toast.makeText(context, "No data", Toast.LENGTH_LONG).show();
 					}
+				} else {
+					// fixme
+					Toast.makeText(context, "Error code : " + response.code(), Toast.LENGTH_LONG).show();
 				}
 
 				listener.onDone(book);
