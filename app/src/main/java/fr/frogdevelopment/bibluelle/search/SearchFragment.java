@@ -10,20 +10,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import fr.frogdevelopment.bibluelle.R;
+import fr.frogdevelopment.bibluelle.rest.google.GoogleRestHelper;
 
 public class SearchFragment extends Fragment {
-
-	private static final Logger LOGGER = LoggerFactory.getLogger(SearchFragment.class);
 
 	private TextInputEditText searchByTitle;
 	private TextInputEditText searchByAuthor;
 	private TextInputEditText searchByPublisher;
 	private TextInputEditText searchByIsbn;
-
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -50,31 +45,39 @@ public class SearchFragment extends Fragment {
 	}
 
 	private void onSearch() {
-		String title = searchByTitle.getText().toString();
-		String author = searchByAuthor.getText().toString();
-		String publisher = searchByPublisher.getText().toString();
-//		String isbn = searchByIsbn.getText().toString();
-
-		Intent intent = new Intent(getActivity(), BookListActivity.class);
-		intent.putExtra("title", title);
-		intent.putExtra("author", author);
-		intent.putExtra("publisher", publisher);
-
-		startActivity(intent);
-	}
-
-
-	String isbn;
-
-	void setIsbn(String isbn) {
-		this.isbn = isbn;
-	}
-
-	@Override
-	public void onResume() {
-		super.onResume();
+		String isbn = searchByIsbn.getText().toString();
 		if (!TextUtils.isEmpty(isbn)) {
-			searchByIsbn.setText(isbn);
+			showDetails(isbn);
+		} else {
+			String title = searchByTitle.getText().toString();
+			String author = searchByAuthor.getText().toString();
+			String publisher = searchByPublisher.getText().toString();
+
+			Intent intent = new Intent(getActivity(), BookListActivity.class);
+			intent.putExtra("title", title);
+			intent.putExtra("author", author);
+			intent.putExtra("publisher", publisher);
+
+			startActivity(intent);
 		}
 	}
+
+	private void showDetails(String isbn) {
+		// fixme show Spinner
+		GoogleRestHelper.showDetails(getActivity(), isbn, book -> {
+			// fixme hide Spinner
+			if (book != null) {
+				Intent intent = new Intent(getActivity(), BookDetailActivity.class);
+				intent.putExtra(BookDetailFragment.ARG_KEY, book);
+				startActivity(intent);
+			}
+		});
+	}
+
+	void setIsbn(String isbn) {
+		if (!TextUtils.isEmpty(isbn)) {
+			showDetails(isbn);
+		}
+	}
+
 }
