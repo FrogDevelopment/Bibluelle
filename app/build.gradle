@@ -62,6 +62,10 @@ dependencies {
     annotationProcessor 'com.github.bumptech.glide:compiler:4.2.0'
 
     // ProgressBar https://github.com/ybq/Android-SpinKit
-    compile 'com.github.ybq:Android-SpinKit:1.1.0'
+    implementation 'com.github.ybq:Android-SpinKit:1.1.0'
+
+    // commons
+    implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.6'
+
 
 }
