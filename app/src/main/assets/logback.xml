@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <configuration debug="true">
-    <!--<property name="LOG_DIR" value="/data/data/fr.biocbon.entrepot.stocklegacy" />-->
-
 
     <appender name="logcat" class="ch.qos.logback.classic.android.LogcatAppender">
         <tagEncoder>
@@ -12,28 +10,8 @@
         </encoder>
     </appender>
 
-    <!--&lt;!&ndash; Create a file appender for a log in the application's data directory &ndash;&gt;-->
-    <!--&lt;!&ndash; https://github.com/tony19/logback-android/wiki/Appender-Notes#fileappender-rollingfileappender&ndash;&gt;-->
-    <!--<appender name="file" class="ch.qos.logback.core.rolling.RollingFileAppender">-->
-        <!--&lt;!&ndash; active log file &ndash;&gt;-->
-        <!--<file>${LOG_DIR}/application.log</file>-->
-
-        <!--<encoder>-->
-            <!--<pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>-->
-        <!--</encoder>-->
-
-        <!--<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">-->
-            <!--&lt;!&ndash; daily rollover period &ndash;&gt;-->
-            <!--<fileNamePattern>${LOG_DIR}/log.%d.txt</fileNamePattern>-->
-
-            <!--&lt;!&ndash; keep 2 days' worth of history &ndash;&gt;-->
-            <!--<maxHistory>2</maxHistory>-->
-        <!--</rollingPolicy>-->
-    <!--</appender>-->
-
-    <root level="DEBUG">
+    <root level="TRACE">
         <appender-ref ref="logcat" />
-        <!--<appender-ref ref="file" />-->
     </root>
 
 </configuration>
