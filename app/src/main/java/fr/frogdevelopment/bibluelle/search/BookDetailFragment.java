@@ -5,9 +5,11 @@ import android.graphics.Matrix;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.Fragment;
 import android.support.v7.graphics.Palette;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -18,6 +20,7 @@ import android.widget.TextView;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
 
+import fr.frogdevelopment.bibluelle.AppBarStateChangeListener;
 import fr.frogdevelopment.bibluelle.GlideApp;
 import fr.frogdevelopment.bibluelle.R;
 import fr.frogdevelopment.bibluelle.data.Book;
@@ -35,59 +38,76 @@ public class BookDetailFragment extends Fragment {
 		mBook = (Book) getArguments().getSerializable(ARG_KEY);
 
 		CollapsingToolbarLayout collapseToolbar = getActivity().findViewById(R.id.toolbar_layout);
-		collapseToolbar.setTitle(mBook.getTitle());
+		if (collapseToolbar != null) {
+			collapseToolbar.setTitle(mBook.getTitle());
+			AppBarLayout appBarLayout = getActivity().findViewById(R.id.app_bar);
+			appBarLayout.addOnOffsetChangedListener(new AppBarStateChangeListener() {
+				@Override
+				public void onStateChanged(AppBarLayout appBarLayout, @State int state) {
+					collapseToolbar.setTitleEnabled(state == AppBarStateChangeListener.COLLAPSED);
+				}
+			});
 
-		ImageView toolbarCover = getActivity().findViewById(R.id.toolbar_cover);
-		GlideApp.with(this)
-				.asDrawable()
-				.load(mBook.getImage())
-				.into(new SimpleTarget<Drawable>() {
+			ImageView toolbarCover = getActivity().findViewById(R.id.toolbar_cover);
+			GlideApp.with(this)
+					.asDrawable()
+					.load(mBook.getImage())
+					.into(new SimpleTarget<Drawable>() {
 
-					@Override
-					public void onResourceReady(Drawable resource, Transition<? super Drawable> transition) {
-						final float imageWidth = resource.getIntrinsicWidth();
-						final int screenWidth = getResources().getDisplayMetrics().widthPixels;
-						final float scaleRatio = screenWidth / imageWidth;
+						@Override
+						public void onResourceReady(Drawable resource, Transition<? super Drawable> transition) {
+							final float imageWidth = resource.getIntrinsicWidth();
+							final int screenWidth = getResources().getDisplayMetrics().widthPixels;
+							final float scaleRatio = screenWidth / imageWidth;
 
-						final Matrix matrix = toolbarCover.getImageMatrix();
-						matrix.postScale(scaleRatio, scaleRatio);
-						toolbarCover.setImageMatrix(matrix);
+							final Matrix matrix = toolbarCover.getImageMatrix();
+							matrix.postScale(scaleRatio, scaleRatio);
+							toolbarCover.setImageMatrix(matrix);
 
-						toolbarCover.setImageDrawable(resource);
+							toolbarCover.setImageDrawable(resource);
 
-						Bitmap bitmap = ((BitmapDrawable) resource).getBitmap();
+							Bitmap bitmap = ((BitmapDrawable) resource).getBitmap();
 
-						Palette palette = Palette.from(bitmap).generate();
+							Palette palette = Palette.from(bitmap).generate();
 
-						Palette.Swatch dominantSwatch = palette.getDominantSwatch();
-						if (dominantSwatch != null) {
-							int dominantRgb = dominantSwatch.getRgb();
-							collapseToolbar.setBackgroundColor(dominantRgb);
-							collapseToolbar.setStatusBarScrimColor(dominantRgb);
-							collapseToolbar.setContentScrimColor(dominantRgb);
+							Palette.Swatch dominantSwatch = palette.getDominantSwatch();
+							if (dominantSwatch != null) {
+								int dominantRgb = dominantSwatch.getRgb();
+								collapseToolbar.setBackgroundColor(dominantRgb);
+								collapseToolbar.setStatusBarScrimColor(dominantRgb);
+								collapseToolbar.setContentScrimColor(dominantRgb);
 
-							Palette.Swatch vibrantSwatch = palette.getVibrantSwatch();
-							if (vibrantSwatch != null) {
-								int vibrantRgb = vibrantSwatch.getRgb();
-								if (dominantRgb != vibrantRgb) {
-									collapseToolbar.setExpandedTitleColor(vibrantRgb);
-									collapseToolbar.setCollapsedTitleTextColor(vibrantRgb);
+								Palette.Swatch vibrantSwatch = palette.getVibrantSwatch();
+								if (vibrantSwatch != null) {
+									int vibrantRgb = vibrantSwatch.getRgb();
+									if (dominantRgb != vibrantRgb) {
+										collapseToolbar.setCollapsedTitleTextColor(vibrantRgb);
+									}
 								}
 							}
-						}
 
-					}
-				});
+						}
+					});
+		}
 	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View rootView = inflater.inflate(R.layout.book_detail, container, false);
 
-		// todo if present, show subTitle
-
-		ImageView background = rootView.findViewById(R.id.detail_background);
+		ImageView background = rootView.findViewById(R.id.detail_cover);
 		GlideApp.with(this).load(mBook.getImage()).into(background);
+
+		TextView title = rootView.findViewById(R.id.detail_title);
+		title.setText(mBook.getTitle());
+
+		TextView subTitle = rootView.findViewById(R.id.detail_sub_title);
+		if (TextUtils.isEmpty(mBook.getSubTitle())) {
+			subTitle.setVisibility(View.GONE);
+		} else {
+			subTitle.setVisibility(View.VISIBLE);
+			subTitle.setText(mBook.getSubTitle());
+		}
 
 		TextView author = rootView.findViewById(R.id.detail_author);
 		author.setText(mBook.getAuthor());
@@ -103,6 +123,7 @@ public class BookDetailFragment extends Fragment {
 
 		// todo show pageCount
 		// todo show categories
+		// todo show isbn
 
 
 		return rootView;
