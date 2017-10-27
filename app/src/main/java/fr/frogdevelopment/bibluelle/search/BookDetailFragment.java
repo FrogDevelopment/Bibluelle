@@ -1,10 +1,13 @@
 package fr.frogdevelopment.bibluelle.search;
 
+import android.graphics.Bitmap;
 import android.graphics.Matrix;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.Fragment;
+import android.support.v7.graphics.Palette;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -31,32 +34,50 @@ public class BookDetailFragment extends Fragment {
 
 		mBook = (Book) getArguments().getSerializable(ARG_KEY);
 
-		CollapsingToolbarLayout appBarLayout = getActivity().findViewById(R.id.toolbar_layout);
-		if (appBarLayout != null) {
-			appBarLayout.setTitle(mBook.getTitle());
-		}
+		CollapsingToolbarLayout collapseToolbar = getActivity().findViewById(R.id.toolbar_layout);
+		collapseToolbar.setTitle(mBook.getTitle());
+
 		ImageView toolbarCover = getActivity().findViewById(R.id.toolbar_cover);
-		if (toolbarCover != null) {
-			GlideApp.with(this)
-					.asDrawable()
-					.load(mBook.getImage())
-					.into(new SimpleTarget<Drawable>() {
+		GlideApp.with(this)
+				.asDrawable()
+				.load(mBook.getImage())
+				.into(new SimpleTarget<Drawable>() {
 
-						@Override
-						public void onResourceReady(Drawable resource, Transition<? super Drawable> transition) {
-							final float imageWidth = resource.getIntrinsicWidth();
-							final int screenWidth = getResources().getDisplayMetrics().widthPixels;
-							final float scaleRatio = screenWidth / imageWidth;
+					@Override
+					public void onResourceReady(Drawable resource, Transition<? super Drawable> transition) {
+						final float imageWidth = resource.getIntrinsicWidth();
+						final int screenWidth = getResources().getDisplayMetrics().widthPixels;
+						final float scaleRatio = screenWidth / imageWidth;
 
-							final Matrix matrix = toolbarCover.getImageMatrix();
-							matrix.postScale(scaleRatio, scaleRatio);
-							toolbarCover.setImageMatrix(matrix);
+						final Matrix matrix = toolbarCover.getImageMatrix();
+						matrix.postScale(scaleRatio, scaleRatio);
+						toolbarCover.setImageMatrix(matrix);
 
-							toolbarCover.setImageDrawable(resource);
+						toolbarCover.setImageDrawable(resource);
 
+						Bitmap bitmap = ((BitmapDrawable) resource).getBitmap();
+
+						Palette palette = Palette.from(bitmap).generate();
+
+						Palette.Swatch dominantSwatch = palette.getDominantSwatch();
+						if (dominantSwatch != null) {
+							int dominantRgb = dominantSwatch.getRgb();
+							collapseToolbar.setBackgroundColor(dominantRgb);
+							collapseToolbar.setStatusBarScrimColor(dominantRgb);
+							collapseToolbar.setContentScrimColor(dominantRgb);
+
+							Palette.Swatch vibrantSwatch = palette.getVibrantSwatch();
+							if (vibrantSwatch != null) {
+								int vibrantRgb = vibrantSwatch.getRgb();
+								if (dominantRgb != vibrantRgb) {
+									collapseToolbar.setExpandedTitleColor(vibrantRgb);
+									collapseToolbar.setCollapsedTitleTextColor(vibrantRgb);
+								}
+							}
 						}
-					});
-		}
+
+					}
+				});
 	}
 
 	@Override

@@ -113,7 +113,7 @@ public class GoogleRestHelper {
 						book.setTitle(volumeInfo.getTitle());
 						book.setSubTitle(volumeInfo.getSubtitle());
 						//https://books.google.com/books/content/images/frontcover/3Cjz7DKv74MC?fife=w200-rw
-						String image = String.format("https://books.google.com/books/content/images/frontcover/%s?fife=w200-rw", googleBook.getId());
+						String image = String.format("https://books.google.com/books/content/images/frontcover/%s?fife=w300-rw", googleBook.getId());
 						book.setImage(image);
 
 						if (volumeInfo.getAuthors() != null) {
