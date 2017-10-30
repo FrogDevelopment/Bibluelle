@@ -8,7 +8,9 @@ import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.Fragment;
+import android.support.v4.graphics.ColorUtils;
 import android.support.v7.graphics.Palette;
+import android.support.v7.graphics.Palette.Swatch;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -19,6 +21,10 @@ import android.widget.TextView;
 
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import fr.frogdevelopment.bibluelle.AppBarStateChangeListener;
 import fr.frogdevelopment.bibluelle.GlideApp;
@@ -36,14 +42,13 @@ public class BookDetailFragment extends Fragment {
 		super.onCreate(savedInstanceState);
 
 		mBook = (Book) getArguments().getSerializable(ARG_KEY);
-
 		CollapsingToolbarLayout collapseToolbar = getActivity().findViewById(R.id.toolbar_layout);
 		if (collapseToolbar != null) {
 			collapseToolbar.setTitle(mBook.getTitle());
 			AppBarLayout appBarLayout = getActivity().findViewById(R.id.app_bar);
 			appBarLayout.addOnOffsetChangedListener(new AppBarStateChangeListener() {
 				@Override
-				public void onStateChanged(AppBarLayout appBarLayout, @State int state) {
+				public void onStateChanged(AppBarLayout appBarLayout, @AppBarStateChangeListener.State int state) {
 					collapseToolbar.setTitleEnabled(state == AppBarStateChangeListener.COLLAPSED);
 				}
 			});
@@ -67,25 +72,63 @@ public class BookDetailFragment extends Fragment {
 							toolbarCover.setImageDrawable(resource);
 
 							Bitmap bitmap = ((BitmapDrawable) resource).getBitmap();
-
 							Palette palette = Palette.from(bitmap).generate();
-
-							Palette.Swatch dominantSwatch = palette.getDominantSwatch();
+							Swatch dominantSwatch = palette.getDominantSwatch();
 							if (dominantSwatch != null) {
 								int dominantRgb = dominantSwatch.getRgb();
+								double[] dominantLab = new double[3];
+								ColorUtils.colorToLAB(dominantRgb, dominantLab);
+
+								Map<Double, double[]> distances = new HashMap<>();
+								Swatch lightVibrantSwatch = palette.getLightVibrantSwatch();
+								if (lightVibrantSwatch != null) {
+									double[] lightVibrantLab = new double[3];
+									ColorUtils.colorToLAB(lightVibrantSwatch.getRgb(), lightVibrantLab);
+									distances.put(ColorUtils.distanceEuclidean(dominantLab, lightVibrantLab), lightVibrantLab);
+								}
+
+								Swatch vibrantSwatch = palette.getVibrantSwatch();
+								if (vibrantSwatch != null) {
+									double[] vibrantLab = new double[3];
+									ColorUtils.colorToLAB(vibrantSwatch.getRgb(), vibrantLab);
+									distances.put(ColorUtils.distanceEuclidean(dominantLab, vibrantLab), vibrantLab);
+								}
+
+								Swatch lightMutedSwatch = palette.getLightMutedSwatch();
+								if (lightMutedSwatch != null) {
+									double[] lightMutedLab = new double[3];
+									ColorUtils.colorToLAB(lightMutedSwatch.getRgb(), lightMutedLab);
+									distances.put(ColorUtils.distanceEuclidean(dominantLab, lightMutedLab), lightMutedLab);
+								}
+
+								Swatch mutedSwatch = palette.getMutedSwatch();
+								if (mutedSwatch != null) {
+									double[] mutedLab = new double[3];
+									ColorUtils.colorToLAB(mutedSwatch.getRgb(), mutedLab);
+									distances.put(ColorUtils.distanceEuclidean(dominantLab, mutedLab), mutedLab);
+								}
+
+								Swatch darkMutedSwatch = palette.getDarkMutedSwatch();
+								if (darkMutedSwatch != null) {
+									double[] darkMutedLab = new double[3];
+									ColorUtils.colorToLAB(darkMutedSwatch.getRgb(), darkMutedLab);
+									distances.put(ColorUtils.distanceEuclidean(dominantLab, darkMutedLab), darkMutedLab);
+								}
+
+								Swatch darkVibrantSwatch = palette.getDarkVibrantSwatch();
+								if (darkVibrantSwatch != null) {
+									double[] darkVibrantLab = new double[3];
+									ColorUtils.colorToLAB(darkVibrantSwatch.getRgb(), darkVibrantLab);
+									distances.put(ColorUtils.distanceEuclidean(dominantLab, darkVibrantLab), darkVibrantLab);
+								}
+
 								collapseToolbar.setBackgroundColor(dominantRgb);
 								collapseToolbar.setStatusBarScrimColor(dominantRgb);
 								collapseToolbar.setContentScrimColor(dominantRgb);
+								double[] max = distances.get(Collections.max(distances.keySet()));
+								collapseToolbar.setCollapsedTitleTextColor(ColorUtils.LABToColor(max[0], max[1], max[2]));
 
-								Palette.Swatch vibrantSwatch = palette.getVibrantSwatch();
-								if (vibrantSwatch != null) {
-									int vibrantRgb = vibrantSwatch.getRgb();
-									if (dominantRgb != vibrantRgb) {
-										collapseToolbar.setCollapsedTitleTextColor(vibrantRgb);
-									}
-								}
 							}
-
 						}
 					});
 		}

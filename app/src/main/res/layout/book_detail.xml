@@ -45,13 +45,14 @@
             android:layout_marginEnd="8dp"
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
-            android:textSize="18sp"
             android:text="Subtitle"
             android:textIsSelectable="true"
+            android:textSize="18sp"
             android:textStyle="bold|italic"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/detail_cover"
             app:layout_constraintTop_toBottomOf="@id/detail_title"/>
+
         <TextView
             android:id="@+id/detail_author"
             android:layout_width="0dp"
