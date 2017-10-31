@@ -21,7 +21,7 @@ public class Book implements Serializable {
 	private String thumbnail;
 	private String image;
 	private String description;
-	private int pageCount;
+	private String pageCount;
 	private List<String> categories;
 
 	public String getTitle() {
@@ -96,11 +96,11 @@ public class Book implements Serializable {
 		this.description = description;
 	}
 
-	public int getPageCount() {
+	public String getPageCount() {
 		return pageCount;
 	}
 
-	public void setPageCount(int pageCount) {
+	public void setPageCount(String pageCount) {
 		this.pageCount = pageCount;
 	}
 

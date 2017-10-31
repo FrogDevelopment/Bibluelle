@@ -124,6 +124,7 @@ public class GoogleRestHelper {
 						book.setDescription(volumeInfo.getDescription());
 						book.setPageCount(volumeInfo.getPageCount());
 						book.setCategories(volumeInfo.getCategories());
+						book.setIsbn(isbn);
 					} else {
 						// fixme
 						Toast.makeText(context, "No data", Toast.LENGTH_LONG).show();

@@ -13,7 +13,7 @@ public class VolumeInfo implements Serializable {
 	private String description;
 	private ImageLinks imageLinks;
 	private List<IndustryIdentifiers>industryIdentifiers;
-	private int pageCount;
+	private String pageCount;
 	private List<String> categories;
 
 	public String getTitle() {
@@ -80,11 +80,11 @@ public class VolumeInfo implements Serializable {
 		this.industryIdentifiers = industryIdentifiers;
 	}
 
-	public int getPageCount() {
+	public String getPageCount() {
 		return pageCount;
 	}
 
-	public void setPageCount(int pageCount) {
+	public void setPageCount(String pageCount) {
 		this.pageCount = pageCount;
 	}
 

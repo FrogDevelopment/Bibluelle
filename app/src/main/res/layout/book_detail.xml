@@ -80,24 +80,11 @@
             app:layout_constraintStart_toEndOf="@+id/detail_cover"
             app:layout_constraintTop_toBottomOf="@+id/detail_author"/>
 
-        <TextView
-            android:id="@+id/detail_published_date"
-            android:layout_width="0dp"
-            android:layout_height="23dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginStart="8dp"
-            android:text="dd/MM/yyyy"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/detail_cover"
-            app:layout_constraintTop_toBottomOf="@+id/detail_publisher"/>
-
         <at.blogc.android.views.ExpandableTextView
             android:id="@+id/detail_description"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
+            android:layout_margin="8dp"
             android:ellipsize="end"
             android:maxLines="5"
             android:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur placerat ipsum sed nisl ultricies, vitae auctor lacus venenatis. Mauris dapibus ex vitae felis sagittis cursus quis id ligula. Aenean feugiat, ipsum non fermentum volutpat, felis leo fermentum arcu, at mattis ante mi sit amet est. Phasellus nec enim magna. Praesent sit amet lacus non metus dictum lacinia a a velit. Pellentesque eu aliquam orci. Suspendisse sit amet nulla non sapien bibendum rutrum. Donec sed egestas metus. Integer dignissim ornare aliquet. Nam sagittis, ex sit amet finibus volutpat, tellus turpis posuere augue, sed condimentum lectus risus nec urna. Curabitur ultricies ac urna at ullamcorper. Phasellus lacinia dui sit amet eros maximus scelerisque. Donec rutrum scelerisque eros, ac vulputate velit ornare tincidunt. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos."
@@ -105,11 +92,11 @@
             app:animation_duration="750"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/detail_published_date"/>
+            app:layout_constraintTop_toBottomOf="@+id/detail_cover"/>
 
         <Button
             android:id="@+id/detail_show_more"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
             android:layout_marginStart="8dp"
@@ -117,6 +104,98 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/detail_description"/>
+
+        <View
+            android:id="@+id/detail_separator"
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:background="@android:color/darker_gray"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/detail_show_more"/>
+
+        <TableLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:weightSum="2"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/detail_separator">
+
+            <TableRow>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Pages"
+                    android:textColor="@android:color/black"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="ISBN"
+                    android:textColor="@android:color/black"/>
+            </TableRow>
+
+            <TableRow>
+
+                <TextView
+                    android:id="@+id/detail_pages"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="123"/>
+
+                <TextView
+                    android:id="@+id/detail_isbn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="1234567891011"
+                    android:textIsSelectable="true"/>
+            </TableRow>
+
+            <TableRow android:weightSum="2">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Catégories"
+                    android:textColor="@android:color/black"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Publication date"
+                    android:textColor="@android:color/black"/>
+            </TableRow>
+
+            <TableRow>
+
+                <TextView
+                    android:id="@+id/detail_categories"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="xxx / yyk / kkk"/>
+
+                <TextView
+                    android:id="@+id/detail_published_date"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="mm/dd/yyyy"
+                    android:layout_weight="1"/>
+            </TableRow>
+
+        </TableLayout>
 
     </android.support.constraint.ConstraintLayout>
 </ScrollView>
