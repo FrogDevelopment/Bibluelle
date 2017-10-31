@@ -8,6 +8,8 @@ import android.util.Pair;
 import android.util.SparseArray;
 import android.widget.Toast;
 
+import com.jakewharton.threetenabp.AndroidThreeTen;
+
 import fr.frogdevelopment.bibluelle.search.SearchFragment;
 
 public class MainActivity extends AppCompatActivity {
@@ -30,6 +32,8 @@ public class MainActivity extends AppCompatActivity {
 
 		// default
 		switchFragment(R.id.navigation_dashboard);
+
+		AndroidThreeTen.init(this);
 	}
 
 	private void buildFragmentsList() {

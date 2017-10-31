@@ -16,16 +16,22 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.OvershootInterpolator;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
 
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.format.DateTimeFormatter;
+import org.threeten.bp.format.FormatStyle;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import at.blogc.android.views.ExpandableTextView;
 import fr.frogdevelopment.bibluelle.AppBarStateChangeListener;
 import fr.frogdevelopment.bibluelle.GlideApp;
 import fr.frogdevelopment.bibluelle.R;
@@ -34,6 +40,7 @@ import fr.frogdevelopment.bibluelle.data.Book;
 public class BookDetailFragment extends Fragment {
 
 	public static final String ARG_KEY = "book";
+	private static final DateTimeFormatter LONG_DATE_FORMATTER = DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG);
 
 	private Book mBook;
 
@@ -159,10 +166,20 @@ public class BookDetailFragment extends Fragment {
 		publisher.setText(mBook.getPublisher());
 
 		TextView publishedDate = rootView.findViewById(R.id.detail_published_date);
-		publishedDate.setText(mBook.getPublishedDate());
+		String stringDate = mBook.getPublishedDate();
+		LocalDate localDate = LocalDate.parse(stringDate, DateTimeFormatter.ISO_DATE);
+		publishedDate.setText(localDate.format(LONG_DATE_FORMATTER));
 
-		TextView description = rootView.findViewById(R.id.book_description);
+		ExpandableTextView description = rootView.findViewById(R.id.detail_description);
 		description.setText(mBook.getDescription());
+		// set interpolators for both expanding and collapsing animations
+		description.setInterpolator(new OvershootInterpolator());
+
+		View showMore = rootView.findViewById(R.id.detail_show_more);
+		showMore.setOnClickListener(v -> {
+			showMore.setVisibility(View.GONE);
+			description.expand();
+		});
 
 		// todo show pageCount
 		// todo show categories

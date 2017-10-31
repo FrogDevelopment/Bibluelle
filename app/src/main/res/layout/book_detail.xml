@@ -91,19 +91,32 @@
             app:layout_constraintStart_toEndOf="@+id/detail_cover"
             app:layout_constraintTop_toBottomOf="@+id/detail_publisher"/>
 
-        <TextView
-            android:id="@+id/book_description"
+        <at.blogc.android.views.ExpandableTextView
+            android:id="@+id/detail_description"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
             android:layout_marginEnd="8dp"
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
+            android:ellipsize="end"
+            android:maxLines="5"
+            android:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur placerat ipsum sed nisl ultricies, vitae auctor lacus venenatis. Mauris dapibus ex vitae felis sagittis cursus quis id ligula. Aenean feugiat, ipsum non fermentum volutpat, felis leo fermentum arcu, at mattis ante mi sit amet est. Phasellus nec enim magna. Praesent sit amet lacus non metus dictum lacinia a a velit. Pellentesque eu aliquam orci. Suspendisse sit amet nulla non sapien bibendum rutrum. Donec sed egestas metus. Integer dignissim ornare aliquet. Nam sagittis, ex sit amet finibus volutpat, tellus turpis posuere augue, sed condimentum lectus risus nec urna. Curabitur ultricies ac urna at ullamcorper. Phasellus lacinia dui sit amet eros maximus scelerisque. Donec rutrum scelerisque eros, ac vulputate velit ornare tincidunt. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos."
             android:textIsSelectable="true"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:animation_duration="750"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/detail_published_date"/>
+
+        <Button
+            android:id="@+id/detail_show_more"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
+            android:text="Lire la suite"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/detail_description"/>
 
     </android.support.constraint.ConstraintLayout>
 </ScrollView>

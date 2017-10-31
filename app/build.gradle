@@ -68,5 +68,11 @@ dependencies {
     // commons
     implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.6'
 
+    // https://github.com/Blogcat/Android-ExpandableTextView
+    implementation 'at.blogc:expandabletextview:1.0.5'
+
+    // pour manip des dates
+    implementation 'com.jakewharton.threetenabp:threetenabp:1.0.5'
+
 
 }
