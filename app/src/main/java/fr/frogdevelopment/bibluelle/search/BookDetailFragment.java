@@ -1,5 +1,6 @@
 package fr.frogdevelopment.bibluelle.search;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.graphics.drawable.BitmapDrawable;
@@ -7,6 +8,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.graphics.ColorUtils;
 import android.support.v7.graphics.Palette;
@@ -147,6 +149,14 @@ public class BookDetailFragment extends Fragment {
 
 		ImageView background = rootView.findViewById(R.id.detail_cover);
 		GlideApp.with(this).load(mBook.getImage()).into(background);
+		background.setOnClickListener(v -> {
+			Intent intent = new Intent(getActivity(), CoverActivity.class);
+			intent.putExtra("url", mBook.getImage());
+			// cf https://guides.codepath.com/android/Shared-Element-Activity-Transition#3-start-activity
+			ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(getActivity(), background, "cover");
+
+			startActivity(intent, options.toBundle());
+		});
 
 		TextView title = rootView.findViewById(R.id.detail_title);
 		title.setText(mBook.getTitle());
