@@ -165,6 +165,13 @@ public class BookDetailFragment extends Fragment {
 		TextView publisher = rootView.findViewById(R.id.detail_publisher);
 		publisher.setText(mBook.getPublisher());
 
+		TextView publishedDate = rootView.findViewById(R.id.detail_publication_date);
+		LocalDate localDate = LocalDate.parse(mBook.getPublishedDate(), DateTimeFormatter.ISO_DATE);
+		publishedDate.setText("Publié le " + localDate.format(LONG_DATE_FORMATTER));
+
+		TextView pageCount = rootView.findViewById(R.id.detail_nb_pages);
+		pageCount.setText(mBook.getPageCount() + " pages");
+
 		ExpandableTextView description = rootView.findViewById(R.id.detail_description);
 		description.setText(mBook.getDescription());
 		// set interpolators for both expanding and collapsing animations
@@ -176,18 +183,11 @@ public class BookDetailFragment extends Fragment {
 			description.expand();
 		});
 
-		TextView pageCount = rootView.findViewById(R.id.detail_pages);
-		pageCount.setText(mBook.getPageCount());
-
 		TextView isbn = rootView.findViewById(R.id.detail_isbn);
 		isbn.setText(mBook.getIsbn());
 
 		TextView categories = rootView.findViewById(R.id.detail_categories);
 		categories.setText(TextUtils.join(" / ", mBook.getCategories()));
-
-		TextView publishedDate = rootView.findViewById(R.id.detail_published_date);
-		LocalDate localDate = LocalDate.parse(mBook.getPublishedDate(), DateTimeFormatter.ISO_DATE);
-		publishedDate.setText(localDate.format(LONG_DATE_FORMATTER));
 
 		return rootView;
 	}
