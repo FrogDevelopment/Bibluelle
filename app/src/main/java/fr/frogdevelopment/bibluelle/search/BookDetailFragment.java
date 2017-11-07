@@ -1,18 +1,13 @@
 package fr.frogdevelopment.bibluelle.search;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.graphics.Matrix;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.Fragment;
-import android.support.v4.graphics.ColorUtils;
-import android.support.v7.graphics.Palette;
-import android.support.v7.graphics.Palette.Swatch;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -29,10 +24,6 @@ import org.threeten.bp.LocalDate;
 import org.threeten.bp.format.DateTimeFormatter;
 import org.threeten.bp.format.FormatStyle;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-
 import at.blogc.android.views.ExpandableTextView;
 import fr.frogdevelopment.bibluelle.AppBarStateChangeListener;
 import fr.frogdevelopment.bibluelle.GlideApp;
@@ -45,6 +36,7 @@ public class BookDetailFragment extends Fragment {
 	private static final DateTimeFormatter LONG_DATE_FORMATTER = DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG);
 
 	private Book mBook;
+	private int dominantRgb;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -52,7 +44,7 @@ public class BookDetailFragment extends Fragment {
 
 		mBook = (Book) getArguments().getSerializable(ARG_KEY);
 		CollapsingToolbarLayout collapseToolbar = getActivity().findViewById(R.id.toolbar_layout);
-		if (collapseToolbar != null) {
+		if (mBook != null && collapseToolbar != null) {
 			collapseToolbar.setTitle(mBook.getTitle());
 			AppBarLayout appBarLayout = getActivity().findViewById(R.id.app_bar);
 			appBarLayout.addOnOffsetChangedListener(new AppBarStateChangeListener() {
@@ -61,6 +53,18 @@ public class BookDetailFragment extends Fragment {
 					collapseToolbar.setTitleEnabled(state == AppBarStateChangeListener.COLLAPSED);
 				}
 			});
+
+			dominantRgb = getArguments().getInt("dominantRgb", 0);
+			if (dominantRgb != 0) {
+				collapseToolbar.setBackgroundColor(dominantRgb);
+				collapseToolbar.setStatusBarScrimColor(dominantRgb);
+				collapseToolbar.setContentScrimColor(dominantRgb);
+			}
+
+			int collapsedTitleColor = getArguments().getInt("collapsedTitleColor", 0);
+			if (collapsedTitleColor != 0) {
+				collapseToolbar.setCollapsedTitleTextColor(collapsedTitleColor);
+			}
 
 			ImageView toolbarCover = getActivity().findViewById(R.id.toolbar_cover);
 			GlideApp.with(this)
@@ -79,65 +83,6 @@ public class BookDetailFragment extends Fragment {
 							toolbarCover.setImageMatrix(matrix);
 
 							toolbarCover.setImageDrawable(resource);
-
-							Bitmap bitmap = ((BitmapDrawable) resource).getBitmap();
-							Palette palette = Palette.from(bitmap).generate();
-							Swatch dominantSwatch = palette.getDominantSwatch();
-							if (dominantSwatch != null) {
-								int dominantRgb = dominantSwatch.getRgb();
-								double[] dominantLab = new double[3];
-								ColorUtils.colorToLAB(dominantRgb, dominantLab);
-
-								Map<Double, double[]> distances = new HashMap<>();
-								Swatch lightVibrantSwatch = palette.getLightVibrantSwatch();
-								if (lightVibrantSwatch != null) {
-									double[] lightVibrantLab = new double[3];
-									ColorUtils.colorToLAB(lightVibrantSwatch.getRgb(), lightVibrantLab);
-									distances.put(ColorUtils.distanceEuclidean(dominantLab, lightVibrantLab), lightVibrantLab);
-								}
-
-								Swatch vibrantSwatch = palette.getVibrantSwatch();
-								if (vibrantSwatch != null) {
-									double[] vibrantLab = new double[3];
-									ColorUtils.colorToLAB(vibrantSwatch.getRgb(), vibrantLab);
-									distances.put(ColorUtils.distanceEuclidean(dominantLab, vibrantLab), vibrantLab);
-								}
-
-								Swatch lightMutedSwatch = palette.getLightMutedSwatch();
-								if (lightMutedSwatch != null) {
-									double[] lightMutedLab = new double[3];
-									ColorUtils.colorToLAB(lightMutedSwatch.getRgb(), lightMutedLab);
-									distances.put(ColorUtils.distanceEuclidean(dominantLab, lightMutedLab), lightMutedLab);
-								}
-
-								Swatch mutedSwatch = palette.getMutedSwatch();
-								if (mutedSwatch != null) {
-									double[] mutedLab = new double[3];
-									ColorUtils.colorToLAB(mutedSwatch.getRgb(), mutedLab);
-									distances.put(ColorUtils.distanceEuclidean(dominantLab, mutedLab), mutedLab);
-								}
-
-								Swatch darkMutedSwatch = palette.getDarkMutedSwatch();
-								if (darkMutedSwatch != null) {
-									double[] darkMutedLab = new double[3];
-									ColorUtils.colorToLAB(darkMutedSwatch.getRgb(), darkMutedLab);
-									distances.put(ColorUtils.distanceEuclidean(dominantLab, darkMutedLab), darkMutedLab);
-								}
-
-								Swatch darkVibrantSwatch = palette.getDarkVibrantSwatch();
-								if (darkVibrantSwatch != null) {
-									double[] darkVibrantLab = new double[3];
-									ColorUtils.colorToLAB(darkVibrantSwatch.getRgb(), darkVibrantLab);
-									distances.put(ColorUtils.distanceEuclidean(dominantLab, darkVibrantLab), darkVibrantLab);
-								}
-
-								collapseToolbar.setBackgroundColor(dominantRgb);
-								collapseToolbar.setStatusBarScrimColor(dominantRgb);
-								collapseToolbar.setContentScrimColor(dominantRgb);
-								double[] max = distances.get(Collections.max(distances.keySet()));
-								collapseToolbar.setCollapsedTitleTextColor(ColorUtils.LABToColor(max[0], max[1], max[2]));
-
-							}
 						}
 					});
 		}
@@ -152,6 +97,7 @@ public class BookDetailFragment extends Fragment {
 		background.setOnClickListener(v -> {
 			Intent intent = new Intent(getActivity(), CoverActivity.class);
 			intent.putExtra("url", mBook.getImage());
+			intent.putExtra("dominantRgb", dominantRgb);
 			// cf https://guides.codepath.com/android/Shared-Element-Activity-Transition#3-start-activity
 			ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(getActivity(), background, "cover");
 

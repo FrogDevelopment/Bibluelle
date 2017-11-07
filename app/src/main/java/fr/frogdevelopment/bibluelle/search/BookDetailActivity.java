@@ -1,6 +1,5 @@
 package fr.frogdevelopment.bibluelle.search;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -44,7 +43,7 @@ public class BookDetailActivity extends AppCompatActivity {
 			// Create the detail fragment and add it to the activity
 			// using a fragment transaction.
 			Bundle arguments = new Bundle();
-			arguments.putSerializable(BookDetailFragment.ARG_KEY, getIntent().getSerializableExtra(BookDetailFragment.ARG_KEY));
+			arguments.putAll(getIntent().getExtras());
 			BookDetailFragment fragment = new BookDetailFragment();
 			fragment.setArguments(arguments);
 			getSupportFragmentManager()
@@ -58,7 +57,7 @@ public class BookDetailActivity extends AppCompatActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		int id = item.getItemId();
 		if (id == android.R.id.home) {
-			navigateUpTo(new Intent(this, BookListActivity.class));
+			onBackPressed();
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
