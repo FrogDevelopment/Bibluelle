@@ -45,7 +45,7 @@ public class BookDetailFragment extends Fragment {
 		mBook = (Book) getArguments().getSerializable(ARG_KEY);
 		CollapsingToolbarLayout collapseToolbar = getActivity().findViewById(R.id.toolbar_layout);
 		if (mBook != null && collapseToolbar != null) {
-			collapseToolbar.setTitle(mBook.getTitle());
+			collapseToolbar.setTitle(mBook.title);
 			AppBarLayout appBarLayout = getActivity().findViewById(R.id.app_bar);
 			appBarLayout.addOnOffsetChangedListener(new AppBarStateChangeListener() {
 				@Override
@@ -69,7 +69,7 @@ public class BookDetailFragment extends Fragment {
 			ImageView toolbarCover = getActivity().findViewById(R.id.toolbar_cover);
 			GlideApp.with(this)
 					.asDrawable()
-					.load(mBook.getImage())
+					.load(mBook.image)
 					.into(new SimpleTarget<Drawable>() {
 
 						@Override
@@ -93,10 +93,10 @@ public class BookDetailFragment extends Fragment {
 		View rootView = inflater.inflate(R.layout.book_detail, container, false);
 
 		ImageView background = rootView.findViewById(R.id.detail_cover);
-		GlideApp.with(this).load(mBook.getImage()).into(background);
+		GlideApp.with(this).load(mBook.image).into(background);
 		background.setOnClickListener(v -> {
 			Intent intent = new Intent(getActivity(), CoverActivity.class);
-			intent.putExtra("url", mBook.getImage());
+			intent.putExtra("url", mBook.image);
 			intent.putExtra("dominantRgb", dominantRgb);
 			// cf https://guides.codepath.com/android/Shared-Element-Activity-Transition#3-start-activity
 			ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(getActivity(), background, "cover");
@@ -105,31 +105,31 @@ public class BookDetailFragment extends Fragment {
 		});
 
 		TextView title = rootView.findViewById(R.id.detail_title);
-		title.setText(mBook.getTitle());
+		title.setText(mBook.title);
 
 		TextView subTitle = rootView.findViewById(R.id.detail_sub_title);
-		if (TextUtils.isEmpty(mBook.getSubTitle())) {
+		if (TextUtils.isEmpty(mBook.subTitle)) {
 			subTitle.setVisibility(View.GONE);
 		} else {
 			subTitle.setVisibility(View.VISIBLE);
-			subTitle.setText(mBook.getSubTitle());
+			subTitle.setText(mBook.subTitle);
 		}
 
 		TextView author = rootView.findViewById(R.id.detail_author);
-		author.setText(mBook.getAuthor());
+		author.setText(mBook.author);
 
 		TextView publisher = rootView.findViewById(R.id.detail_publisher);
-		publisher.setText(mBook.getPublisher());
+		publisher.setText(mBook.publisher);
 
 		TextView publishedDate = rootView.findViewById(R.id.detail_publication_date);
-		LocalDate localDate = LocalDate.parse(mBook.getPublishedDate(), DateTimeFormatter.ISO_DATE);
+		LocalDate localDate = LocalDate.parse(mBook.publishedDate, DateTimeFormatter.ISO_DATE);
 		publishedDate.setText("Publié le " + localDate.format(LONG_DATE_FORMATTER));
 
 		TextView pageCount = rootView.findViewById(R.id.detail_nb_pages);
-		pageCount.setText(mBook.getPageCount() + " pages");
+		pageCount.setText(mBook.pageCount + " pages");
 
 		ExpandableTextView description = rootView.findViewById(R.id.detail_description);
-		description.setText(mBook.getDescription());
+		description.setText(mBook.description);
 		// set interpolators for both expanding and collapsing animations
 		description.setInterpolator(new OvershootInterpolator());
 
@@ -140,10 +140,10 @@ public class BookDetailFragment extends Fragment {
 		});
 
 		TextView isbn = rootView.findViewById(R.id.detail_isbn);
-		isbn.setText(mBook.getIsbn());
+		isbn.setText(mBook.isbn);
 
-		TextView categories = rootView.findViewById(R.id.detail_categories);
-		categories.setText(TextUtils.join(" / ", mBook.getCategories()));
+//		TextView categories = rootView.findViewById(R.id.detail_categories);
+//		categories.setText(TextUtils.join(" / ", mBook.categories));
 
 		return rootView;
 	}

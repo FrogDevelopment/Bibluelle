@@ -202,7 +202,7 @@ public class BookListActivity extends AppCompatActivity {
 
 		int finalDominantRgb = dominantRgb;
 		int finalCollapsedTitleColor = collapsedTitleColor;
-		GoogleRestHelper.showDetails(this, book.getIsbn(), details -> {
+		GoogleRestHelper.showDetails(this, book.isbn, details -> {
 			mSpinner.setVisibility(View.GONE);
 
 			if (details != null) {
@@ -258,9 +258,9 @@ public class BookListActivity extends AppCompatActivity {
 			Book book = mBooks.get(position);
 
 			// Set item views based on your views and data model
-			GlideApp.with(mParentActivity).load(book.getThumbnail()).into(viewHolder.mThumbnail);
-			viewHolder.mTitle.setText(book.getTitle());
-			viewHolder.mAuthor.setText(book.getAuthor());
+			GlideApp.with(mParentActivity).load(book.thumbnail).into(viewHolder.mThumbnail);
+			viewHolder.mTitle.setText(book.title);
+			viewHolder.mAuthor.setText(book.author);
 			viewHolder.itemView.setTag(mBooks.get(position));
 			viewHolder.itemView.setOnClickListener(v -> mParentActivity.showDetails(viewHolder.mThumbnail, book));
 		}

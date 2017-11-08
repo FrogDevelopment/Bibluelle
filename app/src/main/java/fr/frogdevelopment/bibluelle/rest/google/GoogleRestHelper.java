@@ -47,19 +47,19 @@ public class GoogleRestHelper {
 							for (GoogleBook googleBook : googleBooks.getItems()) {
 								Book book = new Book();
 								VolumeInfo volumeInfo = googleBook.getVolumeInfo();
-								book.setTitle(volumeInfo.getTitle());
+								book.title = volumeInfo.getTitle();
 								if (volumeInfo.getAuthors() != null) {
-									book.setAuthor(TextUtils.join(",", volumeInfo.getAuthors()));
+									book.author = TextUtils.join(",", volumeInfo.getAuthors());
 								}
 								if (volumeInfo.getImageLinks() != null) {
 									String thumbnail = volumeInfo.getImageLinks().getThumbnail();
-									book.setThumbnail(thumbnail.replaceAll("&edge=curl", ""));
+									book.thumbnail = thumbnail.replaceAll("&edge=curl", "");
 								}
 
 								if (volumeInfo.getIndustryIdentifiers() != null) {
 									for (IndustryIdentifiers i : volumeInfo.getIndustryIdentifiers()) {
 										if (IndustryIdentifiers.Type.ISBN_13.equals(i.getType())) {
-											book.setIsbn(i.getIdentifier());
+											book.isbn = i.getIdentifier();
 											books.add(book);
 										}
 									}
@@ -110,21 +110,20 @@ public class GoogleRestHelper {
 						VolumeInfo volumeInfo = googleBook.getVolumeInfo();
 
 						book = new Book();
-						book.setTitle(volumeInfo.getTitle());
-						book.setSubTitle(volumeInfo.getSubtitle());
+						book.title = volumeInfo.getTitle();
+						book.subTitle = volumeInfo.getSubtitle();
 						//https://books.google.com/books/content/images/frontcover/3Cjz7DKv74MC?fife=w200-rw
-						String image = String.format("https://books.google.com/books/content/images/frontcover/%s?fife=w300-rw", googleBook.getId());
-						book.setImage(image);
+						book.image = String.format("https://books.google.com/books/content/images/frontcover/%s?fife=w300-rw", googleBook.getId());
 
 						if (volumeInfo.getAuthors() != null) {
-							book.setAuthor(TextUtils.join(",", volumeInfo.getAuthors()));
+							book.author = TextUtils.join(",", volumeInfo.getAuthors());
 						}
-						book.setPublisher(volumeInfo.getPublisher());
-						book.setPublishedDate(volumeInfo.getPublishedDate());
-						book.setDescription(volumeInfo.getDescription());
-						book.setPageCount(volumeInfo.getPageCount());
-						book.setCategories(volumeInfo.getCategories());
-						book.setIsbn(isbn);
+						book.publisher = volumeInfo.getPublisher();
+						book.publishedDate = volumeInfo.getPublishedDate();
+						book.description = volumeInfo.getDescription();
+						book.pageCount = volumeInfo.getPageCount();
+//						book.categories = (volumeInfo.getCategories());
+						book.isbn = isbn;
 					} else {
 						// fixme
 						Toast.makeText(context, "No data", Toast.LENGTH_LONG).show();

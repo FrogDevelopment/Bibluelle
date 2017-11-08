@@ -1,116 +1,57 @@
 package fr.frogdevelopment.bibluelle.data;
 
+import android.arch.persistence.room.ColumnInfo;
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.Index;
+import android.arch.persistence.room.PrimaryKey;
+
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
 import java.io.Serializable;
-import java.util.List;
 
+@Entity(tableName = "book", indices = {@Index(value = "isbn", unique = true)})
 public class Book implements Serializable {
 
 	private static final long serialVersionUID = 1270210172748954066L;
 
-	private String title;
-	private String subTitle;
-	private String author;
-	private String publisher;
-	private String publishedDate;
-	private String isbn;
-	private String thumbnail;
-	private String image;
-	private String description;
-	private String pageCount;
-	private List<String> categories;
+	@PrimaryKey(autoGenerate = true)
+	public int id;
 
-	public String getTitle() {
-		return title;
-	}
+	@ColumnInfo(name = "title")
+	public String title;
 
-	public void setTitle(String title) {
-		this.title = title;
-	}
+	@ColumnInfo(name = "sub_title")
+	public String subTitle;
 
-	public String getSubTitle() {
-		return subTitle;
-	}
+	@ColumnInfo(name = "author")
+	public String author;
 
-	public void setSubTitle(String subTitle) {
-		this.subTitle = subTitle;
-	}
+	@ColumnInfo(name = "publisher")
+	public String publisher;
 
-	public String getAuthor() {
-		return author;
-	}
+	@ColumnInfo(name = "published_date")
+	public String publishedDate;
 
-	public void setAuthor(String author) {
-		this.author = author;
-	}
+	@ColumnInfo(name = "isbn")
+	public String isbn;
 
-	public String getPublisher() {
-		return publisher;
-	}
+	@ColumnInfo(name = "thumbnail")
+	public String thumbnail;
 
-	public void setPublisher(String publisher) {
-		this.publisher = publisher;
-	}
+	@ColumnInfo(name = "image")
+	public String image;
 
-	public String getPublishedDate() {
-		return publishedDate;
-	}
+	@ColumnInfo(name = "description")
+	public String description;
 
-	public void setPublishedDate(String publishedDate) {
-		this.publishedDate = publishedDate;
-	}
+	@ColumnInfo(name = "page_count")
+	public String pageCount;
 
-	public String getIsbn() {
-		return isbn;
-	}
-
-	public void setIsbn(String isbn) {
-		this.isbn = isbn;
-	}
-
-	public String getThumbnail() {
-		return thumbnail;
-	}
-
-	public void setThumbnail(String thumbnail) {
-		this.thumbnail = thumbnail;
-	}
-
-	public String getImage() {
-		return image;
-	}
-
-	public void setImage(String image) {
-		this.image = image;
-	}
-
-	public String getDescription() {
-		return description;
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
-	}
-
-	public String getPageCount() {
-		return pageCount;
-	}
-
-	public void setPageCount(String pageCount) {
-		this.pageCount = pageCount;
-	}
-
-	public List<String> getCategories() {
-		return categories;
-	}
-
-	public void setCategories(List<String> categories) {
-		this.categories = categories;
-	}
+//	@ColumnInfo(name = "categories")
+//	public List<String> categories;
 
 	@Override
 	public boolean equals(Object o) {
@@ -131,7 +72,7 @@ public class Book implements Serializable {
 				.append(thumbnail, book.thumbnail)
 				.append(image, book.image)
 				.append(description, book.description)
-				.append(categories, book.categories)
+//				.append(categories, book.categories)
 				.isEquals();
 	}
 
@@ -155,7 +96,7 @@ public class Book implements Serializable {
 				.append("image", image)
 				.append("description", description)
 				.append("pageCount", pageCount)
-				.append("categories", categories)
+//				.append("categories", categories)
 				.toString();
 	}
 }

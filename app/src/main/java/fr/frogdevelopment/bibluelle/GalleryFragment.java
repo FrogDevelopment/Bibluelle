@@ -87,12 +87,12 @@ public class GalleryFragment extends Fragment {
 			Book contact = book.get(position);
 
 			// Set item views based on your views and data model
-			viewHolder.mTitle.setText(contact.getTitle());
-			viewHolder.mAuthor.setText(contact.getAuthor());
+			viewHolder.mTitle.setText(contact.title);
+			viewHolder.mAuthor.setText(contact.author);
 
 
 			Glide.with(viewHolder.itemView.getContext())
-					.load(contact.getThumbnail())
+					.load(contact.thumbnail)
 					.into(viewHolder.mThumbnail);
 		}
 
