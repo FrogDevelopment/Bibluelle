@@ -1,14 +1,18 @@
 package fr.frogdevelopment.bibluelle.search;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import fr.frogdevelopment.bibluelle.R;
+import fr.frogdevelopment.bibluelle.data.Book;
+import fr.frogdevelopment.bibluelle.data.DaoFactory;
+import fr.frogdevelopment.bibluelle.data.DatabaseCreator;
 
 /**
  * An activity representing a single Book detail screen. This
@@ -26,7 +30,11 @@ public class BookDetailActivity extends AppCompatActivity {
 		setSupportActionBar(toolbar);
 
 		FloatingActionButton fab = findViewById(R.id.fab);
-		fab.setOnClickListener(view -> Snackbar.make(view, "Replace with your own detail action", Snackbar.LENGTH_LONG).setAction("Action", null).show());
+		fab.setOnClickListener(view -> {
+			DaoFactory database = DatabaseCreator.getInstance(this.getApplicationContext()).getDatabase();
+			Book book = (Book) getIntent().getSerializableExtra(BookDetailFragment.ARG_KEY);
+			new InsertBookTask(database, () -> Toast.makeText(getApplicationContext(), "Book saved", Toast.LENGTH_LONG).show()).execute(book);
+		});
 
 		// Show the Up button in the action bar.
 		ActionBar actionBar = getSupportActionBar();
@@ -61,5 +69,34 @@ public class BookDetailActivity extends AppCompatActivity {
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
+	}
+
+	private static class InsertBookTask extends AsyncTask<Book, Void, Void> {
+
+		interface OnSavedListener {
+			void onSave();
+		}
+
+		private final DaoFactory mDatabase;
+		private final OnSavedListener mListener;
+
+		private InsertBookTask(DaoFactory database, OnSavedListener listener) {
+			this.mDatabase = database;
+			this.mListener = listener;
+		}
+
+		@Override
+		protected Void doInBackground(Book... books) {
+			Book book = books[0];
+
+			mDatabase.bookDao().insertBook(book);
+
+			return null;
+		}
+
+		@Override
+		protected void onPostExecute(Void aVoid) {
+			mListener.onSave();
+		}
 	}
 }

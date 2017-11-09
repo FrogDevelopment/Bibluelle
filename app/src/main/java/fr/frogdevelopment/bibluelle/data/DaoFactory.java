@@ -7,5 +7,7 @@ import android.arch.persistence.room.RoomDatabase;
 @Database(entities = {Book.class}, version = 1)
 public abstract class DaoFactory extends RoomDatabase {
 
+	static final String DATABASE_NAME = "bibluelle-db";
+
 	public abstract BookDao bookDao();
 }

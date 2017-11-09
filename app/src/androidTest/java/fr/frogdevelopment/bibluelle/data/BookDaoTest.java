@@ -1,5 +1,6 @@
 package fr.frogdevelopment.bibluelle.data;
 
+import android.arch.lifecycle.LiveData;
 import android.arch.persistence.room.Room;
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
@@ -46,7 +47,7 @@ public class BookDaoTest {
 		mBookDao.insertBook(book);
 
 		// assert
-		List<Book> books = mBookDao.loadAllBooks();
-		Assert.assertThat(books, IsCollectionWithSize.hasSize(1));
+		LiveData<List<Book>> books = mBookDao.loadAllBooks();
+		Assert.assertThat(books.getValue(), IsCollectionWithSize.hasSize(1));
 	}
 }

@@ -1,5 +1,6 @@
 package fr.frogdevelopment.bibluelle.data;
 
+import android.arch.lifecycle.LiveData;
 import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Delete;
 import android.arch.persistence.room.Insert;
@@ -25,7 +26,7 @@ public interface BookDao {
 	List<PreviewTuple> loadAllPreviews();
 
 	@Query("SELECT * FROM book")
-	List<Book> loadAllBooks();
+	LiveData<List<Book>> loadAllBooks();
 
 	@Query("SELECT DISTINCT author FROM book")
 	List<String> loadAllAuthors();

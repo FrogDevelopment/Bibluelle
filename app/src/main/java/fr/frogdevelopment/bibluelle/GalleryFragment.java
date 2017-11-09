@@ -1,8 +1,8 @@
 package fr.frogdevelopment.bibluelle;
 
-import android.app.Fragment;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -11,12 +11,15 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.azoft.carousellayoutmanager.CenterScrollListener;
 import com.bumptech.glide.Glide;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import fr.frogdevelopment.bibluelle.data.Book;
+import fr.frogdevelopment.bibluelle.data.DaoFactory;
+import fr.frogdevelopment.bibluelle.data.DatabaseCreator;
+
+//import com.azoft.carousellayoutmanager.CenterScrollListener;
 
 public class GalleryFragment extends Fragment {
 
@@ -36,24 +39,22 @@ public class GalleryFragment extends Fragment {
 		final RecyclerView recyclerView = view.findViewById(R.id.recycler_view);
 		recyclerView.setLayoutManager(layoutManager);
 		recyclerView.setHasFixedSize(true);
-		recyclerView.addOnScrollListener(new CenterScrollListener());
+//		recyclerView.addOnScrollListener(new CenterScrollListener());
 
-		// fixme get from provider
-		ArrayList<Book> books = new ArrayList<>();
-
-		recyclerView.setAdapter(new BooksAdapter(books));
+		DaoFactory database = DatabaseCreator.getInstance(getActivity().getApplication()).getDatabase();
+		database.bookDao().loadAllBooks().observe(this, books -> recyclerView.setAdapter(new BooksAdapter(books)));
 
 		// tester aussi https://github.com/GoodieBag/CarouselPicker
 	}
 
 	public class BooksAdapter extends RecyclerView.Adapter<BooksAdapter.ViewHolder> {
 
-		public class ViewHolder extends RecyclerView.ViewHolder {
-			public final ImageView mThumbnail;
-			public final TextView mTitle;
-			public final TextView mAuthor;
+		class ViewHolder extends RecyclerView.ViewHolder {
+			final ImageView mThumbnail;
+			final TextView mTitle;
+			final TextView mAuthor;
 
-			public ViewHolder(View itemView) {
+			ViewHolder(View itemView) {
 				super(itemView);
 
 				mThumbnail = itemView.findViewById(R.id.item_thumbnail);
@@ -63,11 +64,11 @@ public class GalleryFragment extends Fragment {
 		}
 
 		// Store a member variable for the contacts
-		private final ArrayList<Book> book;
+		private final List<Book> books;
 
 		// Pass in the contact array into the constructor
-		public BooksAdapter(ArrayList<Book> books) {
-			book = books;
+		BooksAdapter(List<Book> books) {
+			this.books = books;
 		}
 
 		@Override
@@ -84,7 +85,7 @@ public class GalleryFragment extends Fragment {
 		@Override
 		public void onBindViewHolder(BooksAdapter.ViewHolder viewHolder, int position) {
 			// Get the data model based on position
-			Book contact = book.get(position);
+			Book contact = books.get(position);
 
 			// Set item views based on your views and data model
 			viewHolder.mTitle.setText(contact.title);
@@ -99,7 +100,7 @@ public class GalleryFragment extends Fragment {
 		// Returns the total count of items in the list
 		@Override
 		public int getItemCount() {
-			return book.size();
+			return books.size();
 		}
 	}
 
