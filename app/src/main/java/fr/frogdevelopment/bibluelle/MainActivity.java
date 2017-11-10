@@ -12,6 +12,7 @@ import android.widget.Toast;
 import com.jakewharton.threetenabp.AndroidThreeTen;
 
 import fr.frogdevelopment.bibluelle.data.DatabaseCreator;
+import fr.frogdevelopment.bibluelle.gallery.GalleryFragment;
 import fr.frogdevelopment.bibluelle.search.SearchFragment;
 
 public class MainActivity extends AppCompatActivity {
