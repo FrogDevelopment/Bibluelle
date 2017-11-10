@@ -64,7 +64,7 @@ public class SearchFragment extends Fragment {
 
 	private void showDetails(String isbn) {
 		// fixme show Spinner
-		GoogleRestHelper.showDetails(getActivity(), isbn, book -> {
+		GoogleRestHelper.searchBook(getActivity(), isbn, book -> {
 			// fixme hide Spinner
 			if (book != null) {
 				Intent intent = new Intent(getActivity(), BookDetailActivity.class);

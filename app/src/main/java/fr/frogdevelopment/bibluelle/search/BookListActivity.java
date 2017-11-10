@@ -202,7 +202,7 @@ public class BookListActivity extends AppCompatActivity {
 
 		int finalDominantRgb = dominantRgb;
 		int finalCollapsedTitleColor = collapsedTitleColor;
-		GoogleRestHelper.showDetails(this, book.isbn, details -> {
+		GoogleRestHelper.searchDetails(this, book, details -> {
 			mSpinner.setVisibility(View.GONE);
 
 			if (details != null) {

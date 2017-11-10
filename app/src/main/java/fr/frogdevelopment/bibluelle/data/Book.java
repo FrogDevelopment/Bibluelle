@@ -50,8 +50,8 @@ public class Book implements Serializable {
 	@ColumnInfo(name = "page_count")
 	public String pageCount;
 
-//	@ColumnInfo(name = "categories")
-//	public List<String> categories;
+	@ColumnInfo(name = "categories")
+	public String categories;
 
 	@Override
 	public boolean equals(Object o) {
@@ -72,7 +72,7 @@ public class Book implements Serializable {
 				.append(thumbnail, book.thumbnail)
 				.append(image, book.image)
 				.append(description, book.description)
-//				.append(categories, book.categories)
+				.append(categories, book.categories)
 				.isEquals();
 	}
 
@@ -96,7 +96,7 @@ public class Book implements Serializable {
 				.append("image", image)
 				.append("description", description)
 				.append("pageCount", pageCount)
-//				.append("categories", categories)
+				.append("categories", categories)
 				.toString();
 	}
 }

@@ -142,8 +142,8 @@ public class BookDetailFragment extends Fragment {
 		TextView isbn = rootView.findViewById(R.id.detail_isbn);
 		isbn.setText(mBook.isbn);
 
-//		TextView categories = rootView.findViewById(R.id.detail_categories);
-//		categories.setText(TextUtils.join(" / ", mBook.categories));
+		TextView categories = rootView.findViewById(R.id.detail_categories);
+		categories.setText(mBook.categories);
 
 		return rootView;
 	}

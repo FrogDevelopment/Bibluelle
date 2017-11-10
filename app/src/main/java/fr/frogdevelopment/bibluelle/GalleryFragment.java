@@ -23,6 +23,8 @@ import fr.frogdevelopment.bibluelle.data.DatabaseCreator;
 
 public class GalleryFragment extends Fragment {
 
+	private View mSpinner;
+
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		return inflater.inflate(R.layout.fragment_gallery, container, false);
@@ -31,6 +33,8 @@ public class GalleryFragment extends Fragment {
 	@Override
 	public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
+
+		mSpinner = view.findViewById(R.id.spinner);
 
 		// https://github.com/Azoft/CarouselLayoutManager
 //		final CarouselLayoutManager layoutManager = new CarouselLayoutManager(CarouselLayoutManager.HORIZONTAL);
@@ -42,7 +46,10 @@ public class GalleryFragment extends Fragment {
 //		recyclerView.addOnScrollListener(new CenterScrollListener());
 
 		DaoFactory database = DatabaseCreator.getInstance(getActivity().getApplication()).getDatabase();
-		database.bookDao().loadAllBooks().observe(this, books -> recyclerView.setAdapter(new BooksAdapter(books)));
+		database.bookDao().loadAllBooks().observe(this, books -> {
+			mSpinner.setVisibility(View.GONE);
+			recyclerView.setAdapter(new BooksAdapter(books));
+		});
 
 		// tester aussi https://github.com/GoodieBag/CarouselPicker
 	}
