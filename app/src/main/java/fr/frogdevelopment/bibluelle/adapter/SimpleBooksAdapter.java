@@ -1,4 +1,4 @@
-package fr.frogdevelopment.bibluelle.gallery;
+package fr.frogdevelopment.bibluelle.adapter;
 
 import android.databinding.DataBindingUtil;
 import android.view.LayoutInflater;
@@ -13,7 +13,7 @@ import fr.frogdevelopment.bibluelle.databinding.ItemSimpleBinding;
 
 public class SimpleBooksAdapter extends AbstractBooksAdapter<SimpleBooksAdapter.ViewHolder> {
 
-	static class ViewHolder extends AbstractBooksAdapter.BookViewHolder {
+	public static class ViewHolder extends AbstractBooksAdapter.BookViewHolder {
 
 		private final ItemSimpleBinding mBinding;
 
@@ -29,8 +29,12 @@ public class SimpleBooksAdapter extends AbstractBooksAdapter<SimpleBooksAdapter.
 		}
 	}
 
-	SimpleBooksAdapter(List<Book> books) {
+	public SimpleBooksAdapter(List<Book> books) {
 		super(books);
+	}
+
+	public SimpleBooksAdapter(List<Book> books, OnClickListener listener) {
+		super(books, listener);
 	}
 
 	@Override

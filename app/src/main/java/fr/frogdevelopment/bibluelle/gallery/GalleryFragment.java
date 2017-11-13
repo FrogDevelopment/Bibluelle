@@ -6,18 +6,34 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.azoft.carousellayoutmanager.CarouselLayoutManager;
 import com.azoft.carousellayoutmanager.CarouselZoomPostLayoutListener;
-import com.azoft.carousellayoutmanager.CenterScrollListener;
+
+import java.util.List;
 
 import fr.frogdevelopment.bibluelle.R;
+import fr.frogdevelopment.bibluelle.adapter.CarouselBooksAdapter;
+import fr.frogdevelopment.bibluelle.adapter.SimpleBooksAdapter;
+import fr.frogdevelopment.bibluelle.data.Book;
 import fr.frogdevelopment.bibluelle.data.DaoFactory;
 import fr.frogdevelopment.bibluelle.data.DatabaseCreator;
 
 public class GalleryFragment extends Fragment {
+
+	private RecyclerView mRecyclerView;
+	private List<Book> mBooks;
+
+	@Override
+	public void onCreate(@Nullable Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setHasOptionsMenu(true);
+	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -28,36 +44,59 @@ public class GalleryFragment extends Fragment {
 	public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 
-		View spinner = view.findViewById(R.id.spinner);
-		boolean isCarousel = true;
-
-
-		final RecyclerView recyclerView = view.findViewById(R.id.recycler_view);
-		recyclerView.setHasFixedSize(true);
-
-		if (isCarousel) {
-			// https://github.com/Azoft/CarouselLayoutManager
-			final CarouselLayoutManager layoutManager = new CarouselLayoutManager(CarouselLayoutManager.HORIZONTAL);
-			layoutManager.setPostLayoutListener(new CarouselZoomPostLayoutListener());
-			layoutManager.setMaxVisibleItems(3);
-
-			recyclerView.addOnScrollListener(new CenterScrollListener());
-			recyclerView.setLayoutManager(layoutManager);
-		} else {
-			final LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
-
-			recyclerView.setLayoutManager(layoutManager);
-		}
+		mRecyclerView = view.findViewById(R.id.recycler_view);
+		mRecyclerView.setHasFixedSize(true);
 
 		DaoFactory database = DatabaseCreator.getInstance(getActivity().getApplication()).getDatabase();
 		database.bookDao().loadAllBooks().observe(this, books -> {
-			spinner.setVisibility(View.GONE);
-			if (isCarousel) {
-				recyclerView.setAdapter(new CarouselBooksAdapter(books));
-			} else {
-				recyclerView.setAdapter(new SimpleBooksAdapter(books));
-			}
+			view.findViewById(R.id.spinner).setVisibility(View.GONE);
+			mBooks = books;
+
+			// default
+			setCarouselList(books);
 		});
+	}
+
+	private void setSimpleList(List<Book> books) {
+		final LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
+
+		mRecyclerView.setLayoutManager(layoutManager);
+
+		mRecyclerView.setAdapter(new SimpleBooksAdapter(books));
+	}
+
+	private void setCarouselList(List<Book> books) {
+		// https://github.com/Azoft/CarouselLayoutManager
+		final CarouselLayoutManager layoutManager = new CarouselLayoutManager(CarouselLayoutManager.HORIZONTAL);
+		layoutManager.setPostLayoutListener(new CarouselZoomPostLayoutListener());
+		layoutManager.setMaxVisibleItems(3);
+
+//		mRecyclerView.addOnScrollListener(new CenterScrollListener());
+		mRecyclerView.setLayoutManager(layoutManager);
+		mRecyclerView.setAdapter(new CarouselBooksAdapter(books));
+	}
+
+	@Override
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+		inflater.inflate(R.menu.home, menu);
+		super.onCreateOptionsMenu(menu, inflater);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+
+			case R.id.action_simple:
+				setSimpleList(mBooks);
+				return true;
+
+			case R.id.action_carousel:
+				setCarouselList(mBooks);
+				return true;
+
+			default:
+				return false;
+		}
 	}
 
 }

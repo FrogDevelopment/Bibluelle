@@ -13,13 +13,10 @@ import android.support.v7.graphics.Palette.Swatch;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
-import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -27,28 +24,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import fr.frogdevelopment.bibluelle.GlideApp;
 import fr.frogdevelopment.bibluelle.R;
+import fr.frogdevelopment.bibluelle.adapter.SimpleBooksAdapter;
 import fr.frogdevelopment.bibluelle.data.Book;
 import fr.frogdevelopment.bibluelle.rest.google.GoogleRestHelper;
 
-/**
- * An activity representing a list of Books. This activity
- * has different presentations for handset and tablet-size devices. On
- * handsets, the activity presents a list of items, which when touched,
- * lead to a {@link BookDetailActivity} representing
- * item details. On tablets, the activity presents the list of items and
- * item details side-by-side using two vertical panes.
- */
 public class BookListActivity extends AppCompatActivity {
 
-	/**
-	 * Whether or not the activity is in two-pane mode, i.e. running on a tablet device.
-	 */
 	private boolean mTwoPane;
 
 	private String mUrlParameters;
-	private SimpleItemRecyclerViewAdapter mAdapter;
+	private SimpleBooksAdapter mAdapter;
 	private View mSpinner;
 
 	@Override
@@ -69,17 +55,13 @@ public class BookListActivity extends AppCompatActivity {
 		}
 
 		if (findViewById(R.id.book_detail_container) != null) {
-			// The detail container view will be present only in the
-			// large-screen layouts (res/values-w900dp).
-			// If this view is present, then the
-			// activity should be in two-pane mode.
 			mTwoPane = true;
 		}
 
 		mSpinner = findViewById(R.id.spinner);
 
 		RecyclerView recyclerView = findViewById(R.id.book_list);
-		mAdapter = new SimpleItemRecyclerViewAdapter(BookListActivity.this);
+		mAdapter = new SimpleBooksAdapter(new ArrayList<>(), (v, book) -> showDetails(v.findViewById(R.id.item_thumbnail), book));
 		recyclerView.setAdapter(mAdapter);
 
 		String title = getIntent().getStringExtra("title");
@@ -230,59 +212,5 @@ public class BookListActivity extends AppCompatActivity {
 				}
 			}
 		});
-	}
-
-	public static class SimpleItemRecyclerViewAdapter extends RecyclerView.Adapter<SimpleItemRecyclerViewAdapter.ViewHolder> {
-
-		private final BookListActivity mParentActivity;
-		private final List<Book> mBooks = new ArrayList<>();
-
-		SimpleItemRecyclerViewAdapter(BookListActivity parent) {
-			mParentActivity = parent;
-		}
-
-		void addBooks(List<Book> books) {
-			mBooks.addAll(books);
-			notifyDataSetChanged();
-		}
-
-		@Override
-		public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-			View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_simple, parent, false);
-			return new ViewHolder(view);
-		}
-
-		@Override
-		public void onBindViewHolder(final ViewHolder viewHolder, int position) {
-			// Get the data model based on position
-			Book book = mBooks.get(position);
-
-			// Set item views based on your views and data model
-			GlideApp.with(mParentActivity).load(book.thumbnail).into(viewHolder.mThumbnail);
-			viewHolder.mTitle.setText(book.title);
-			viewHolder.mAuthor.setText(book.author);
-			viewHolder.itemView.setTag(mBooks.get(position));
-			viewHolder.itemView.setOnClickListener(v -> mParentActivity.showDetails(viewHolder.mThumbnail, book));
-		}
-
-		@Override
-		public int getItemCount() {
-			return mBooks.size();
-		}
-
-		class ViewHolder extends RecyclerView.ViewHolder {
-
-			final ImageView mThumbnail;
-			final TextView mTitle;
-			final TextView mAuthor;
-
-			ViewHolder(View itemView) {
-				super(itemView);
-
-				mThumbnail = itemView.findViewById(R.id.item_thumbnail);
-				mTitle = itemView.findViewById(R.id.item_title);
-				mAuthor = itemView.findViewById(R.id.item_author);
-			}
-		}
 	}
 }

@@ -1,4 +1,4 @@
-package fr.frogdevelopment.bibluelle.gallery;
+package fr.frogdevelopment.bibluelle.adapter;
 
 import android.databinding.DataBindingUtil;
 import android.view.LayoutInflater;
@@ -29,8 +29,12 @@ public class CarouselBooksAdapter extends AbstractBooksAdapter<CarouselBooksAdap
 		}
 	}
 
-	CarouselBooksAdapter(List<Book> books) {
+	public CarouselBooksAdapter(List<Book> books) {
 		super(books);
+	}
+
+	public CarouselBooksAdapter(List<Book> books, OnClickListener listener) {
+		super(books, listener);
 	}
 
 	@Override
