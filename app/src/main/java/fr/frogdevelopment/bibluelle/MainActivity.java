@@ -1,5 +1,6 @@
 package fr.frogdevelopment.bibluelle;
 
+import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Transformations;
 import android.os.Bundle;
 import android.support.design.widget.BottomNavigationView;
@@ -38,8 +39,9 @@ public class MainActivity extends AppCompatActivity {
 		DatabaseCreator databaseCreator = DatabaseCreator.getInstance(this.getApplication());
 
 		// listen fro database created fixme add loading cursor
-		Transformations.switchMap(databaseCreator.isDatabaseCreated(), isDbCreated -> {
-			if (isDbCreated) {
+		LiveData<Boolean> databaseCreated = databaseCreator.isDatabaseCreated();
+		Transformations.switchMap(databaseCreated, isDbCreated -> {
+			if (Boolean.TRUE.equals(isDbCreated)) {
 				// when created => display main view
 				switchFragment(R.id.navigation_dashboard);
 			} else {

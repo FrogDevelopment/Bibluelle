@@ -3,6 +3,7 @@ package fr.frogdevelopment.bibluelle.gallery;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -19,6 +20,7 @@ import java.util.List;
 
 import fr.frogdevelopment.bibluelle.R;
 import fr.frogdevelopment.bibluelle.adapter.CarouselBooksAdapter;
+import fr.frogdevelopment.bibluelle.adapter.GridBooksAdapter;
 import fr.frogdevelopment.bibluelle.adapter.SimpleBooksAdapter;
 import fr.frogdevelopment.bibluelle.data.Book;
 import fr.frogdevelopment.bibluelle.data.DaoFactory;
@@ -62,6 +64,7 @@ public class GalleryFragment extends Fragment {
 
 		mRecyclerView.setLayoutManager(layoutManager);
 
+//		mRecyclerView.removeOnScrollListener();
 		mRecyclerView.setAdapter(new SimpleBooksAdapter(books));
 	}
 
@@ -76,6 +79,15 @@ public class GalleryFragment extends Fragment {
 		mRecyclerView.setAdapter(new CarouselBooksAdapter(books));
 	}
 
+	private void setGridList(List<Book> books) {
+		final GridLayoutManager layoutManager = new GridLayoutManager(getActivity(), 2);
+
+		mRecyclerView.setLayoutManager(layoutManager);
+
+//		mRecyclerView.removeOnScrollListener();
+		mRecyclerView.setAdapter(new GridBooksAdapter(books));
+	}
+
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		inflater.inflate(R.menu.home, menu);
@@ -88,6 +100,10 @@ public class GalleryFragment extends Fragment {
 
 			case R.id.action_simple:
 				setSimpleList(mBooks);
+				return true;
+
+			case R.id.action_grid:
+				setGridList(mBooks);
 				return true;
 
 			case R.id.action_carousel:

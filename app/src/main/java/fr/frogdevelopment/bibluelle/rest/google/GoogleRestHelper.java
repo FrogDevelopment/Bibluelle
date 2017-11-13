@@ -178,7 +178,9 @@ public class GoogleRestHelper {
 						book.publishedDate = volumeInfo.getPublishedDate();
 						book.description = volumeInfo.getDescription();
 						book.pageCount = volumeInfo.getPageCount();
-						book.categories = TextUtils.join(" / ", volumeInfo.getCategories());
+						if (volumeInfo.getCategories() != null) {
+							book.categories = TextUtils.join(" / ", volumeInfo.getCategories());
+						}
 					} else {
 						// fixme
 						Toast.makeText(context, "No data", Toast.LENGTH_LONG).show();

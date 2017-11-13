@@ -10,6 +10,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.graphics.Palette;
 import android.support.v7.graphics.Palette.Swatch;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
@@ -63,6 +64,7 @@ public class BookListActivity extends AppCompatActivity {
 		RecyclerView recyclerView = findViewById(R.id.book_list);
 		mAdapter = new SimpleBooksAdapter(new ArrayList<>(), (v, book) -> showDetails(v.findViewById(R.id.item_thumbnail), book));
 		recyclerView.setAdapter(mAdapter);
+		recyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
 
 		String title = getIntent().getStringExtra("title");
 		List<String> parameters = new ArrayList<>();

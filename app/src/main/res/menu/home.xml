@@ -6,6 +6,10 @@
         android:title="Simple"
         app:showAsAction="never"/>
     <item
+        android:id="@+id/action_grid"
+        android:title="Grid"
+        app:showAsAction="never"/>
+    <item
         android:id="@+id/action_carousel"
         android:title="Carousel"
         app:showAsAction="never"/>
