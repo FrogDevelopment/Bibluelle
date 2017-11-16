@@ -1,15 +1,15 @@
 package fr.frogdevelopment.bibluelle;
 
-import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.Transformations;
 import android.os.Bundle;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Pair;
 import android.util.SparseArray;
+import android.view.View;
 import android.widget.Toast;
 
+import com.github.ybq.android.spinkit.SpinKitView;
 import com.jakewharton.threetenabp.AndroidThreeTen;
 
 import fr.frogdevelopment.bibluelle.data.DatabaseCreator;
@@ -30,7 +30,9 @@ public class MainActivity extends AppCompatActivity {
 		setContentView(R.layout.activity_main);
 
 		mNavigationView = findViewById(R.id.navigation);
-		mNavigationView.setOnNavigationItemSelectedListener(item -> switchFragment(item.getItemId()));
+		mNavigationView.setOnNavigationItemSelectedListener(item -> switchFragment(item.getItemId(), false));
+
+		SpinKitView spinner = findViewById(R.id.spinner);
 
 		buildFragmentsList();
 
@@ -38,17 +40,16 @@ public class MainActivity extends AppCompatActivity {
 
 		DatabaseCreator databaseCreator = DatabaseCreator.getInstance(this.getApplication());
 
-		// listen fro database created fixme add loading cursor
-		LiveData<Boolean> databaseCreated = databaseCreator.isDatabaseCreated();
-		Transformations.switchMap(databaseCreated, isDbCreated -> {
-			if (Boolean.TRUE.equals(isDbCreated)) {
+		// listen fro database created
+		databaseCreator.isDatabaseCreated().observe(this, aBoolean -> {
+			spinner.setVisibility(View.GONE);
+
+			if (Boolean.TRUE.equals(aBoolean)) {
 				// when created => display main view
-				switchFragment(R.id.navigation_dashboard);
+				switchFragment(R.id.navigation_dashboard, true);
 			} else {
 				// fixme
 			}
-
-			return null;
 		});
 
 		databaseCreator.createDb(this.getApplication());
@@ -81,8 +82,8 @@ public class MainActivity extends AppCompatActivity {
 		}
 	}
 
-	private boolean switchFragment(int itemId) {
-		if (mNavigationView.getSelectedItemId() == itemId) {
+	private boolean switchFragment(int itemId, boolean force) {
+		if (!force && mNavigationView.getSelectedItemId() == itemId) {
 			return false;
 		}
 
