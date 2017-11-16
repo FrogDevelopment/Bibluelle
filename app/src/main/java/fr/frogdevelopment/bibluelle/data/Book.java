@@ -2,6 +2,7 @@ package fr.frogdevelopment.bibluelle.data;
 
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.Index;
 import android.arch.persistence.room.PrimaryKey;
 
@@ -39,10 +40,16 @@ public class Book implements Serializable {
 	public String isbn;
 
 	@ColumnInfo(name = "thumbnail")
-	public String thumbnail;
+	public String thumbnailFile;
+
+	@Ignore
+	public String thumbnailUrl;
 
 	@ColumnInfo(name = "image")
-	public String image;
+	public String imageFile;
+
+	@Ignore
+	public String imageUrl;
 
 	@ColumnInfo(name = "description")
 	public String description;
@@ -69,8 +76,10 @@ public class Book implements Serializable {
 				.append(publisher, book.publisher)
 				.append(publishedDate, book.publishedDate)
 				.append(isbn, book.isbn)
-				.append(thumbnail, book.thumbnail)
-				.append(image, book.image)
+				.append(thumbnailFile, book.thumbnailFile)
+				.append(thumbnailUrl, book.thumbnailUrl)
+				.append(imageFile, book.imageFile)
+				.append(imageUrl, book.imageUrl)
 				.append(description, book.description)
 				.append(categories, book.categories)
 				.isEquals();
@@ -92,8 +101,10 @@ public class Book implements Serializable {
 				.append("publisher", publisher)
 				.append("publishedDate", publishedDate)
 				.append("isbn", isbn)
-				.append("thumbnail", thumbnail)
-				.append("image", image)
+				.append("thumbnailFile", thumbnailFile)
+				.append("thumbnailUrl", thumbnailUrl)
+				.append("imageFile", imageFile)
+				.append("imageUrl", imageUrl)
 				.append("description", description)
 				.append("pageCount", pageCount)
 				.append("categories", categories)

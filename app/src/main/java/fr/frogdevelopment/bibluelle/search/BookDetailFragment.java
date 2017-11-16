@@ -69,7 +69,7 @@ public class BookDetailFragment extends Fragment {
 			ImageView toolbarCover = getActivity().findViewById(R.id.toolbar_cover);
 			GlideApp.with(this)
 					.asDrawable()
-					.load(mBook.image)
+					.load(mBook.imageUrl)
 					.into(new SimpleTarget<Drawable>() {
 
 						@Override
@@ -93,10 +93,10 @@ public class BookDetailFragment extends Fragment {
 		View rootView = inflater.inflate(R.layout.book_detail, container, false);
 
 		ImageView background = rootView.findViewById(R.id.detail_cover);
-		GlideApp.with(this).load(mBook.image).into(background);
+		GlideApp.with(this).load(mBook.imageUrl).into(background);
 		background.setOnClickListener(v -> {
 			Intent intent = new Intent(getActivity(), CoverActivity.class);
-			intent.putExtra("url", mBook.image);
+			intent.putExtra("url", mBook.imageUrl);
 			intent.putExtra("dominantRgb", dominantRgb);
 			// cf https://guides.codepath.com/android/Shared-Element-Activity-Transition#3-start-activity
 			ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(getActivity(), background, "cover");

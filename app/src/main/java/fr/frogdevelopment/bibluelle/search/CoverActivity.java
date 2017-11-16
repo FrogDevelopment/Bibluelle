@@ -7,6 +7,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.widget.ImageView;
 
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+
 import fr.frogdevelopment.bibluelle.GlideApp;
 import fr.frogdevelopment.bibluelle.R;
 
@@ -36,7 +38,9 @@ public class CoverActivity extends AppCompatActivity {
 
 		String url = getIntent().getStringExtra("url");
 
-		GlideApp.with(this).load(url).into(mContentView);
+		GlideApp.with(this).load(url)
+				.diskCacheStrategy(DiskCacheStrategy.RESOURCE)
+				.into(mContentView);
 	}
 
 	@Override

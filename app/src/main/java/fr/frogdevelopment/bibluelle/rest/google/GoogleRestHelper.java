@@ -55,7 +55,7 @@ public class GoogleRestHelper {
 								}
 								if (volumeInfo.getImageLinks() != null) {
 									String thumbnail = volumeInfo.getImageLinks().getThumbnail();
-									book.thumbnail = thumbnail.replaceAll("&edge=curl", "");
+									book.thumbnailUrl = thumbnail.replaceAll("&edge=curl", "");
 								}
 
 								if (volumeInfo.getIndustryIdentifiers() != null) {
@@ -118,13 +118,13 @@ public class GoogleRestHelper {
 
 						if (volumeInfo.getImageLinks() != null) {
 							String thumbnail = volumeInfo.getImageLinks().getThumbnail();
-							book.thumbnail = thumbnail.replaceAll("&edge=curl", "");
+							book.thumbnailUrl = thumbnail.replaceAll("&edge=curl", "");
 						}
 
 						book.isbn = isbn;
 
 						//https://books.google.com/books/content/images/frontcover/3Cjz7DKv74MC?fife=w200-rw
-						book.image = String.format("https://books.google.com/books/content/images/frontcover/%s?fife=w300-rw", googleBook.getId());
+						book.imageUrl = String.format("https://books.google.com/books/content/images/frontcover/%s?fife=w300-rw", googleBook.getId());
 
 						if (volumeInfo.getAuthors() != null) {
 							book.author = TextUtils.join(",", volumeInfo.getAuthors());
@@ -169,7 +169,7 @@ public class GoogleRestHelper {
 
 						book.subTitle = volumeInfo.getSubtitle();
 						//https://books.google.com/books/content/images/frontcover/3Cjz7DKv74MC?fife=w200-rw
-						book.image = String.format("https://books.google.com/books/content/images/frontcover/%s?fife=w300-rw", googleBook.getId());
+						book.imageUrl = String.format("https://books.google.com/books/content/images/frontcover/%s?fife=w300-rw", googleBook.getId());
 
 						if (volumeInfo.getAuthors() != null) {
 							book.author = TextUtils.join(",", volumeInfo.getAuthors());

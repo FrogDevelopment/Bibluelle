@@ -1,6 +1,7 @@
 package fr.frogdevelopment.bibluelle.search;
 
-import android.os.AsyncTask;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
@@ -9,10 +10,17 @@ import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.bumptech.glide.request.target.SimpleTarget;
+import com.bumptech.glide.request.transition.Transition;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.OutputStream;
+
+import fr.frogdevelopment.bibluelle.GlideApp;
 import fr.frogdevelopment.bibluelle.R;
 import fr.frogdevelopment.bibluelle.data.Book;
-import fr.frogdevelopment.bibluelle.data.DaoFactory;
-import fr.frogdevelopment.bibluelle.data.DatabaseCreator;
+import fr.frogdevelopment.bibluelle.data.InsertBookTask;
 
 /**
  * An activity representing a single Book detail screen. This
@@ -30,11 +38,7 @@ public class BookDetailActivity extends AppCompatActivity {
 		setSupportActionBar(toolbar);
 
 		FloatingActionButton fab = findViewById(R.id.fab);
-		fab.setOnClickListener(view -> {
-			DaoFactory database = DatabaseCreator.getInstance(this.getApplicationContext()).getDatabase();
-			Book book = (Book) getIntent().getSerializableExtra(BookDetailFragment.ARG_KEY);
-			new InsertBookTask(database, () -> Toast.makeText(getApplicationContext(), "Book saved", Toast.LENGTH_LONG).show()).execute(book);
-		});
+		fab.setOnClickListener(view -> saveBook());
 
 		// Show the Up button in the action bar.
 		ActionBar actionBar = getSupportActionBar();
@@ -61,6 +65,55 @@ public class BookDetailActivity extends AppCompatActivity {
 		}
 	}
 
+	private void saveBook() {
+		Book book = (Book) getIntent().getSerializableExtra(BookDetailFragment.ARG_KEY);
+
+		// save thumbnail
+		GlideApp.with(this)
+				.downloadOnly()
+				.load(book.thumbnailUrl)
+				.into(new SimpleTarget<File>() {
+					@Override
+					public void onResourceReady(File resource, Transition<? super File> transition) {
+						book.thumbnailFile = saveFile(resource);
+						saveBook(book);
+					}
+				});
+
+		// save image
+		GlideApp.with(this)
+				.downloadOnly()
+				.load(book.imageUrl)
+				.into(new SimpleTarget<File>() {
+					@Override
+					public void onResourceReady(File resource, Transition<? super File> transition) {
+						book.imageFile = saveFile(resource);
+						saveBook(book);
+					}
+				});
+	}
+
+	private void saveBook(Book book) {
+		if (book.imageFile != null && book.thumbnailFile != null) {
+			// save book
+			new InsertBookTask(() -> Toast.makeText(getApplicationContext(), "Book saved", Toast.LENGTH_LONG).show()).execute(book);
+		}
+	}
+
+	private String saveFile(File file) {
+		String fileName = file.getName();
+
+		try (OutputStream fOut = openFileOutput(fileName, MODE_PRIVATE)) {
+			Bitmap bitmap = BitmapFactory.decodeStream(new FileInputStream(file));
+			bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fOut);
+		} catch (Exception e) {
+			e.printStackTrace(); // fixme
+			Toast.makeText(getApplicationContext(), "Error", Toast.LENGTH_LONG).show();
+		}
+
+		return fileName;
+	}
+
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		int id = item.getItemId();
@@ -71,32 +124,4 @@ public class BookDetailActivity extends AppCompatActivity {
 		return super.onOptionsItemSelected(item);
 	}
 
-	private static class InsertBookTask extends AsyncTask<Book, Void, Void> {
-
-		interface OnSavedListener {
-			void onSave();
-		}
-
-		private final DaoFactory mDatabase;
-		private final OnSavedListener mListener;
-
-		private InsertBookTask(DaoFactory database, OnSavedListener listener) {
-			this.mDatabase = database;
-			this.mListener = listener;
-		}
-
-		@Override
-		protected Void doInBackground(Book... books) {
-			Book book = books[0];
-
-			mDatabase.bookDao().insertBook(book);
-
-			return null;
-		}
-
-		@Override
-		protected void onPostExecute(Void aVoid) {
-			mListener.onSave();
-		}
-	}
 }

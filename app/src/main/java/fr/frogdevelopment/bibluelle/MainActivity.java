@@ -38,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
 
 		AndroidThreeTen.init(this);
 
-		DatabaseCreator databaseCreator = DatabaseCreator.getInstance(this.getApplication());
+		DatabaseCreator databaseCreator = DatabaseCreator.getInstance();
 
 		// listen fro database created
 		databaseCreator.isDatabaseCreated().observe(this, aBoolean -> {

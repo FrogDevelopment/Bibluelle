@@ -49,7 +49,7 @@ public class GalleryFragment extends Fragment {
 		mRecyclerView = view.findViewById(R.id.recycler_view);
 		mRecyclerView.setHasFixedSize(true);
 
-		DaoFactory database = DatabaseCreator.getInstance(getActivity().getApplication()).getDatabase();
+		DaoFactory database = DatabaseCreator.getInstance().getDatabase();
 		database.bookDao().loadAllBooks().observe(this, books -> {
 			view.findViewById(R.id.spinner).setVisibility(View.GONE);
 			mBooks = books;

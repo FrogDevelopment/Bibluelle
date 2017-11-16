@@ -22,7 +22,7 @@
             android:contentDescription="@null"
             android:src="@drawable/ic_cached"
             android:transitionName="cover"
-            app:imageUrl="@{book.image}"/>
+            app:imageFile="@{book.imageFile}"/>
 
 
     </FrameLayout>
