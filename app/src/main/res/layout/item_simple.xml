@@ -52,15 +52,13 @@
             android:layout_marginBottom="8dp"
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
-            android:minHeight="54dp"
-            android:minWidth="32dp"
             android:scaleType="fitCenter"
-            android:src="@drawable/ic_cached"
+            android:src="@drawable/no_image"
             android:transitionName="cover"
-            app:imageFile="@{book.thumbnailFile}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
+            app:layout_constraintTop_toTopOf="parent"
+            app:thumbnail="@{book}"/>
 
     </android.support.constraint.ConstraintLayout>
 

@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 import fr.frogdevelopment.bibluelle.R;
-import fr.frogdevelopment.bibluelle.adapter.SimpleSearchBooksAdapter;
+import fr.frogdevelopment.bibluelle.adapter.SimpleBooksAdapter;
 import fr.frogdevelopment.bibluelle.data.Book;
 import fr.frogdevelopment.bibluelle.rest.google.GoogleRestHelper;
 
@@ -34,7 +34,7 @@ public class BookListActivity extends AppCompatActivity {
 	private boolean mTwoPane;
 
 	private String mUrlParameters;
-	private SimpleSearchBooksAdapter mAdapter;
+	private SimpleBooksAdapter mAdapter;
 	private View mSpinner;
 
 	@Override
@@ -61,7 +61,7 @@ public class BookListActivity extends AppCompatActivity {
 		mSpinner = findViewById(R.id.spinner);
 
 		RecyclerView recyclerView = findViewById(R.id.book_list);
-		mAdapter = new SimpleSearchBooksAdapter(new ArrayList<>(), (v, book) -> showDetails(v.findViewById(R.id.item_cover), book));
+		mAdapter = new SimpleBooksAdapter(new ArrayList<>(), (v, book) -> showDetails(v.findViewById(R.id.item_cover), book));
 		recyclerView.setAdapter(mAdapter);
 
 		String title = getIntent().getStringExtra("title");

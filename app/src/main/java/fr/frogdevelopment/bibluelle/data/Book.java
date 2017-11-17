@@ -45,11 +45,11 @@ public class Book implements Serializable {
 	@Ignore
 	public String thumbnailUrl;
 
-	@ColumnInfo(name = "image")
-	public String imageFile;
+	@ColumnInfo(name = "cover")
+	public String coverFile;
 
 	@Ignore
-	public String imageUrl;
+	public String coverUrl;
 
 	@ColumnInfo(name = "description")
 	public String description;
@@ -78,8 +78,8 @@ public class Book implements Serializable {
 				.append(isbn, book.isbn)
 				.append(thumbnailFile, book.thumbnailFile)
 				.append(thumbnailUrl, book.thumbnailUrl)
-				.append(imageFile, book.imageFile)
-				.append(imageUrl, book.imageUrl)
+				.append(coverFile, book.coverFile)
+				.append(coverUrl, book.coverUrl)
 				.append(description, book.description)
 				.append(categories, book.categories)
 				.isEquals();
@@ -103,8 +103,8 @@ public class Book implements Serializable {
 				.append("isbn", isbn)
 				.append("thumbnailFile", thumbnailFile)
 				.append("thumbnailUrl", thumbnailUrl)
-				.append("imageFile", imageFile)
-				.append("imageUrl", imageUrl)
+				.append("coverFile", coverFile)
+				.append("coverUrl", coverUrl)
 				.append("description", description)
 				.append("pageCount", pageCount)
 				.append("categories", categories)

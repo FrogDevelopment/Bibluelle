@@ -123,8 +123,8 @@ public class GoogleRestHelper {
 
 						book.isbn = isbn;
 
-						//https://books.google.com/books/content/images/frontcover/3Cjz7DKv74MC?fife=w200-rw
-						book.imageUrl = String.format("https://books.google.com/books/content/images/frontcover/%s?fife=w300-rw", googleBook.getId());
+						//https://books.google.com/books/content/images/frontcover/3Cjz7DKv74MC?fife=w600-rw
+						book.coverUrl = String.format("https://books.google.com/books/content/images/frontcover/%s?fife=w600-rw", googleBook.getId());
 
 						if (volumeInfo.getAuthors() != null) {
 							book.author = TextUtils.join(",", volumeInfo.getAuthors());
@@ -169,7 +169,7 @@ public class GoogleRestHelper {
 
 						book.subTitle = volumeInfo.getSubtitle();
 						//https://books.google.com/books/content/images/frontcover/3Cjz7DKv74MC?fife=w200-rw
-						book.imageUrl = String.format("https://books.google.com/books/content/images/frontcover/%s?fife=w300-rw", googleBook.getId());
+						book.coverUrl = String.format("https://books.google.com/books/content/images/frontcover/%s?fife=w300-rw", googleBook.getId());
 
 						if (volumeInfo.getAuthors() != null) {
 							book.author = TextUtils.join(",", volumeInfo.getAuthors());

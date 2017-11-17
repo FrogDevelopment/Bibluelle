@@ -37,7 +37,7 @@ public class CoverActivity extends AppCompatActivity {
 		ImageView mContentView = findViewById(R.id.fullscreen_content);
 
 		String url = getIntent().getStringExtra("url");
-
+//		DataBinder.setCover(mContentView, );
 		GlideApp.with(this).load(url)
 				.diskCacheStrategy(DiskCacheStrategy.RESOURCE)
 				.into(mContentView);

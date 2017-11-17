@@ -83,18 +83,18 @@ public class BookDetailActivity extends AppCompatActivity {
 		// save image
 		GlideApp.with(this)
 				.downloadOnly()
-				.load(book.imageUrl)
+				.load(book.coverUrl)
 				.into(new SimpleTarget<File>() {
 					@Override
 					public void onResourceReady(File resource, Transition<? super File> transition) {
-						book.imageFile = saveFile(resource);
+						book.coverFile = saveFile(resource);
 						saveBook(book);
 					}
 				});
 	}
 
 	private void saveBook(Book book) {
-		if (book.imageFile != null && book.thumbnailFile != null) {
+		if (book.coverFile != null && book.thumbnailFile != null) {
 			// save book
 			new InsertBookTask(() -> Toast.makeText(getApplicationContext(), "Book saved", Toast.LENGTH_LONG).show()).execute(book);
 		}

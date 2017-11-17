@@ -9,21 +9,20 @@
             type="fr.frogdevelopment.bibluelle.data.Book"/>
     </data>
 
-    <FrameLayout
-        android:id="@+id/linearLayout"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:background="?attr/selectableItemBackground">
 
         <ImageView
             android:id="@+id/item_cover"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:contentDescription="@null"
-            android:src="@drawable/ic_cached"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:scaleType="fitCenter"
+            android:src="@drawable/no_image"
             android:transitionName="cover"
-            app:imageFile="@{book.imageFile}"/>
+            app:cover="@{book}"/>
 
 
-    </FrameLayout>
+    </LinearLayout>
 </layout>

@@ -22,10 +22,12 @@ import com.bumptech.glide.request.transition.Transition;
 
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.format.DateTimeFormatter;
+import org.threeten.bp.format.DateTimeParseException;
 import org.threeten.bp.format.FormatStyle;
 
 import at.blogc.android.views.ExpandableTextView;
 import fr.frogdevelopment.bibluelle.AppBarStateChangeListener;
+import fr.frogdevelopment.bibluelle.DataBinder;
 import fr.frogdevelopment.bibluelle.GlideApp;
 import fr.frogdevelopment.bibluelle.R;
 import fr.frogdevelopment.bibluelle.data.Book;
@@ -69,7 +71,7 @@ public class BookDetailFragment extends Fragment {
 			ImageView toolbarCover = getActivity().findViewById(R.id.toolbar_cover);
 			GlideApp.with(this)
 					.asDrawable()
-					.load(mBook.imageUrl)
+					.load(mBook.coverUrl)
 					.into(new SimpleTarget<Drawable>() {
 
 						@Override
@@ -93,10 +95,10 @@ public class BookDetailFragment extends Fragment {
 		View rootView = inflater.inflate(R.layout.book_detail, container, false);
 
 		ImageView background = rootView.findViewById(R.id.detail_cover);
-		GlideApp.with(this).load(mBook.imageUrl).into(background);
+		DataBinder.setThumbnail(background, mBook);
 		background.setOnClickListener(v -> {
 			Intent intent = new Intent(getActivity(), CoverActivity.class);
-			intent.putExtra("url", mBook.imageUrl);
+			intent.putExtra("url", mBook.coverUrl);
 			intent.putExtra("dominantRgb", dominantRgb);
 			// cf https://guides.codepath.com/android/Shared-Element-Activity-Transition#3-start-activity
 			ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(getActivity(), background, "cover");
@@ -122,8 +124,13 @@ public class BookDetailFragment extends Fragment {
 		publisher.setText(mBook.publisher);
 
 		TextView publishedDate = rootView.findViewById(R.id.detail_publication_date);
-		LocalDate localDate = LocalDate.parse(mBook.publishedDate, DateTimeFormatter.ISO_DATE);
-		publishedDate.setText("Publié le " + localDate.format(LONG_DATE_FORMATTER));
+		try {
+			LocalDate localDate = LocalDate.parse(mBook.publishedDate, DateTimeFormatter.ISO_DATE);
+			publishedDate.setText("Publié le " + localDate.format(LONG_DATE_FORMATTER));
+		} catch (DateTimeParseException e) {
+			e.printStackTrace(); // fixme
+			publishedDate.setText("Publié le " + mBook.publishedDate);
+		}
 
 		TextView pageCount = rootView.findViewById(R.id.detail_nb_pages);
 		pageCount.setText(mBook.pageCount + " pages");

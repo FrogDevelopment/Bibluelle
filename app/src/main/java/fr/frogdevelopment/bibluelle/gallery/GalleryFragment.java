@@ -55,7 +55,7 @@ public class GalleryFragment extends Fragment {
 			mBooks = books;
 
 			// default
-			setCarouselList(books);
+			setSimpleList(books);
 		});
 	}
 
