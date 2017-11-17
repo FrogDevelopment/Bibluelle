@@ -34,7 +34,7 @@ public class GoogleRestHelper {
 		void onDone(List<Book> books);
 	}
 
-	public static void searchBooks(Context context, String parameters, int page, String langRestrict, OnSearchBooksListener listener) {
+	public static void searchBooks(Context context, String parameters, int page, String langRestrict, List<String> isbn, OnSearchBooksListener listener) {
 		int startIndex = page * GoogleRestHelper.MAX_RESULTS;
 		mGoogleRestService.searchBooks(parameters, PREVIEW_FIELDS, startIndex, MAX_RESULTS, PRINT_TYPE, langRestrict).enqueue(new Callback<GoogleBooks>() {
 			@Override
@@ -62,6 +62,7 @@ public class GoogleRestHelper {
 									for (IndustryIdentifiers i : volumeInfo.getIndustryIdentifiers()) {
 										if (IndustryIdentifiers.Type.ISBN_13.equals(i.getType())) {
 											book.isbn = i.getIdentifier();
+											book.alreadySaved = isbn.contains(book.isbn);
 											books.add(book);
 										}
 									}

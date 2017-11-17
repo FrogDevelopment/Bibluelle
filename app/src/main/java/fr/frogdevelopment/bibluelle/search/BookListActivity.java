@@ -27,6 +27,8 @@ import java.util.Map;
 import fr.frogdevelopment.bibluelle.R;
 import fr.frogdevelopment.bibluelle.adapter.SimpleBooksAdapter;
 import fr.frogdevelopment.bibluelle.data.Book;
+import fr.frogdevelopment.bibluelle.data.DaoFactory;
+import fr.frogdevelopment.bibluelle.data.DatabaseCreator;
 import fr.frogdevelopment.bibluelle.rest.google.GoogleRestHelper;
 
 public class BookListActivity extends AppCompatActivity {
@@ -36,6 +38,8 @@ public class BookListActivity extends AppCompatActivity {
 	private String mUrlParameters;
 	private SimpleBooksAdapter mAdapter;
 	private View mSpinner;
+
+	private List<String> isbn;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -58,12 +62,28 @@ public class BookListActivity extends AppCompatActivity {
 			mTwoPane = true;
 		}
 
+		DaoFactory database = DatabaseCreator.getInstance().getDatabase();
+		database.bookDao().loadAllISBN().observe(this, isbn -> {
+			this.isbn = isbn;
+			search();
+		});
+
 		mSpinner = findViewById(R.id.spinner);
 
 		RecyclerView recyclerView = findViewById(R.id.book_list);
 		mAdapter = new SimpleBooksAdapter(new ArrayList<>(), (v, book) -> showDetails(v.findViewById(R.id.item_cover), book));
 		recyclerView.setAdapter(mAdapter);
 
+
+		recyclerView.addOnScrollListener(new EndlessRecyclerViewScrollListener(recyclerView.getLayoutManager()) {
+			@Override
+			public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
+				searchBooks(page);
+			}
+		});
+	}
+
+	private void search() {
 		String title = getIntent().getStringExtra("title");
 		List<String> parameters = new ArrayList<>();
 		if (!TextUtils.isEmpty(title)) {
@@ -84,13 +104,6 @@ public class BookListActivity extends AppCompatActivity {
 			mUrlParameters = TextUtils.join("+", parameters);
 			searchBooks(0);
 		}
-
-		recyclerView.addOnScrollListener(new EndlessRecyclerViewScrollListener(recyclerView.getLayoutManager()) {
-			@Override
-			public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
-				searchBooks(page);
-			}
-		});
 	}
 
 	@Override
@@ -106,7 +119,7 @@ public class BookListActivity extends AppCompatActivity {
 	private void searchBooks(int page) {
 		mSpinner.setVisibility(View.VISIBLE);
 
-		GoogleRestHelper.searchBooks(this, mUrlParameters, page, "en,fr", books -> {
+		GoogleRestHelper.searchBooks(this, mUrlParameters, page, "en,fr", isbn, books -> {
 			mSpinner.setVisibility(View.GONE);
 
 			if (books != null) {

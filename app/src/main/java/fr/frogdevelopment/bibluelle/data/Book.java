@@ -60,6 +60,9 @@ public class Book implements Serializable {
 	@ColumnInfo(name = "categories")
 	public String categories;
 
+	@Ignore
+	public boolean alreadySaved = false;
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
@@ -108,6 +111,7 @@ public class Book implements Serializable {
 				.append("description", description)
 				.append("pageCount", pageCount)
 				.append("categories", categories)
+				.append("alreadySaved", alreadySaved)
 				.toString();
 	}
 }

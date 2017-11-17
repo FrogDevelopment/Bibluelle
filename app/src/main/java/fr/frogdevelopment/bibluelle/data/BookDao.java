@@ -28,6 +28,9 @@ public interface BookDao {
 	@Query("SELECT * FROM book")
 	LiveData<List<Book>> loadAllBooks();
 
+	@Query("SELECT isbn FROM book")
+	LiveData<List<String>> loadAllISBN();
+
 	@Query("SELECT DISTINCT author FROM book")
 	List<String> loadAllAuthors();
 
