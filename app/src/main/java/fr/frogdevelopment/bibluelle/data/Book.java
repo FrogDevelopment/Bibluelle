@@ -63,6 +63,11 @@ public class Book implements Serializable {
 	@Ignore
 	public boolean alreadySaved = false;
 
+	@Ignore
+	public int collapsedTitleColor = 0;
+	@Ignore
+	public int dominantRgb = 0;
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
@@ -114,6 +119,8 @@ public class Book implements Serializable {
 				.append("pageCount", pageCount)
 				.append("categories", categories)
 				.append("alreadySaved", alreadySaved)
+				.append("collapsedTitleColor", collapsedTitleColor)
+				.append("dominantRgb", dominantRgb)
 				.toString();
 	}
 }

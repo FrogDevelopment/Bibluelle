@@ -130,15 +130,13 @@ public class BookListActivity extends AppCompatActivity {
 	private void showDetails(ImageView coverView, Book book) {
 		mSpinner.setVisibility(View.VISIBLE);
 
-		CoverViewHelper.Todo todo = CoverViewHelper.todo(coverView);
+		CoverViewHelper.searchColors(coverView, book);
 
 		GoogleRestHelper.searchDetails(this, book, details -> {
 			mSpinner.setVisibility(View.GONE);
 
 			if (details != null) {
 				Bundle arguments = new Bundle();
-				arguments.putInt("dominantRgb", todo.dominantRgb);
-				arguments.putInt("collapsedTitleColor", todo.collapsedTitleColor);
 				arguments.putSerializable(BookDetailFragment.ARG_KEY, details);
 				if (mTwoPane) {
 					BookDetailFragment fragment = new BookDetailFragment();

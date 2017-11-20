@@ -1,15 +1,15 @@
 package fr.frogdevelopment.bibluelle.details;
 
+import android.databinding.DataBindingUtil;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
-import android.widget.ImageView;
 
-import fr.frogdevelopment.bibluelle.CoverViewHelper;
 import fr.frogdevelopment.bibluelle.R;
 import fr.frogdevelopment.bibluelle.data.Book;
+import fr.frogdevelopment.bibluelle.databinding.ActivityCoverBinding;
 
 public class CoverActivity extends AppCompatActivity {
 
@@ -17,26 +17,25 @@ public class CoverActivity extends AppCompatActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		setContentView(R.layout.activity_cover);
+		ActivityCoverBinding viewDataBinding = DataBindingUtil.setContentView(this, R.layout.activity_cover);
 
-		int dominantRgb = getIntent().getIntExtra("dominantRgb", 0);
-		if (dominantRgb != 0) {
-			getWindow().getDecorView().setBackgroundColor(dominantRgb);
-			getWindow().setStatusBarColor(dominantRgb);
+		Book book = (Book) getIntent().getSerializableExtra("book");
+
+		viewDataBinding.setBook(book);
+
+		if (book.dominantRgb != 0) {
+			getWindow().getDecorView().setBackgroundColor(book.dominantRgb);
+			getWindow().setStatusBarColor(book.dominantRgb);
 		}
 
 		ActionBar actionBar = getSupportActionBar();
 		if (actionBar != null) {
 			actionBar.setDisplayHomeAsUpEnabled(true);
-			if (dominantRgb != 0) {
-				actionBar.setBackgroundDrawable(new ColorDrawable(dominantRgb));
+			if (book.dominantRgb != 0) {
+				actionBar.setBackgroundDrawable(new ColorDrawable(book.dominantRgb));
 			}
 		}
 
-		ImageView mContentView = findViewById(R.id.fullscreen_content);
-
-		Book book = (Book) getIntent().getSerializableExtra("book");
-		CoverViewHelper.setCover(mContentView, book);
 	}
 
 	@Override

@@ -8,4 +8,6 @@
     <string name="title_manage">manage</string>
     <string name="title_book_list">Books</string>
 
+    <string name="detail_page">%1$s pages</string>
+
 </resources>

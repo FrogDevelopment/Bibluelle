@@ -1,5 +1,6 @@
 package fr.frogdevelopment.bibluelle.details;
 
+import android.databinding.DataBindingUtil;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -26,6 +27,7 @@ import fr.frogdevelopment.bibluelle.R;
 import fr.frogdevelopment.bibluelle.data.Book;
 import fr.frogdevelopment.bibluelle.data.DeleteBookTask;
 import fr.frogdevelopment.bibluelle.data.InsertBookTask;
+import fr.frogdevelopment.bibluelle.databinding.ActivityBookDetailBinding;
 import fr.frogdevelopment.bibluelle.search.BookListActivity;
 
 /**
@@ -43,7 +45,9 @@ public class BookDetailActivity extends AppCompatActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_book_detail);
+
+		ActivityBookDetailBinding viewDataBinding = DataBindingUtil.setContentView(this, R.layout.activity_book_detail);
+
 		Toolbar toolbar = findViewById(R.id.detail_toolbar);
 		setSupportActionBar(toolbar);
 
@@ -55,8 +59,10 @@ public class BookDetailActivity extends AppCompatActivity {
 
 		mBook = (Book) getIntent().getSerializableExtra(BookDetailFragment.ARG_KEY);
 
+		viewDataBinding.setBook(mBook);
+
 		FloatingActionButton fab = findViewById(R.id.fab);
-		fab.setImageResource(mBook.id == null ? R.drawable.ic_save : R.drawable.ic_delete);
+//		fab.setImageResource(mBook.id == null ? R.drawable.ic_save : R.drawable.ic_delete);
 		fab.setOnClickListener(view -> onClickFab());
 
 		// savedInstanceState is non-null when there is fragment state

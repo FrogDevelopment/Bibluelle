@@ -125,11 +125,9 @@ public class GalleryFragment extends Fragment {
 	private AbstractBooksAdapter.OnClickListener mListener = (v, book) -> {
 		ImageView coverView = v.findViewById(R.id.item_cover);
 
-		CoverViewHelper.Todo todo = CoverViewHelper.todo(coverView);
+		CoverViewHelper.searchColors(coverView, book);
 
 		Bundle arguments = new Bundle();
-		arguments.putInt("dominantRgb", todo.dominantRgb);
-		arguments.putInt("collapsedTitleColor", todo.collapsedTitleColor);
 		arguments.putSerializable(BookDetailFragment.ARG_KEY, book);
 
 		Intent intent = new Intent(getActivity(), BookDetailActivity.class);

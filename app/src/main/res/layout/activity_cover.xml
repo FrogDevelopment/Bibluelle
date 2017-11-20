@@ -1,14 +1,28 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             xmlns:tools="http://schemas.android.com/tools"
-             android:layout_width="match_parent"
-             android:layout_height="match_parent"
-             tools:context="fr.frogdevelopment.bibluelle.details.CoverActivity">
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <ImageView
-        android:id="@+id/fullscreen_content"
+    <data>
+
+        <variable
+            name="book"
+            type="fr.frogdevelopment.bibluelle.data.Book" />
+
+    </data>
+
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:keepScreenOn="true"
-        android:transitionName="cover"/>
+        tools:context="fr.frogdevelopment.bibluelle.details.CoverActivity">
 
-</FrameLayout>
+        <ImageView
+            android:id="@+id/fullscreen_content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:keepScreenOn="true"
+            android:transitionName="cover"
+            app:cover="@{book}"/>
+
+    </FrameLayout>
+</layout>
