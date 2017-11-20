@@ -1,7 +1,9 @@
 package fr.frogdevelopment.bibluelle.gallery;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
@@ -12,19 +14,24 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 
 import com.azoft.carousellayoutmanager.CarouselLayoutManager;
 import com.azoft.carousellayoutmanager.CarouselZoomPostLayoutListener;
 
 import java.util.List;
 
+import fr.frogdevelopment.bibluelle.CoverViewHelper;
 import fr.frogdevelopment.bibluelle.R;
+import fr.frogdevelopment.bibluelle.adapter.AbstractBooksAdapter;
 import fr.frogdevelopment.bibluelle.adapter.CarouselBooksAdapter;
 import fr.frogdevelopment.bibluelle.adapter.GridBooksAdapter;
 import fr.frogdevelopment.bibluelle.adapter.SimpleBooksAdapter;
 import fr.frogdevelopment.bibluelle.data.Book;
 import fr.frogdevelopment.bibluelle.data.DaoFactory;
 import fr.frogdevelopment.bibluelle.data.DatabaseCreator;
+import fr.frogdevelopment.bibluelle.details.BookDetailActivity;
+import fr.frogdevelopment.bibluelle.details.BookDetailFragment;
 
 public class GalleryFragment extends Fragment {
 
@@ -65,7 +72,7 @@ public class GalleryFragment extends Fragment {
 		mRecyclerView.setLayoutManager(layoutManager);
 
 //		mRecyclerView.removeOnScrollListener();
-		mRecyclerView.setAdapter(new SimpleBooksAdapter(books));
+		mRecyclerView.setAdapter(new SimpleBooksAdapter(books, mListener));
 	}
 
 	private void setCarouselList(List<Book> books) {
@@ -76,7 +83,7 @@ public class GalleryFragment extends Fragment {
 
 //		mRecyclerView.addOnScrollListener(new CenterScrollListener());
 		mRecyclerView.setLayoutManager(layoutManager);
-		mRecyclerView.setAdapter(new CarouselBooksAdapter(books));
+		mRecyclerView.setAdapter(new CarouselBooksAdapter(books, mListener));
 	}
 
 	private void setGridList(List<Book> books) {
@@ -85,7 +92,7 @@ public class GalleryFragment extends Fragment {
 		mRecyclerView.setLayoutManager(layoutManager);
 
 //		mRecyclerView.removeOnScrollListener();
-		mRecyclerView.setAdapter(new GridBooksAdapter(books));
+		mRecyclerView.setAdapter(new GridBooksAdapter(books, mListener));
 	}
 
 	@Override
@@ -114,5 +121,27 @@ public class GalleryFragment extends Fragment {
 				return false;
 		}
 	}
+
+	private AbstractBooksAdapter.OnClickListener mListener = (v, book) -> {
+		ImageView coverView = v.findViewById(R.id.item_cover);
+
+		CoverViewHelper.Todo todo = CoverViewHelper.todo(coverView);
+
+		Bundle arguments = new Bundle();
+		arguments.putInt("dominantRgb", todo.dominantRgb);
+		arguments.putInt("collapsedTitleColor", todo.collapsedTitleColor);
+		arguments.putSerializable(BookDetailFragment.ARG_KEY, book);
+
+		Intent intent = new Intent(getActivity(), BookDetailActivity.class);
+		intent.putExtras(arguments);
+		if (coverView != null) {
+			// cf https://guides.codepath.com/android/Shared-Element-Activity-Transition#3-start-activity
+			ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(getActivity(), coverView, "cover");
+
+			startActivity(intent, options.toBundle());
+		} else {
+			startActivity(intent);
+		}
+	};
 
 }

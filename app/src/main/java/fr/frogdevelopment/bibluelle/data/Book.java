@@ -19,7 +19,7 @@ public class Book implements Serializable {
 	private static final long serialVersionUID = 1270210172748954066L;
 
 	@PrimaryKey(autoGenerate = true)
-	public int id;
+	public Integer id;
 
 	@ColumnInfo(name = "title")
 	public String title;
@@ -72,6 +72,7 @@ public class Book implements Serializable {
 		Book book = (Book) o;
 
 		return new EqualsBuilder()
+				.append(id, book.id)
 				.append(pageCount, book.pageCount)
 				.append(title, book.title)
 				.append(subTitle, book.subTitle)
@@ -98,6 +99,7 @@ public class Book implements Serializable {
 	@Override
 	public String toString() {
 		return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
+				.append("id", id)
 				.append("title", title)
 				.append("subTitle", subTitle)
 				.append("author", author)

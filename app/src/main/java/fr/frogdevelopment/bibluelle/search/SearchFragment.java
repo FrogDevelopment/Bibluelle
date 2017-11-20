@@ -11,6 +11,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import fr.frogdevelopment.bibluelle.R;
+import fr.frogdevelopment.bibluelle.details.BookDetailActivity;
+import fr.frogdevelopment.bibluelle.details.BookDetailFragment;
 import fr.frogdevelopment.bibluelle.rest.google.GoogleRestHelper;
 
 public class SearchFragment extends Fragment {

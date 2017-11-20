@@ -1,4 +1,4 @@
-package fr.frogdevelopment.bibluelle.search;
+package fr.frogdevelopment.bibluelle.details;
 
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -7,10 +7,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.widget.ImageView;
 
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
-
-import fr.frogdevelopment.bibluelle.GlideApp;
+import fr.frogdevelopment.bibluelle.CoverViewHelper;
 import fr.frogdevelopment.bibluelle.R;
+import fr.frogdevelopment.bibluelle.data.Book;
 
 public class CoverActivity extends AppCompatActivity {
 
@@ -36,11 +35,8 @@ public class CoverActivity extends AppCompatActivity {
 
 		ImageView mContentView = findViewById(R.id.fullscreen_content);
 
-		String url = getIntent().getStringExtra("url");
-//		DataBinder.setCover(mContentView, );
-		GlideApp.with(this).load(url)
-				.diskCacheStrategy(DiskCacheStrategy.RESOURCE)
-				.into(mContentView);
+		Book book = (Book) getIntent().getSerializableExtra("book");
+		CoverViewHelper.setCover(mContentView, book);
 	}
 
 	@Override

@@ -34,7 +34,7 @@
                 android:value="fr.frogdevelopment.bibluelle.MainActivity"/>
         </activity>
         <activity
-            android:name=".search.BookDetailActivity"
+            android:name=".details.BookDetailActivity"
             android:label=""
             android:parentActivityName=".search.BookListActivity"
             android:theme="@style/AppTheme.NoActionBar">
@@ -43,14 +43,14 @@
                 android:value="fr.frogdevelopment.bibluelle.search.BookListActivity"/>
         </activity>
         <activity
-            android:name=".search.CoverActivity"
+            android:name=".details.CoverActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label=""
-            android:parentActivityName=".search.BookDetailActivity"
+            android:parentActivityName=".details.BookDetailActivity"
             android:theme="@style/FullscreenTheme">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="fr.frogdevelopment.bibluelle.search.BookDetailActivity"/>
+                android:value="fr.frogdevelopment.bibluelle.details.BookDetailActivity"/>
         </activity>
     </application>
 

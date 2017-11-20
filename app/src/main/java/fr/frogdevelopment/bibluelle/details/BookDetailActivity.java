@@ -1,10 +1,11 @@
-package fr.frogdevelopment.bibluelle.search;
+package fr.frogdevelopment.bibluelle.details;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
@@ -13,6 +14,9 @@ import android.widget.Toast;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.OutputStream;
@@ -20,7 +24,9 @@ import java.io.OutputStream;
 import fr.frogdevelopment.bibluelle.GlideApp;
 import fr.frogdevelopment.bibluelle.R;
 import fr.frogdevelopment.bibluelle.data.Book;
+import fr.frogdevelopment.bibluelle.data.DeleteBookTask;
 import fr.frogdevelopment.bibluelle.data.InsertBookTask;
+import fr.frogdevelopment.bibluelle.search.BookListActivity;
 
 /**
  * An activity representing a single Book detail screen. This
@@ -30,6 +36,10 @@ import fr.frogdevelopment.bibluelle.data.InsertBookTask;
  */
 public class BookDetailActivity extends AppCompatActivity {
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(BookDetailActivity.class);
+
+	private Book mBook;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -37,14 +47,17 @@ public class BookDetailActivity extends AppCompatActivity {
 		Toolbar toolbar = findViewById(R.id.detail_toolbar);
 		setSupportActionBar(toolbar);
 
-		FloatingActionButton fab = findViewById(R.id.fab);
-		fab.setOnClickListener(view -> saveBook());
-
 		// Show the Up button in the action bar.
 		ActionBar actionBar = getSupportActionBar();
 		if (actionBar != null) {
 			actionBar.setDisplayHomeAsUpEnabled(true);
 		}
+
+		mBook = (Book) getIntent().getSerializableExtra(BookDetailFragment.ARG_KEY);
+
+		FloatingActionButton fab = findViewById(R.id.fab);
+		fab.setImageResource(mBook.id == null ? R.drawable.ic_save : R.drawable.ic_delete);
+		fab.setOnClickListener(view -> onClickFab());
 
 		// savedInstanceState is non-null when there is fragment state
 		// saved from previous configurations of this activity
@@ -65,44 +78,49 @@ public class BookDetailActivity extends AppCompatActivity {
 		}
 	}
 
-	private void saveBook() {
-		Book book = (Book) getIntent().getSerializableExtra(BookDetailFragment.ARG_KEY);
+	private void onClickFab() {
+		if (mBook.id == null) {
+			saveBook();
+		} else {
+			deleteBook();
+		}
+	}
 
+	private void saveBook() {
 		// save thumbnail
 		GlideApp.with(this)
 				.downloadOnly()
-				.load(book.thumbnailUrl)
+				.load(mBook.thumbnailUrl)
 				.into(new SimpleTarget<File>() {
 					@Override
 					public void onResourceReady(File resource, Transition<? super File> transition) {
-						book.thumbnailFile = saveFile(resource);
-						saveBook(book);
+						mBook.thumbnailFile = saveFile(resource);
+						onSaveBook();
 					}
 				});
 
 		// save image
 		GlideApp.with(this)
 				.downloadOnly()
-				.load(book.coverUrl)
+				.load(mBook.coverUrl)
 				.into(new SimpleTarget<File>() {
 					@Override
 					public void onResourceReady(File resource, Transition<? super File> transition) {
-						book.coverFile = saveFile(resource);
-						saveBook(book);
+						mBook.coverFile = saveFile(resource);
+						onSaveBook();
 					}
 				});
 	}
 
-	private void saveBook(Book book) {
-		if (book.coverFile != null && book.thumbnailFile != null) {
+	private void onSaveBook() {
+		if (mBook.coverFile != null && mBook.thumbnailFile != null) {
 			// save book
-			new InsertBookTask(() -> Toast.makeText(getApplicationContext(), "Book saved", Toast.LENGTH_LONG).show()).execute(book);
+			new InsertBookTask(() -> Toast.makeText(getApplicationContext(), "Book saved", Toast.LENGTH_LONG).show()).execute(mBook);
 		}
 	}
 
 	private String saveFile(File file) {
 		String fileName = file.getName();
-
 		try (OutputStream fOut = openFileOutput(fileName, MODE_PRIVATE)) {
 			Bitmap bitmap = BitmapFactory.decodeStream(new FileInputStream(file));
 			bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fOut);
@@ -112,6 +130,36 @@ public class BookDetailActivity extends AppCompatActivity {
 		}
 
 		return fileName;
+	}
+
+	private void deleteSavedFile(String fileName) {
+		boolean deleted = deleteFile(fileName);
+		if (!deleted) {
+			LOGGER.warn("File {} not deleted", fileName);
+		}
+	}
+
+	private void deleteBook() {
+		new AlertDialog.Builder(this)
+				.setTitle("Suppression")
+				.setMessage("Vous êtes sur le point de supprimer ce livre de votre librairie !")
+				.setPositiveButton("Continuer", (dialog, which) -> onDeleteBook())
+				.setNegativeButton("Annuler", (d, w) -> {
+				})
+				.show();
+	}
+
+	private void onDeleteBook() {
+		// delete thumbnail
+		deleteSavedFile(mBook.thumbnailFile);
+		// delete cover
+		deleteSavedFile(mBook.coverFile);
+
+		// delete book
+		new DeleteBookTask(() -> {
+			Toast.makeText(getApplicationContext(), "Book deleted", Toast.LENGTH_LONG).show();
+			finish();
+		}).execute(mBook);
 	}
 
 	@Override
