@@ -1,5 +1,6 @@
 package fr.frogdevelopment.bibluelle.gallery;
 
+import android.arch.lifecycle.LiveData;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -28,6 +29,7 @@ import fr.frogdevelopment.bibluelle.adapter.CarouselBooksAdapter;
 import fr.frogdevelopment.bibluelle.adapter.GridBooksAdapter;
 import fr.frogdevelopment.bibluelle.adapter.SimpleBooksAdapter;
 import fr.frogdevelopment.bibluelle.data.DatabaseCreator;
+import fr.frogdevelopment.bibluelle.data.entities.Book;
 import fr.frogdevelopment.bibluelle.data.entities.BookPreview;
 import fr.frogdevelopment.bibluelle.details.BookDetailActivity;
 import fr.frogdevelopment.bibluelle.details.BookDetailFragment;
@@ -123,7 +125,10 @@ public class GalleryFragment extends Fragment {
 	private AbstractBooksAdapter.OnClickListener mListener = (v, preview) -> {
 		ImageView coverView = v.findViewById(R.id.item_cover);
 
-		DatabaseCreator.getInstance().getBookDao().getBook(preview.isbn).observe(getActivity(), book -> {
+		LiveData<Book> bookLiveData = DatabaseCreator.getInstance().getBookDao().getBook(preview.isbn);
+		bookLiveData.observe(getActivity(), book -> {
+
+			bookLiveData.removeObservers(getActivity());
 
 			CoverViewHelper.searchColors(coverView, book);
 
