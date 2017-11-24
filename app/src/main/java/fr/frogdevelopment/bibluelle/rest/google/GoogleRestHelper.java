@@ -1,6 +1,5 @@
 package fr.frogdevelopment.bibluelle.rest.google;
 
-
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
@@ -13,7 +12,8 @@ import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
-import fr.frogdevelopment.bibluelle.data.Book;
+import fr.frogdevelopment.bibluelle.data.entities.Book;
+import fr.frogdevelopment.bibluelle.data.entities.BookPreview;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -31,7 +31,7 @@ public class GoogleRestHelper {
 	private static final String DETAIL_FIELDS = "totalItems,items(id,volumeInfo(subtitle,publisher,publishedDate,description,pageCount,categories))";
 
 	public interface OnSearchBooksListener {
-		void onDone(List<Book> books);
+		void onDone(List<BookPreview> previews);
 	}
 
 	public static void searchBooks(Context context, String parameters, int page, String langRestrict, List<String> isbn, OnSearchBooksListener listener) {
@@ -39,31 +39,31 @@ public class GoogleRestHelper {
 		mGoogleRestService.searchBooks(parameters, PREVIEW_FIELDS, startIndex, MAX_RESULTS, PRINT_TYPE, langRestrict).enqueue(new Callback<GoogleBooks>() {
 			@Override
 			public void onResponse(@NonNull Call<GoogleBooks> call, @NonNull Response<GoogleBooks> response) {
-				ArrayList<Book> books = null;
+				ArrayList<BookPreview> previews = null;
 				if (response.code() == HttpURLConnection.HTTP_OK) {
 					GoogleBooks googleBooks = response.body();
 
 					if (googleBooks != null && googleBooks.getTotalItems() > 0) {
-						books = new ArrayList<>();
+						previews = new ArrayList<>();
 						if (googleBooks.getItems() != null) {
 							for (GoogleBook googleBook : googleBooks.getItems()) {
-								Book book = new Book();
+								BookPreview preview = new BookPreview();
 								VolumeInfo volumeInfo = googleBook.getVolumeInfo();
-								book.title = volumeInfo.getTitle();
+								preview.title = volumeInfo.getTitle();
 								if (volumeInfo.getAuthors() != null) {
-									book.author = TextUtils.join(",", volumeInfo.getAuthors());
+									preview.author = TextUtils.join(",", volumeInfo.getAuthors());
 								}
 								if (volumeInfo.getImageLinks() != null) {
 									String thumbnail = volumeInfo.getImageLinks().getThumbnail();
-									book.thumbnailUrl = thumbnail.replaceAll("&edge=curl", "");
+									preview.thumbnailUrl = thumbnail.replaceAll("&edge=curl", "");
 								}
 
 								if (volumeInfo.getIndustryIdentifiers() != null) {
 									for (IndustryIdentifiers i : volumeInfo.getIndustryIdentifiers()) {
 										if (IndustryIdentifiers.Type.ISBN_13.equals(i.getType())) {
-											book.isbn = i.getIdentifier();
-											book.alreadySaved = isbn.contains(book.isbn);
-											books.add(book);
+											preview.isbn = i.getIdentifier();
+											preview.alreadySaved = isbn.contains(preview.isbn);
+											previews.add(preview);
 										}
 									}
 								}
@@ -81,7 +81,7 @@ public class GoogleRestHelper {
 					Toast.makeText(context, "Error code : " + response.code(), Toast.LENGTH_LONG).show();
 				}
 
-				listener.onDone(books);
+				listener.onDone(previews);
 			}
 
 			@Override
@@ -156,11 +156,12 @@ public class GoogleRestHelper {
 		});
 	}
 
-	public static void searchDetails(Context context, @NonNull final Book book, OnShowDetailsListener listener) {
+	public static void searchDetails(Context context, @NonNull final BookPreview preview, OnShowDetailsListener listener) {
 		// https://www.googleapis.com/books/v1/volumes?q=isbn:9781473209367&fields=kind,totalItems,items/volumeInfo(title,subtitle,authors,publisher,publishedDate,description,imageLinks,pageCount,categories)
-		mGoogleRestService.getDetailForBook("isbn:" + book.isbn, DETAIL_FIELDS).enqueue(new Callback<GoogleBooks>() {
+		mGoogleRestService.getDetailForBook("isbn:" + preview.isbn, DETAIL_FIELDS).enqueue(new Callback<GoogleBooks>() {
 			@Override
 			public void onResponse(@NonNull Call<GoogleBooks> call, @NonNull Response<GoogleBooks> response) {
+				Book book = null;
 				if (response.code() == HttpURLConnection.HTTP_OK) {
 					GoogleBooks googleBooks = response.body();
 
@@ -168,6 +169,11 @@ public class GoogleRestHelper {
 						GoogleBook googleBook = googleBooks.getItems().get(0);
 						VolumeInfo volumeInfo = googleBook.getVolumeInfo();
 
+						book = new Book();
+						book.isbn = preview.isbn;
+						book.title = preview.title;
+						book.author = preview.author;
+						book.thumbnailUrl = preview.thumbnailUrl;
 						book.subTitle = volumeInfo.getSubtitle();
 						//https://books.google.com/books/content/images/frontcover/3Cjz7DKv74MC?fife=w200-rw
 						book.coverUrl = String.format("https://books.google.com/books/content/images/frontcover/%s?fife=w300-rw", googleBook.getId());

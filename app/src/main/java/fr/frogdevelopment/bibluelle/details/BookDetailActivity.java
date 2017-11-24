@@ -24,9 +24,8 @@ import java.io.OutputStream;
 
 import fr.frogdevelopment.bibluelle.GlideApp;
 import fr.frogdevelopment.bibluelle.R;
-import fr.frogdevelopment.bibluelle.data.Book;
-import fr.frogdevelopment.bibluelle.data.DeleteBookTask;
-import fr.frogdevelopment.bibluelle.data.InsertBookTask;
+import fr.frogdevelopment.bibluelle.data.dao.BookDao;
+import fr.frogdevelopment.bibluelle.data.entities.Book;
 import fr.frogdevelopment.bibluelle.databinding.ActivityBookDetailBinding;
 import fr.frogdevelopment.bibluelle.search.BookListActivity;
 
@@ -121,7 +120,7 @@ public class BookDetailActivity extends AppCompatActivity {
 	private void onSaveBook() {
 		if (mBook.coverFile != null && mBook.thumbnailFile != null) {
 			// save book
-			new InsertBookTask(() -> Toast.makeText(getApplicationContext(), "Book saved", Toast.LENGTH_LONG).show()).execute(mBook);
+			BookDao.insert(mBook, () -> Toast.makeText(getApplicationContext(), "Book saved", Toast.LENGTH_LONG).show());
 		}
 	}
 
@@ -162,10 +161,10 @@ public class BookDetailActivity extends AppCompatActivity {
 		deleteSavedFile(mBook.coverFile);
 
 		// delete book
-		new DeleteBookTask(() -> {
+		BookDao.delete(mBook, () -> {
 			Toast.makeText(getApplicationContext(), "Book deleted", Toast.LENGTH_LONG).show();
 			finish();
-		}).execute(mBook);
+		});
 	}
 
 	@Override

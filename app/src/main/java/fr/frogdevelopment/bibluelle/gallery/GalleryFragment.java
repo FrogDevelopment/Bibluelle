@@ -27,16 +27,15 @@ import fr.frogdevelopment.bibluelle.adapter.AbstractBooksAdapter;
 import fr.frogdevelopment.bibluelle.adapter.CarouselBooksAdapter;
 import fr.frogdevelopment.bibluelle.adapter.GridBooksAdapter;
 import fr.frogdevelopment.bibluelle.adapter.SimpleBooksAdapter;
-import fr.frogdevelopment.bibluelle.data.Book;
-import fr.frogdevelopment.bibluelle.data.DaoFactory;
 import fr.frogdevelopment.bibluelle.data.DatabaseCreator;
+import fr.frogdevelopment.bibluelle.data.entities.BookPreview;
 import fr.frogdevelopment.bibluelle.details.BookDetailActivity;
 import fr.frogdevelopment.bibluelle.details.BookDetailFragment;
 
 public class GalleryFragment extends Fragment {
 
 	private RecyclerView mRecyclerView;
-	private List<Book> mBooks;
+	private List<BookPreview> mPreviews;
 
 	@Override
 	public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -56,17 +55,16 @@ public class GalleryFragment extends Fragment {
 		mRecyclerView = view.findViewById(R.id.recycler_view);
 		mRecyclerView.setHasFixedSize(true);
 
-		DaoFactory database = DatabaseCreator.getInstance().getDatabase();
-		database.bookDao().loadAllBooks().observe(this, books -> {
+		DatabaseCreator.getInstance().getBookDao().loadAllPreviews().observe(this, books -> {
 			view.findViewById(R.id.spinner).setVisibility(View.GONE);
-			mBooks = books;
+			mPreviews = books;
 
 			// default
 			setSimpleList(books);
 		});
 	}
 
-	private void setSimpleList(List<Book> books) {
+	private void setSimpleList(List<BookPreview> books) {
 		final LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
 
 		mRecyclerView.setLayoutManager(layoutManager);
@@ -75,7 +73,7 @@ public class GalleryFragment extends Fragment {
 		mRecyclerView.setAdapter(new SimpleBooksAdapter(books, mListener));
 	}
 
-	private void setCarouselList(List<Book> books) {
+	private void setCarouselList(List<BookPreview> books) {
 		// https://github.com/Azoft/CarouselLayoutManager
 		final CarouselLayoutManager layoutManager = new CarouselLayoutManager(CarouselLayoutManager.HORIZONTAL);
 		layoutManager.setPostLayoutListener(new CarouselZoomPostLayoutListener());
@@ -86,7 +84,7 @@ public class GalleryFragment extends Fragment {
 		mRecyclerView.setAdapter(new CarouselBooksAdapter(books, mListener));
 	}
 
-	private void setGridList(List<Book> books) {
+	private void setGridList(List<BookPreview> books) {
 		final GridLayoutManager layoutManager = new GridLayoutManager(getActivity(), 2);
 
 		mRecyclerView.setLayoutManager(layoutManager);
@@ -106,15 +104,15 @@ public class GalleryFragment extends Fragment {
 		switch (item.getItemId()) {
 
 			case R.id.action_simple:
-				setSimpleList(mBooks);
+				setSimpleList(mPreviews);
 				return true;
 
 			case R.id.action_grid:
-				setGridList(mBooks);
+				setGridList(mPreviews);
 				return true;
 
 			case R.id.action_carousel:
-				setCarouselList(mBooks);
+				setCarouselList(mPreviews);
 				return true;
 
 			default:
@@ -122,24 +120,28 @@ public class GalleryFragment extends Fragment {
 		}
 	}
 
-	private AbstractBooksAdapter.OnClickListener mListener = (v, book) -> {
+	private AbstractBooksAdapter.OnClickListener mListener = (v, preview) -> {
 		ImageView coverView = v.findViewById(R.id.item_cover);
 
-		CoverViewHelper.searchColors(coverView, book);
+		DatabaseCreator.getInstance().getBookDao().getBook(preview.isbn).observe(getActivity(), book -> {
 
-		Bundle arguments = new Bundle();
-		arguments.putSerializable(BookDetailFragment.ARG_KEY, book);
+			CoverViewHelper.searchColors(coverView, book);
 
-		Intent intent = new Intent(getActivity(), BookDetailActivity.class);
-		intent.putExtras(arguments);
-		if (coverView != null) {
-			// cf https://guides.codepath.com/android/Shared-Element-Activity-Transition#3-start-activity
-			ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(getActivity(), coverView, "cover");
+			Bundle arguments = new Bundle();
+			arguments.putSerializable(BookDetailFragment.ARG_KEY, book);
 
-			startActivity(intent, options.toBundle());
-		} else {
-			startActivity(intent);
-		}
+			Intent intent = new Intent(getActivity(), BookDetailActivity.class);
+			intent.putExtras(arguments);
+			if (coverView != null) {
+				// cf https://guides.codepath.com/android/Shared-Element-Activity-Transition#3-start-activity
+				ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(getActivity(), coverView, "cover");
+
+				startActivity(intent, options.toBundle());
+			} else {
+				startActivity(intent);
+			}
+		});
+
 	};
 
 }

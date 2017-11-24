@@ -5,7 +5,7 @@ import android.view.View;
 
 import java.util.List;
 
-import fr.frogdevelopment.bibluelle.data.Book;
+import fr.frogdevelopment.bibluelle.data.entities.BookPreview;
 
 public abstract class AbstractBooksAdapter<V extends AbstractBooksAdapter.BookViewHolder> extends RecyclerView.Adapter<V> {
 
@@ -15,39 +15,39 @@ public abstract class AbstractBooksAdapter<V extends AbstractBooksAdapter.BookVi
 			super(itemView);
 		}
 
-		abstract protected void bind(Book book);
+		abstract protected void bind(BookPreview preview);
 	}
 
 	public interface OnClickListener {
-		void onClick(View v, Book book);
+		void onClick(View v, BookPreview preview);
 	}
 
-	private final List<Book> mBooks;
+	private final List<BookPreview> mItems;
 	private final OnClickListener mListener;
 
-	AbstractBooksAdapter(List<Book> books) {
-		this(books, null);
+	AbstractBooksAdapter(List<BookPreview> previews) {
+		this(previews, null);
 	}
 
-	AbstractBooksAdapter(List<Book> books, OnClickListener listener) {
-		this.mBooks = books;
+	AbstractBooksAdapter(List<BookPreview> previews, OnClickListener listener) {
+		this.mItems = previews;
 		this.mListener = listener;
 	}
 
-	public void addBooks(List<Book> books) {
-		mBooks.addAll(books);
+	public void addBooks(List<BookPreview> previews) {
+		mItems.addAll(previews);
 		notifyDataSetChanged();
 	}
 
 	@Override
 	public void onBindViewHolder(BookViewHolder viewHolder, int position) {
-		Book book = mBooks.get(position);
+		BookPreview preview = mItems.get(position);
 
-		viewHolder.bind(book);
+		viewHolder.bind(preview);
 
-		viewHolder.itemView.setTag(book);
+		viewHolder.itemView.setTag(preview);
 		if (mListener != null) {
-			viewHolder.itemView.setOnClickListener(v -> mListener.onClick(v, book));
+			viewHolder.itemView.setOnClickListener(v -> mListener.onClick(v, preview));
 		} else {
 			viewHolder.itemView.setOnClickListener(null);
 		}
@@ -55,6 +55,6 @@ public abstract class AbstractBooksAdapter<V extends AbstractBooksAdapter.BookVi
 
 	@Override
 	public int getItemCount() {
-		return mBooks.size();
+		return mItems.size();
 	}
 }

@@ -22,7 +22,7 @@ import org.threeten.bp.format.FormatStyle;
 import at.blogc.android.views.ExpandableTextView;
 import fr.frogdevelopment.bibluelle.AppBarStateChangeListener;
 import fr.frogdevelopment.bibluelle.R;
-import fr.frogdevelopment.bibluelle.data.Book;
+import fr.frogdevelopment.bibluelle.data.entities.Book;
 import fr.frogdevelopment.bibluelle.databinding.BookDetailBinding;
 
 public class BookDetailFragment extends Fragment {

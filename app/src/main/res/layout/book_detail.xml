@@ -7,7 +7,7 @@
 
         <variable
             name="book"
-            type="fr.frogdevelopment.bibluelle.data.Book" />
+            type="fr.frogdevelopment.bibluelle.data.entities.Book" />
 
         <import type="android.view.View" />
 

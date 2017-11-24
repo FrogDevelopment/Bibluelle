@@ -5,8 +5,8 @@
     <data>
 
         <variable
-            name="book"
-            type="fr.frogdevelopment.bibluelle.data.Book"/>
+            name="preview"
+            type="fr.frogdevelopment.bibluelle.data.entities.BookPreview"/>
 
         <import type="android.view.View"/>
     </data>
@@ -24,7 +24,7 @@
             android:layout_marginEnd="8dp"
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
-            android:text="@{book.title}"
+            android:text="@{preview.title}"
             android:textSize="16sp"
             android:textStyle="bold"
             app:layout_constraintEnd_toStartOf="@+id/item_present"
@@ -40,7 +40,7 @@
             android:layout_marginEnd="8dp"
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
-            android:text="@{book.author}"
+            android:text="@{preview.author}"
             android:textSize="16sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/item_present"
@@ -60,7 +60,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:thumbnail="@{book}"/>
+            app:thumbnail="@{preview}"/>
 
         <ImageView
             android:id="@+id/item_present"
@@ -70,7 +70,7 @@
             android:layout_marginEnd="8dp"
             android:layout_marginTop="8dp"
             android:src="@drawable/ic_check_black_24dp"
-            android:visibility="@{book.alreadySaved ? View.VISIBLE : View.GONE}"
+            android:visibility="@{preview.alreadySaved ? View.VISIBLE : View.GONE}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"/>

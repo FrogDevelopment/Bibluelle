@@ -8,7 +8,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 
 import fr.frogdevelopment.bibluelle.R;
-import fr.frogdevelopment.bibluelle.data.Book;
+import fr.frogdevelopment.bibluelle.data.entities.Book;
 import fr.frogdevelopment.bibluelle.databinding.ActivityCoverBinding;
 
 public class CoverActivity extends AppCompatActivity {

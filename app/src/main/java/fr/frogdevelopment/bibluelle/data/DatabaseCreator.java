@@ -3,21 +3,32 @@ package fr.frogdevelopment.bibluelle.data;
 import android.annotation.SuppressLint;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
+import android.arch.persistence.room.Database;
 import android.arch.persistence.room.Room;
+import android.arch.persistence.room.RoomDatabase;
 import android.content.Context;
 import android.os.AsyncTask;
-import android.support.annotation.Nullable;
 import android.util.Log;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static fr.frogdevelopment.bibluelle.data.DaoFactory.DATABASE_NAME;
+import fr.frogdevelopment.bibluelle.data.dao.BookDao;
+import fr.frogdevelopment.bibluelle.data.entities.Book;
 
 /**
  * Creates the {@link DaoFactory} asynchronously, exposing a LiveData object to notify of creation.
  * https://github.com/googlesamples/android-architecture-components/tree/master/BasicSample
  */
 public class DatabaseCreator {
+
+	// https://developer.android.com/training/data-storage/room/migrating-db-versions.html
+	@Database(entities = {Book.class}, version = 1, exportSchema = false)
+	static abstract class DaoFactory extends RoomDatabase {
+
+		static final String DATABASE_NAME = "bibluelle-db";
+
+		abstract BookDao bookDao();
+	}
 
 	private static DatabaseCreator sInstance;
 
@@ -48,11 +59,6 @@ public class DatabaseCreator {
 		return mIsDatabaseCreated;
 	}
 
-	@Nullable
-	public DaoFactory getDatabase() {
-		return mDb;
-	}
-
 	/**
 	 * Creates or returns a previously-created database.
 	 * <p>
@@ -68,42 +74,38 @@ public class DatabaseCreator {
 		}
 
 		mIsDatabaseCreated.setValue(false);// Trigger an update to show a loading screen.
-		new AsyncTask<Context, Void, Void>() {
+		new AsyncTask<Context, Void, DaoFactory>() {
 
 			@Override
-			protected Void doInBackground(Context... params) {
+			protected DaoFactory doInBackground(Context... params) {
 				Log.d("DatabaseCreator", "Starting bg job " + Thread.currentThread().getName());
 
 				Context context = params[0].getApplicationContext();
 
-				// Reset the database to have new data on every run.
-//				context.deleteDatabase(DATABASE_NAME);
-
 				// Build the database!
-				DaoFactory db = Room.databaseBuilder(context.getApplicationContext(), DaoFactory.class, DATABASE_NAME).build();
-
-				// Add a delay to simulate a long-running operation
-//				addDelay();
+				DaoFactory db = Room.databaseBuilder(context.getApplicationContext(), DaoFactory.class, DaoFactory.DATABASE_NAME).build();
 
 				// Add some data to the database
 				Log.d("DatabaseCreator", "DB was populated in thread " + Thread.currentThread().getName());
 
-				mDb = db;
-				return null;
+				return db;
 			}
 
 			@Override
-			protected void onPostExecute(Void ignored) {
+			protected void onPostExecute(DaoFactory db) {
+				if (db != null) {
+					mDb = db;
+				} else {
+					// fixme
+				}
+
 				// Now on the main thread, notify observers that the db is created and ready.
 				mIsDatabaseCreated.setValue(true);
 			}
 		}.execute(context.getApplicationContext());
 	}
 
-	private void addDelay() {
-		try {
-			Thread.sleep(4000);
-		} catch (InterruptedException ignored) {
-		}
+	public BookDao getBookDao() {
+		return mDb.bookDao();
 	}
 }

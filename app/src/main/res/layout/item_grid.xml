@@ -6,8 +6,8 @@
     <data>
 
         <variable
-            name="book"
-            type="fr.frogdevelopment.bibluelle.data.Book"/>
+            name="preview"
+            type="fr.frogdevelopment.bibluelle.data.entities.BookPreview"/>
     </data>
 
     <LinearLayout
@@ -29,7 +29,7 @@
                 android:scaleType="fitCenter"
                 android:src="@drawable/no_image"
                 android:transitionName="cover"
-                app:cover="@{book}"/>
+                app:cover="@{preview}"/>
 
         </android.support.v7.widget.CardView>
     </LinearLayout>

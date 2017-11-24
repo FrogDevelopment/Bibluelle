@@ -16,6 +16,9 @@ import org.junit.runner.RunWith;
 import java.io.IOException;
 import java.util.List;
 
+import fr.frogdevelopment.bibluelle.data.dao.BookDao;
+import fr.frogdevelopment.bibluelle.data.entities.Book;
+
 // https://developer.android.com/training/data-storage/room/testing-db.html
 @RunWith(AndroidJUnit4.class)
 public class BookDaoTest {

@@ -22,7 +22,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import fr.frogdevelopment.bibluelle.data.Book;
+import fr.frogdevelopment.bibluelle.data.entities.Book;
+import fr.frogdevelopment.bibluelle.data.entities.BookPreview;
 
 public class CoverViewHelper {
 
@@ -30,6 +31,14 @@ public class CoverViewHelper {
 		//NO-OP
 	}
 
+	@BindingAdapter("thumbnail")
+	public static void setThumbnail(ImageView imageView, BookPreview preview) {
+		if (!TextUtils.isEmpty(preview.thumbnailFile)) {
+			loadFromFile(imageView, preview.thumbnailFile);
+		} else if (!TextUtils.isEmpty(preview.thumbnailUrl)) {
+			loadFromUrl(imageView, preview.thumbnailUrl, DiskCacheStrategy.ALL, 128, 204);
+		}
+	}
 	@BindingAdapter("thumbnail")
 	public static void setThumbnail(ImageView imageView, Book book) {
 		if (!TextUtils.isEmpty(book.thumbnailFile)) {
@@ -39,6 +48,14 @@ public class CoverViewHelper {
 		}
 	}
 
+	@BindingAdapter("cover")
+	public static void setCover(ImageView imageView, BookPreview preview) {
+		if (!TextUtils.isEmpty(preview.coverFile)) {
+			loadFromFile(imageView, preview.coverFile);
+		} else if (!TextUtils.isEmpty(preview.coverUrl)) {
+			loadFromUrl(imageView, preview.coverUrl, DiskCacheStrategy.RESOURCE, 600, 919);
+		}
+	}
 	@BindingAdapter("cover")
 	public static void setCover(ImageView imageView, Book book) {
 		if (!TextUtils.isEmpty(book.coverFile)) {

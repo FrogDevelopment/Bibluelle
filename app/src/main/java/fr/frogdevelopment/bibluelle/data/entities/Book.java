@@ -1,4 +1,4 @@
-package fr.frogdevelopment.bibluelle.data;
+package fr.frogdevelopment.bibluelle.data.entities;
 
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
@@ -62,7 +62,6 @@ public class Book implements Serializable {
 
 	@Ignore
 	public boolean alreadySaved = false;
-
 	@Ignore
 	public int collapsedTitleColor = 0;
 	@Ignore

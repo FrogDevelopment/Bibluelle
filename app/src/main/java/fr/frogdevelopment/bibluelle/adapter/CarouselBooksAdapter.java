@@ -8,7 +8,7 @@ import android.view.ViewGroup;
 import java.util.List;
 
 import fr.frogdevelopment.bibluelle.R;
-import fr.frogdevelopment.bibluelle.data.Book;
+import fr.frogdevelopment.bibluelle.data.entities.BookPreview;
 import fr.frogdevelopment.bibluelle.databinding.ItemCarouselBinding;
 
 public class CarouselBooksAdapter extends AbstractBooksAdapter<CarouselBooksAdapter.ViewHolder> {
@@ -24,17 +24,13 @@ public class CarouselBooksAdapter extends AbstractBooksAdapter<CarouselBooksAdap
 		}
 
 		@Override
-		protected void bind(Book book) {
-			mBinding.setBook(book);
+		protected void bind(BookPreview preview) {
+			mBinding.setPreview(preview);
 		}
 	}
 
-	public CarouselBooksAdapter(List<Book> books) {
-		super(books);
-	}
-
-	public CarouselBooksAdapter(List<Book> books, OnClickListener listener) {
-		super(books, listener);
+	public CarouselBooksAdapter(List<BookPreview> previews, OnClickListener listener) {
+		super(previews, listener);
 	}
 
 	@Override

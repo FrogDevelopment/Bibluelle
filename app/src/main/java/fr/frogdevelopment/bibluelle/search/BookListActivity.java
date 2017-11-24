@@ -19,9 +19,8 @@ import java.util.List;
 import fr.frogdevelopment.bibluelle.CoverViewHelper;
 import fr.frogdevelopment.bibluelle.R;
 import fr.frogdevelopment.bibluelle.adapter.SimpleBooksAdapter;
-import fr.frogdevelopment.bibluelle.data.Book;
-import fr.frogdevelopment.bibluelle.data.DaoFactory;
 import fr.frogdevelopment.bibluelle.data.DatabaseCreator;
+import fr.frogdevelopment.bibluelle.data.entities.BookPreview;
 import fr.frogdevelopment.bibluelle.details.BookDetailActivity;
 import fr.frogdevelopment.bibluelle.details.BookDetailFragment;
 import fr.frogdevelopment.bibluelle.rest.google.GoogleRestHelper;
@@ -57,8 +56,7 @@ public class BookListActivity extends AppCompatActivity {
 			mTwoPane = true;
 		}
 
-		DaoFactory database = DatabaseCreator.getInstance().getDatabase();
-		database.bookDao().loadAllISBN().observe(this, isbn -> {
+		DatabaseCreator.getInstance().getBookDao().loadAllISBN().observe(this, isbn -> {
 			this.isbn = isbn;
 			search();
 		});
@@ -66,7 +64,7 @@ public class BookListActivity extends AppCompatActivity {
 		mSpinner = findViewById(R.id.spinner);
 
 		RecyclerView recyclerView = findViewById(R.id.book_list);
-		mAdapter = new SimpleBooksAdapter(new ArrayList<>(), (v, book) -> showDetails(v.findViewById(R.id.item_cover), book));
+		mAdapter = new SimpleBooksAdapter(new ArrayList<>(), (v, preview) -> showDetails(v.findViewById(R.id.item_cover), preview));
 		recyclerView.setAdapter(mAdapter);
 
 
@@ -114,30 +112,30 @@ public class BookListActivity extends AppCompatActivity {
 	private void searchBooks(int page) {
 		mSpinner.setVisibility(View.VISIBLE);
 
-		GoogleRestHelper.searchBooks(this, mUrlParameters, page, "en,fr", isbn, books -> {
+		GoogleRestHelper.searchBooks(this, mUrlParameters, page, "en,fr", isbn, previews -> {
 			mSpinner.setVisibility(View.GONE);
 
-			if (books != null) {
-				if (page == 0 && books.size() == 1) {
-					showDetails(null, books.get(0));
+			if (previews != null) {
+				if (page == 0 && previews.size() == 1) {
+					showDetails(null, previews.get(0));
 				} else {
-					mAdapter.addBooks(books);
+					mAdapter.addBooks(previews);
 				}
 			}
 		});
 	}
 
-	private void showDetails(ImageView coverView, Book book) {
+	private void showDetails(ImageView coverView, BookPreview preview) {
 		mSpinner.setVisibility(View.VISIBLE);
 
-		CoverViewHelper.searchColors(coverView, book);
-
-		GoogleRestHelper.searchDetails(this, book, details -> {
+		GoogleRestHelper.searchDetails(this, preview, book -> {
 			mSpinner.setVisibility(View.GONE);
 
-			if (details != null) {
+			if (book != null) {
+				CoverViewHelper.searchColors(coverView, book);
+
 				Bundle arguments = new Bundle();
-				arguments.putSerializable(BookDetailFragment.ARG_KEY, details);
+				arguments.putSerializable(BookDetailFragment.ARG_KEY, book);
 				if (mTwoPane) {
 					BookDetailFragment fragment = new BookDetailFragment();
 					fragment.setArguments(arguments);
