@@ -28,9 +28,6 @@ public class BookPreview implements Serializable{
 	public String coverFile;
 
 	@Ignore
-	public String coverUrl;
-
-	@Ignore
 	public boolean alreadySaved = false;
 
 }

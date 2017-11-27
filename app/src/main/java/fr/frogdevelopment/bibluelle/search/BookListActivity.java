@@ -23,7 +23,7 @@ import fr.frogdevelopment.bibluelle.data.DatabaseCreator;
 import fr.frogdevelopment.bibluelle.data.entities.BookPreview;
 import fr.frogdevelopment.bibluelle.details.BookDetailActivity;
 import fr.frogdevelopment.bibluelle.details.BookDetailFragment;
-import fr.frogdevelopment.bibluelle.rest.google.GoogleRestHelper;
+import fr.frogdevelopment.bibluelle.search.rest.google.GoogleRestHelper;
 
 public class BookListActivity extends AppCompatActivity {
 

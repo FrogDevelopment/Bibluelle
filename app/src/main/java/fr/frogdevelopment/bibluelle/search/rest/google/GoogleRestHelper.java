@@ -1,4 +1,4 @@
-package fr.frogdevelopment.bibluelle.rest.google;
+package fr.frogdevelopment.bibluelle.search.rest.google;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -174,6 +174,7 @@ public class GoogleRestHelper {
 						book.title = preview.title;
 						book.author = preview.author;
 						book.thumbnailUrl = preview.thumbnailUrl;
+						book.alreadySaved = preview.alreadySaved;
 						book.subTitle = volumeInfo.getSubtitle();
 						//https://books.google.com/books/content/images/frontcover/3Cjz7DKv74MC?fife=w200-rw
 						book.coverUrl = String.format("https://books.google.com/books/content/images/frontcover/%s?fife=w300-rw", googleBook.getId());

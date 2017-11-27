@@ -1,4 +1,4 @@
-package fr.frogdevelopment.bibluelle.rest.google;
+package fr.frogdevelopment.bibluelle.search.rest.google;
 
 import java.io.Serializable;
 import java.util.List;

@@ -1,4 +1,4 @@
-package fr.frogdevelopment.bibluelle.rest.google;
+package fr.frogdevelopment.bibluelle.search.rest.google;
 
 import retrofit2.Call;
 import retrofit2.http.GET;

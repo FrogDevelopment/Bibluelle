@@ -1,6 +1,6 @@
-package fr.frogdevelopment.bibluelle.rest.google;
+package fr.frogdevelopment.bibluelle.search.rest.google;
 
-import fr.frogdevelopment.bibluelle.rest.RestServiceFactory;
+import fr.frogdevelopment.bibluelle.search.rest.RestServiceFactory;
 
 public class GoogleRestServiceFactory extends RestServiceFactory {
 

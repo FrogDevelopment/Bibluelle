@@ -70,7 +70,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical|start"
             android:layout_margin="@dimen/fab_margin"
-            android:src="@{book.id == null ? @drawable/ic_save : @drawable/ic_delete}"
+            android:src="@{book.alreadySaved ? @drawable/ic_delete : @drawable/ic_save}"
             app:layout_anchor="@+id/book_detail_container"
             app:layout_anchorGravity="top|end" />
 

@@ -1,4 +1,4 @@
-package fr.frogdevelopment.bibluelle.rest;
+package fr.frogdevelopment.bibluelle.search.rest;
 
 import android.support.annotation.NonNull;
 

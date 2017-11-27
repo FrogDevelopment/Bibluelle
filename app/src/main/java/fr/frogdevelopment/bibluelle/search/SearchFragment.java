@@ -13,7 +13,7 @@ import android.view.ViewGroup;
 import fr.frogdevelopment.bibluelle.R;
 import fr.frogdevelopment.bibluelle.details.BookDetailActivity;
 import fr.frogdevelopment.bibluelle.details.BookDetailFragment;
-import fr.frogdevelopment.bibluelle.rest.google.GoogleRestHelper;
+import fr.frogdevelopment.bibluelle.search.rest.google.GoogleRestHelper;
 
 public class SearchFragment extends Fragment {
 
