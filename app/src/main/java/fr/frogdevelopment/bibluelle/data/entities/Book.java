@@ -39,14 +39,8 @@ public class Book implements Serializable {
 	@ColumnInfo(name = "isbn")
 	public String isbn;
 
-	@ColumnInfo(name = "thumbnail")
-	public String thumbnailFile;
-
 	@Ignore
 	public String thumbnailUrl;
-
-	@ColumnInfo(name = "cover")
-	public String coverFile;
 
 	@Ignore
 	public String coverUrl;
@@ -61,11 +55,19 @@ public class Book implements Serializable {
 	public String categories;
 
 	@Ignore
-	public boolean alreadySaved = false;
+	public boolean alreadySaved = true;
 	@Ignore
 	public int collapsedTitleColor = 0;
 	@Ignore
 	public int dominantRgb = 0;
+
+	public String getThumbnailFile() {
+		return isbn + "_thumbnail";
+	}
+
+	public String getCoverFile() {
+		return isbn + "_cover";
+	}
 
 	@Override
 	public boolean equals(Object o) {
@@ -84,9 +86,7 @@ public class Book implements Serializable {
 				.append(publisher, book.publisher)
 				.append(publishedDate, book.publishedDate)
 				.append(isbn, book.isbn)
-				.append(thumbnailFile, book.thumbnailFile)
 				.append(thumbnailUrl, book.thumbnailUrl)
-				.append(coverFile, book.coverFile)
 				.append(coverUrl, book.coverUrl)
 				.append(description, book.description)
 				.append(categories, book.categories)
@@ -110,9 +110,7 @@ public class Book implements Serializable {
 				.append("publisher", publisher)
 				.append("publishedDate", publishedDate)
 				.append("isbn", isbn)
-				.append("thumbnailFile", thumbnailFile)
 				.append("thumbnailUrl", thumbnailUrl)
-				.append("coverFile", coverFile)
 				.append("coverUrl", coverUrl)
 				.append("description", description)
 				.append("pageCount", pageCount)

@@ -71,15 +71,24 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"
-            app:menu_icon="@drawable/ic_mode_edit">
+            app:menu_icon="@drawable/fab_menu">
 
             <com.github.clans.fab.FloatingActionButton
-                android:id="@+id/fab_add"
+                android:id="@+id/fab_sync"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/fab_add"
-                android:visibility="@{book.alreadySaved ? View.GONE : View.VISIBLE}"
-                app:fab_label="Add book"
+                android:src="@drawable/fab_sync"
+                android:visibility="gone"
+                app:fab_label="Re-sync book"
+                app:fab_size="mini" />
+
+            <com.github.clans.fab.FloatingActionButton
+                android:id="@+id/fab_save"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/fab_save"
+                android:visibility="gone"
+                app:fab_label="Save book"
                 app:fab_size="mini" />
 
             <com.github.clans.fab.FloatingActionButton
@@ -91,14 +100,6 @@
                 app:fab_label="Delete book"
                 app:fab_size="mini" />
 
-            <com.github.clans.fab.FloatingActionButton
-                android:id="@+id/fab_override"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/fab_save"
-                android:visibility="@{book.alreadySaved ? View.VISIBLE : View.GONE}"
-                app:fab_label="Override book"
-                app:fab_size="mini" />
         </com.github.clans.fab.FloatingActionMenu>
 
     </android.support.design.widget.CoordinatorLayout>

@@ -9,12 +9,12 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.github.clans.fab.FloatingActionButton;
-import com.github.clans.fab.FloatingActionMenu;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,8 +27,10 @@ import fr.frogdevelopment.bibluelle.GlideApp;
 import fr.frogdevelopment.bibluelle.R;
 import fr.frogdevelopment.bibluelle.data.dao.BookDao;
 import fr.frogdevelopment.bibluelle.data.entities.Book;
+import fr.frogdevelopment.bibluelle.data.entities.BookPreview;
 import fr.frogdevelopment.bibluelle.databinding.ActivityBookDetailBinding;
 import fr.frogdevelopment.bibluelle.search.BookListActivity;
+import fr.frogdevelopment.bibluelle.search.rest.google.GoogleRestHelper;
 
 /**
  * An activity representing a single Book detail screen. This
@@ -41,12 +43,13 @@ public class BookDetailActivity extends AppCompatActivity {
 	private static final Logger LOGGER = LoggerFactory.getLogger(BookDetailActivity.class);
 
 	private Book mBook;
+	private ActivityBookDetailBinding viewDataBinding;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		ActivityBookDetailBinding viewDataBinding = DataBindingUtil.setContentView(this, R.layout.activity_book_detail);
+		viewDataBinding = DataBindingUtil.setContentView(this, R.layout.activity_book_detail);
 
 		Toolbar toolbar = findViewById(R.id.detail_toolbar);
 		setSupportActionBar(toolbar);
@@ -59,16 +62,24 @@ public class BookDetailActivity extends AppCompatActivity {
 
 		mBook = (Book) getIntent().getSerializableExtra(BookDetailFragment.ARG_KEY);
 
+		boolean isSearch = getIntent().getBooleanExtra("IS_SEARCH", false);
+
 		viewDataBinding.setBook(mBook);
 
-		FloatingActionMenu fam = findViewById(R.id.fam);
+		if (isSearch) {
+			if (mBook.alreadySaved) {
+				FloatingActionButton fabSync = findViewById(R.id.fab_sync);
+				fabSync.setVisibility(View.VISIBLE);
+				fabSync.setOnClickListener(view -> syncBook());
+			} else {
+				FloatingActionButton fabAdd = findViewById(R.id.fab_save);
+				fabAdd.setOnClickListener(view -> saveBook());
+				fabAdd.setVisibility(View.VISIBLE);
+			}
+		}
 
-		FloatingActionButton fabAdd = findViewById(R.id.fab_add);
-		fabAdd.setOnClickListener(view -> saveBook());
 		FloatingActionButton fabDelete = findViewById(R.id.fab_delete);
 		fabDelete.setOnClickListener(view -> deleteBook());
-		FloatingActionButton fabOverride = findViewById(R.id.fab_override);
-		fabOverride.setOnClickListener(view -> saveBook()); // fixme add confirmation to override
 
 		// savedInstanceState is non-null when there is fragment state
 		// saved from previous configurations of this activity
@@ -90,6 +101,18 @@ public class BookDetailActivity extends AppCompatActivity {
 	}
 
 	private void saveBook() {
+		if (mBook.alreadySaved) {
+			new AlertDialog.Builder(this)
+					.setTitle("Attention")
+					.setMessage("Book already saved ! You'll override existing data")
+					.setPositiveButton(android.R.string.ok, (dialog, which) -> doSaveBook())
+					.show();
+		} else {
+			doSaveBook();
+		}
+	}
+
+	private void doSaveBook() {
 		// save thumbnail
 		GlideApp.with(this)
 				.downloadOnly()
@@ -97,7 +120,7 @@ public class BookDetailActivity extends AppCompatActivity {
 				.into(new SimpleTarget<File>() {
 					@Override
 					public void onResourceReady(File resource, Transition<? super File> transition) {
-						mBook.thumbnailFile = saveFile(resource);
+						thumbnailSaved = saveFile(resource, mBook.getThumbnailFile());
 						onSaveBook();
 					}
 				});
@@ -109,30 +132,34 @@ public class BookDetailActivity extends AppCompatActivity {
 				.into(new SimpleTarget<File>() {
 					@Override
 					public void onResourceReady(File resource, Transition<? super File> transition) {
-						mBook.coverFile = saveFile(resource);
+						coverSaved = saveFile(resource, mBook.getCoverFile());
 						onSaveBook();
 					}
 				});
 	}
 
+	boolean thumbnailSaved = false;
+	boolean coverSaved = false;
+
 	private void onSaveBook() {
-		if (mBook.coverFile != null && mBook.thumbnailFile != null) {
+		if (thumbnailSaved && coverSaved) {
 			// save book
 			BookDao.insert(mBook, () -> Toast.makeText(getApplicationContext(), "Book saved", Toast.LENGTH_LONG).show());
 		}
 	}
 
-	private String saveFile(File file) {
-		String fileName = file.getName();
+	private boolean saveFile(File file, String fileName) {
 		try (OutputStream fOut = openFileOutput(fileName, MODE_PRIVATE)) {
 			Bitmap bitmap = BitmapFactory.decodeStream(new FileInputStream(file));
 			bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fOut);
+
+			return true;
 		} catch (Exception e) {
 			e.printStackTrace(); // fixme
 			Toast.makeText(getApplicationContext(), "Error", Toast.LENGTH_LONG).show();
-		}
 
-		return fileName;
+			return false;
+		}
 	}
 
 	private void deleteSavedFile(String fileName) {
@@ -154,14 +181,38 @@ public class BookDetailActivity extends AppCompatActivity {
 
 	private void onDeleteBook() {
 		// delete thumbnail
-		deleteSavedFile(mBook.thumbnailFile);
+		deleteSavedFile(mBook.getThumbnailFile());
 		// delete cover
-		deleteSavedFile(mBook.coverFile);
+		deleteSavedFile(mBook.getCoverFile());
 
 		// delete book
 		BookDao.delete(mBook, () -> {
 			Toast.makeText(getApplicationContext(), "Book deleted", Toast.LENGTH_LONG).show();
 			finish();
+		});
+	}
+
+	private void syncBook() {
+		BookPreview preview = new BookPreview();
+		preview.isbn = mBook.isbn;
+		preview.title = mBook.title;
+		preview.author = mBook.author;
+		preview.thumbnailUrl = mBook.thumbnailUrl;
+		preview.alreadySaved = true;
+
+		GoogleRestHelper.searchDetails(this, preview, book -> {
+//			mSpinner.setVisibility(View.GONE); fixme
+
+			if (book != null) {
+				mBook = book;
+				viewDataBinding.setBook(mBook);
+
+				FloatingActionButton fabAdd = findViewById(R.id.fab_save);
+				fabAdd.setOnClickListener(view -> saveBook());
+				fabAdd.setVisibility(View.VISIBLE);
+			} else {
+				// fixme
+			}
 		});
 	}
 

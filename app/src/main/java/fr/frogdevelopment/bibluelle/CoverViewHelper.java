@@ -33,32 +33,32 @@ public class CoverViewHelper {
 
 	@BindingAdapter("thumbnail")
 	public static void setThumbnail(ImageView imageView, BookPreview preview) {
-		if (!TextUtils.isEmpty(preview.thumbnailFile)) {
-			loadFromFile(imageView, preview.thumbnailFile);
-		} else if (!TextUtils.isEmpty(preview.thumbnailUrl)) {
+		if (TextUtils.isEmpty(preview.thumbnailUrl)) {
+			loadFromFile(imageView, preview.getThumbnailFile());
+		} else {
 			loadFromUrl(imageView, preview.thumbnailUrl, DiskCacheStrategy.ALL, 128, 204);
 		}
 	}
 
 	@BindingAdapter("thumbnail")
 	public static void setThumbnail(ImageView imageView, Book book) {
-		if (!TextUtils.isEmpty(book.thumbnailFile)) {
-			loadFromFile(imageView, book.thumbnailFile);
-		} else if (!TextUtils.isEmpty(book.thumbnailUrl)) {
+		if (TextUtils.isEmpty(book.thumbnailUrl)) {
+			loadFromFile(imageView, book.getThumbnailFile());
+		} else {
 			loadFromUrl(imageView, book.thumbnailUrl, DiskCacheStrategy.ALL, 128, 204);
 		}
 	}
 
 	@BindingAdapter("cover")
 	public static void setCover(ImageView imageView, BookPreview preview) {
-		loadFromFile(imageView, preview.coverFile);
+		loadFromFile(imageView, preview.getCoverFile());
 	}
 
 	@BindingAdapter("cover")
 	public static void setCover(ImageView imageView, Book book) {
-		if (!TextUtils.isEmpty(book.coverFile)) {
-			loadFromFile(imageView, book.coverFile);
-		} else if (!TextUtils.isEmpty(book.coverUrl)) {
+		if (TextUtils.isEmpty(book.coverUrl)) {
+			loadFromFile(imageView, book.getCoverFile());
+		} else {
 			loadFromUrl(imageView, book.coverUrl, DiskCacheStrategy.RESOURCE, 600, 919);
 		}
 	}
@@ -89,7 +89,7 @@ public class CoverViewHelper {
 	public static void setCoverCropTop(ImageView target, Book book) {
 		Context context = target.getContext();
 
-		Object loadArg = TextUtils.isEmpty(book.coverFile) ? book.coverUrl : context.getFileStreamPath(book.coverFile);
+		Object loadArg = TextUtils.isEmpty(book.coverUrl) ? context.getFileStreamPath(book.getCoverFile()) : book.coverUrl;
 
 		GlideApp.with(context)
 				.asDrawable()

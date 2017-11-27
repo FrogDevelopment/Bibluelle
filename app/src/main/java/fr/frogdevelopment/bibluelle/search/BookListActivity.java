@@ -1,5 +1,6 @@
 package fr.frogdevelopment.bibluelle.search;
 
+import android.arch.lifecycle.LiveData;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.ActivityOptionsCompat;
@@ -20,6 +21,7 @@ import fr.frogdevelopment.bibluelle.CoverViewHelper;
 import fr.frogdevelopment.bibluelle.R;
 import fr.frogdevelopment.bibluelle.adapter.SimpleBooksAdapter;
 import fr.frogdevelopment.bibluelle.data.DatabaseCreator;
+import fr.frogdevelopment.bibluelle.data.entities.Book;
 import fr.frogdevelopment.bibluelle.data.entities.BookPreview;
 import fr.frogdevelopment.bibluelle.details.BookDetailActivity;
 import fr.frogdevelopment.bibluelle.details.BookDetailFragment;
@@ -128,33 +130,52 @@ public class BookListActivity extends AppCompatActivity {
 	private void showDetails(ImageView coverView, BookPreview preview) {
 		mSpinner.setVisibility(View.VISIBLE);
 
-		GoogleRestHelper.searchDetails(this, preview, book -> {
-			mSpinner.setVisibility(View.GONE);
+		if (preview.alreadySaved) {
+			LiveData<Book> bookLiveData = DatabaseCreator.getInstance().getBookDao().getBook(preview.isbn);
+			bookLiveData.observe(this, book -> {
+				bookLiveData.removeObservers(this);
+				mSpinner.setVisibility(View.GONE);
 
-			if (book != null) {
-				CoverViewHelper.searchColors(coverView, book);
-
-				Bundle arguments = new Bundle();
-				arguments.putSerializable(BookDetailFragment.ARG_KEY, book);
-				if (mTwoPane) {
-					BookDetailFragment fragment = new BookDetailFragment();
-					fragment.setArguments(arguments);
-					getSupportFragmentManager().beginTransaction()
-							.replace(R.id.book_detail_container, fragment)
-							.commit();
-				} else {
-					Intent intent = new Intent(BookListActivity.this, BookDetailActivity.class);
-					intent.putExtras(arguments);
-					if (coverView != null) {
-						// cf https://guides.codepath.com/android/Shared-Element-Activity-Transition#3-start-activity
-						ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(BookListActivity.this, coverView, "cover");
-
-						startActivity(intent, options.toBundle());
-					} else {
-						startActivity(intent);
-					}
+				if (book != null) {
+					doShowDetails(coverView, book);
 				}
+			});
+		} else {
+			GoogleRestHelper.searchDetails(this, preview, book -> {
+				mSpinner.setVisibility(View.GONE);
+
+				if (book != null) {
+					doShowDetails(coverView, book);
+				}
+			});
+		}
+	}
+
+	private void doShowDetails(ImageView sharedElement, Book book) {
+		CoverViewHelper.searchColors(sharedElement, book);
+
+		Bundle arguments = new Bundle();
+		arguments.putSerializable(BookDetailFragment.ARG_KEY, book);
+		arguments.putBoolean("IS_SEARCH", true);
+
+		if (mTwoPane) {
+			BookDetailFragment fragment = new BookDetailFragment();
+			fragment.setArguments(arguments);
+			getSupportFragmentManager().beginTransaction()
+					.replace(R.id.book_detail_container, fragment)
+					.commit();
+		} else {
+			Intent intent = new Intent(this, BookDetailActivity.class);
+			intent.putExtras(arguments);
+
+			if (sharedElement == null) {
+				startActivityForResult(intent, 123);
+			} else {
+				// cf https://guides.codepath.com/android/Shared-Element-Activity-Transition#3-start-activity
+				ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(this, sharedElement, "cover");
+
+				startActivityForResult(intent, 123, options.toBundle());
 			}
-		});
+		}
 	}
 }

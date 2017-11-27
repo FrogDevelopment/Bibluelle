@@ -5,7 +5,7 @@ import android.arch.persistence.room.Ignore;
 
 import java.io.Serializable;
 
-public class BookPreview implements Serializable{
+public class BookPreview implements Serializable {
 
 	private static final long serialVersionUID = -8431787685034051996L;
 
@@ -18,16 +18,17 @@ public class BookPreview implements Serializable{
 	@ColumnInfo(name = "author")
 	public String author;
 
-	@ColumnInfo(name = "thumbnail")
-	public String thumbnailFile;
-
 	@Ignore
 	public String thumbnailUrl;
-
-	@ColumnInfo(name = "cover")
-	public String coverFile;
 
 	@Ignore
 	public boolean alreadySaved = false;
 
+	public String getThumbnailFile() {
+		return isbn + "_thumbnail";
+	}
+
+	public String getCoverFile() {
+		return isbn + "_cover";
+	}
 }
