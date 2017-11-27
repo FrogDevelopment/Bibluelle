@@ -4,7 +4,6 @@ import android.databinding.DataBindingUtil;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -14,6 +13,8 @@ import android.widget.Toast;
 
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
+import com.github.clans.fab.FloatingActionButton;
+import com.github.clans.fab.FloatingActionMenu;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,9 +61,14 @@ public class BookDetailActivity extends AppCompatActivity {
 
 		viewDataBinding.setBook(mBook);
 
-		FloatingActionButton fab = findViewById(R.id.fab);
-//		fab.setImageResource(mBook.id == null ? R.drawable.ic_save : R.drawable.ic_delete);
-		fab.setOnClickListener(view -> onClickFab());
+		FloatingActionMenu fam = findViewById(R.id.fam);
+
+		FloatingActionButton fabAdd = findViewById(R.id.fab_add);
+		fabAdd.setOnClickListener(view -> saveBook());
+		FloatingActionButton fabDelete = findViewById(R.id.fab_delete);
+		fabDelete.setOnClickListener(view -> deleteBook());
+		FloatingActionButton fabOverride = findViewById(R.id.fab_override);
+		fabOverride.setOnClickListener(view -> saveBook()); // fixme add confirmation to override
 
 		// savedInstanceState is non-null when there is fragment state
 		// saved from previous configurations of this activity
@@ -80,14 +86,6 @@ public class BookDetailActivity extends AppCompatActivity {
 					.beginTransaction()
 					.add(R.id.book_detail_container, fragment)
 					.commit();
-		}
-	}
-
-	private void onClickFab() {
-		if (mBook.id == null) {
-			saveBook();
-		} else {
-			deleteBook();
 		}
 	}
 

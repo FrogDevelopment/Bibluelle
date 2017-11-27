@@ -87,5 +87,7 @@ dependencies {
     // pour manip des dates
     implementation 'com.jakewharton.threetenabp:threetenabp:1.0.5'
 
+    // https://github.com/Clans/FloatingActionButton
+    implementation 'com.github.clans:fab:1.6.4'
 
 }

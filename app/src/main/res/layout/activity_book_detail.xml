@@ -9,6 +9,8 @@
             name="book"
             type="fr.frogdevelopment.bibluelle.data.entities.Book" />
 
+        <import type="android.view.View" />
+
     </data>
 
     <android.support.design.widget.CoordinatorLayout
@@ -64,15 +66,40 @@
             android:layout_height="match_parent"
             app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
-        <android.support.design.widget.FloatingActionButton
-            android:id="@+id/fab"
+        <com.github.clans.fab.FloatingActionMenu
+            android:id="@+id/fam"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical|start"
-            android:layout_margin="@dimen/fab_margin"
-            android:src="@{book.alreadySaved ? @drawable/ic_delete : @drawable/ic_save}"
-            app:layout_anchor="@+id/book_detail_container"
-            app:layout_anchorGravity="top|end" />
+            android:layout_gravity="bottom|end"
+            app:menu_icon="@drawable/ic_mode_edit">
+
+            <com.github.clans.fab.FloatingActionButton
+                android:id="@+id/fab_add"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/fab_add"
+                android:visibility="@{book.alreadySaved ? View.GONE : View.VISIBLE}"
+                app:fab_label="Add book"
+                app:fab_size="mini" />
+
+            <com.github.clans.fab.FloatingActionButton
+                android:id="@+id/fab_delete"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/fab_delete"
+                android:visibility="@{book.alreadySaved ? View.VISIBLE : View.GONE}"
+                app:fab_label="Delete book"
+                app:fab_size="mini" />
+
+            <com.github.clans.fab.FloatingActionButton
+                android:id="@+id/fab_override"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/fab_save"
+                android:visibility="@{book.alreadySaved ? View.VISIBLE : View.GONE}"
+                app:fab_label="Override book"
+                app:fab_size="mini" />
+        </com.github.clans.fab.FloatingActionMenu>
 
     </android.support.design.widget.CoordinatorLayout>
 </layout>
