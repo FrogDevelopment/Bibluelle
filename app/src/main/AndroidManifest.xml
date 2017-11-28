@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest package="fr.frogdevelopment.bibluelle"
-          xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="fr.frogdevelopment.bibluelle"
+    android:installLocation="preferExternal">
 
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
@@ -19,9 +20,9 @@
             android:name=".MainActivity"
             android:label="@string/app_name">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
+                <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER"/>
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
@@ -31,7 +32,7 @@
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="fr.frogdevelopment.bibluelle.MainActivity"/>
+                android:value="fr.frogdevelopment.bibluelle.MainActivity" />
         </activity>
         <activity
             android:name=".details.BookDetailActivity"
@@ -40,7 +41,7 @@
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="fr.frogdevelopment.bibluelle.search.BookListActivity"/>
+                android:value="fr.frogdevelopment.bibluelle.search.BookListActivity" />
         </activity>
         <activity
             android:name=".details.CoverActivity"
@@ -50,7 +51,7 @@
             android:theme="@style/FullscreenTheme">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="fr.frogdevelopment.bibluelle.details.BookDetailActivity"/>
+                android:value="fr.frogdevelopment.bibluelle.details.BookDetailActivity" />
         </activity>
     </application>
 
