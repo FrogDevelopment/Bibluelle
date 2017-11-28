@@ -5,6 +5,8 @@ import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.Index;
 import android.arch.persistence.room.PrimaryKey;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -13,7 +15,12 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 
 import java.io.Serializable;
 
-@Entity(tableName = "book", indices = {@Index(value = "isbn", unique = true)})
+@Entity(
+		tableName = "book",
+		indices = @Index(
+				value = "isbn",
+				unique = true)
+)
 public class Book implements Serializable {
 
 	private static final long serialVersionUID = 1270210172748954066L;
@@ -21,39 +28,50 @@ public class Book implements Serializable {
 	@PrimaryKey(autoGenerate = true)
 	public Integer id;
 
+	@NonNull
 	@ColumnInfo(name = "title")
 	public String title;
 
+	@Nullable
 	@ColumnInfo(name = "sub_title")
 	public String subTitle;
 
+	@NonNull
 	@ColumnInfo(name = "author")
 	public String author;
 
+	@NonNull
 	@ColumnInfo(name = "publisher")
 	public String publisher;
 
+	@NonNull
 	@ColumnInfo(name = "published_date")
 	public String publishedDate;
 
+	@NonNull
 	@ColumnInfo(name = "isbn")
 	public String isbn;
 
-	@Ignore
-	public String thumbnailUrl;
-
-	@Ignore
-	public String coverUrl;
-
+	@NonNull
 	@ColumnInfo(name = "description")
 	public String description;
 
+	@Nullable
 	@ColumnInfo(name = "page_count")
 	public String pageCount;
 
+	@NonNull
 	@ColumnInfo(name = "categories")
 	public String categories;
 
+	@Nullable
+	@ColumnInfo(name = "rate")
+	public Integer rate;
+
+	@Ignore
+	public String thumbnailUrl;
+	@Ignore
+	public String coverUrl;
 	@Ignore
 	public boolean alreadySaved = true;
 	@Ignore
@@ -90,6 +108,7 @@ public class Book implements Serializable {
 				.append(coverUrl, book.coverUrl)
 				.append(description, book.description)
 				.append(categories, book.categories)
+				.append(rate, book.rate)
 				.isEquals();
 	}
 
@@ -115,9 +134,8 @@ public class Book implements Serializable {
 				.append("description", description)
 				.append("pageCount", pageCount)
 				.append("categories", categories)
+				.append("rate", rate)
 				.append("alreadySaved", alreadySaved)
-				.append("collapsedTitleColor", collapsedTitleColor)
-				.append("dominantRgb", dominantRgb)
 				.toString();
 	}
 }
