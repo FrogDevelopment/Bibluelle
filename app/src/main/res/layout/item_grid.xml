@@ -23,8 +23,8 @@
 
             <ImageView
                 android:id="@+id/item_cover"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="160dp"
+                android:layout_height="255dp"
                 android:background="?attr/selectableItemBackground"
                 android:scaleType="fitCenter"
                 android:src="@drawable/no_image"

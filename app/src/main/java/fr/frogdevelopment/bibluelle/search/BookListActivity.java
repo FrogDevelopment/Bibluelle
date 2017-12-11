@@ -19,7 +19,7 @@ import java.util.List;
 
 import fr.frogdevelopment.bibluelle.CoverViewHelper;
 import fr.frogdevelopment.bibluelle.R;
-import fr.frogdevelopment.bibluelle.adapter.SimpleBooksAdapter;
+import fr.frogdevelopment.bibluelle.adapter.ListBooksAdapter;
 import fr.frogdevelopment.bibluelle.data.DatabaseCreator;
 import fr.frogdevelopment.bibluelle.data.entities.Book;
 import fr.frogdevelopment.bibluelle.data.entities.BookPreview;
@@ -32,7 +32,7 @@ public class BookListActivity extends AppCompatActivity {
 	private boolean mTwoPane;
 
 	private String mUrlParameters;
-	private SimpleBooksAdapter mAdapter;
+	private ListBooksAdapter mAdapter;
 	private View mSpinner;
 
 	private List<String> isbn;
@@ -66,7 +66,7 @@ public class BookListActivity extends AppCompatActivity {
 		mSpinner = findViewById(R.id.spinner);
 
 		RecyclerView recyclerView = findViewById(R.id.book_list);
-		mAdapter = new SimpleBooksAdapter(new ArrayList<>(), (v, preview) -> showDetails(v.findViewById(R.id.item_cover), preview));
+		mAdapter = new ListBooksAdapter(new ArrayList<>(), (v, preview) -> showDetails(v.findViewById(R.id.item_cover), preview));
 		recyclerView.setAdapter(mAdapter);
 
 

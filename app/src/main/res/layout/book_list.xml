@@ -15,7 +15,7 @@
         android:layout_height="match_parent"
         android:layout_centerInParent="true"
         app:layoutManager="LinearLayoutManager"
-        tools:listitem="@layout/item_simple"/>
+        tools:listitem="@layout/item_list"/>
 
     <com.github.ybq.android.spinkit.SpinKitView
         android:id="@+id/spinner"

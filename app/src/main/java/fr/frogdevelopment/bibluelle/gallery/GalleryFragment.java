@@ -27,7 +27,7 @@ import fr.frogdevelopment.bibluelle.R;
 import fr.frogdevelopment.bibluelle.adapter.AbstractBooksAdapter;
 import fr.frogdevelopment.bibluelle.adapter.CarouselBooksAdapter;
 import fr.frogdevelopment.bibluelle.adapter.GridBooksAdapter;
-import fr.frogdevelopment.bibluelle.adapter.SimpleBooksAdapter;
+import fr.frogdevelopment.bibluelle.adapter.ListBooksAdapter;
 import fr.frogdevelopment.bibluelle.data.DatabaseCreator;
 import fr.frogdevelopment.bibluelle.data.entities.Book;
 import fr.frogdevelopment.bibluelle.data.entities.BookPreview;
@@ -72,7 +72,7 @@ public class GalleryFragment extends Fragment {
 		mRecyclerView.setLayoutManager(layoutManager);
 
 //		mRecyclerView.removeOnScrollListener();
-		mRecyclerView.setAdapter(new SimpleBooksAdapter(books, mListener));
+		mRecyclerView.setAdapter(new ListBooksAdapter(books, mListener));
 	}
 
 	private void setCarouselList(List<BookPreview> books) {
@@ -105,7 +105,7 @@ public class GalleryFragment extends Fragment {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 
-			case R.id.action_simple:
+			case R.id.action_list:
 				setSimpleList(mPreviews);
 				return true;
 

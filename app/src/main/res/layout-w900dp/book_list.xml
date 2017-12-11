@@ -27,7 +27,7 @@
                                             android:layout_marginRight="16dp"
                                             app:layoutManager="LinearLayoutManager"
                                             tools:context="fr.frogdevelopment.bibluelle.search.BookListActivity"
-                                            tools:listitem="@layout/item_simple"/>
+                                            tools:listitem="@layout/item_list"/>
 
     <FrameLayout
         android:id="@+id/book_detail_container"

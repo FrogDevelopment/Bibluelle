@@ -9,13 +9,13 @@ import java.util.List;
 
 import fr.frogdevelopment.bibluelle.R;
 import fr.frogdevelopment.bibluelle.data.entities.BookPreview;
-import fr.frogdevelopment.bibluelle.databinding.ItemSimpleBinding;
+import fr.frogdevelopment.bibluelle.databinding.ItemListBinding;
 
-public class SimpleBooksAdapter extends AbstractBooksAdapter<SimpleBooksAdapter.ViewHolder> {
+public class ListBooksAdapter extends AbstractBooksAdapter<ListBooksAdapter.ViewHolder> {
 
 	public static class ViewHolder extends AbstractBooksAdapter.BookViewHolder {
 
-		private final ItemSimpleBinding mBinding;
+		private final ItemListBinding mBinding;
 
 		ViewHolder(View itemView) {
 			super(itemView);
@@ -29,12 +29,12 @@ public class SimpleBooksAdapter extends AbstractBooksAdapter<SimpleBooksAdapter.
 		}
 	}
 
-	public SimpleBooksAdapter(List<BookPreview> previews, OnClickListener listener) {
+	public ListBooksAdapter(List<BookPreview> previews, OnClickListener listener) {
 		super(previews, listener);
 	}
 
 	@Override
 	public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-		return new ViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_simple, parent, false));
+		return new ViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_list, parent, false));
 	}
 }

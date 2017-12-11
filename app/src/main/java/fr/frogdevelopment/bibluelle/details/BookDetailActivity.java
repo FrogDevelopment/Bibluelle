@@ -106,6 +106,7 @@ public class BookDetailActivity extends AppCompatActivity {
 					.setTitle("Attention")
 					.setMessage("Book already saved ! You'll override existing data")
 					.setPositiveButton(android.R.string.ok, (dialog, which) -> doSaveBook())
+					.setNegativeButton(android.R.string.no, (dialog, which) -> {})
 					.show();
 		} else {
 			doSaveBook();

@@ -36,7 +36,7 @@ public class CoverViewHelper {
 		if (TextUtils.isEmpty(preview.thumbnailUrl)) {
 			loadFromFile(imageView, preview.getThumbnailFile());
 		} else {
-			loadFromUrl(imageView, preview.thumbnailUrl, DiskCacheStrategy.ALL, 128, 204);
+			loadFromUrl(imageView, preview.thumbnailUrl, DiskCacheStrategy.ALL);
 		}
 	}
 
@@ -45,7 +45,7 @@ public class CoverViewHelper {
 		if (TextUtils.isEmpty(book.thumbnailUrl)) {
 			loadFromFile(imageView, book.getThumbnailFile());
 		} else {
-			loadFromUrl(imageView, book.thumbnailUrl, DiskCacheStrategy.ALL, 128, 204);
+			loadFromUrl(imageView, book.thumbnailUrl, DiskCacheStrategy.ALL);
 		}
 	}
 
@@ -59,17 +59,14 @@ public class CoverViewHelper {
 		if (TextUtils.isEmpty(book.coverUrl)) {
 			loadFromFile(imageView, book.getCoverFile());
 		} else {
-			loadFromUrl(imageView, book.coverUrl, DiskCacheStrategy.RESOURCE, 600, 919);
+			loadFromUrl(imageView, book.coverUrl, DiskCacheStrategy.RESOURCE);
 		}
 	}
 
-	private static void loadFromUrl(ImageView imageView, String url, DiskCacheStrategy diskCacheStrategy, int width, int height) {
+	private static void loadFromUrl(ImageView imageView, String url, DiskCacheStrategy diskCacheStrategy) {
 		GlideApp.with(imageView.getContext())
 				.asDrawable()
 				.load(url)
-//				.placeholder(R.drawable.no_image)
-				.override(width, height)
-//				.dontAnimate()
 				.diskCacheStrategy(diskCacheStrategy)
 				.into(imageView);
 	}
@@ -77,11 +74,11 @@ public class CoverViewHelper {
 	private static void loadFromFile(ImageView imageView, String fileName) {
 		Context context = imageView.getContext();
 
-		File url = context.getFileStreamPath(fileName);
+		File file = context.getFileStreamPath(fileName);
 
 		GlideApp.with(context)
 				.asDrawable()
-				.load(url)
+				.load(file)
 				.into(imageView);
 	}
 
