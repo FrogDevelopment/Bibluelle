@@ -3,6 +3,7 @@ package fr.frogdevelopment.bibluelle.details;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.ActivityOptionsCompat;
@@ -50,12 +51,11 @@ public class BookDetailFragment extends Fragment {
 			if (mBook.collapsedTitleColor != 0) {
 				collapseToolbar.setCollapsedTitleTextColor(mBook.collapsedTitleColor);
 			}
-
 		}
 	}
 
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
 		BookDetailBinding dataBinding = DataBindingUtil.inflate(inflater, R.layout.book_detail, container, false);
 
