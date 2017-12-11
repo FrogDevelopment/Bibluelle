@@ -9,5 +9,8 @@
     <string name="title_book_list">Books</string>
 
     <string name="detail_page">%1$s pages</string>
+    <string name="expand_description">Lire la suite</string>
+    <string name="isbn">ISBN</string>
+    <string name="categories">Catégories</string>
 
 </resources>
