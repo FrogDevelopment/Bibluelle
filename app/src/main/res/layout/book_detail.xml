@@ -65,8 +65,8 @@
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
                 android:clickable="true"
-                android:focusable="true"
                 android:contentDescription="@null"
+                android:focusable="true"
                 android:foreground="?android:attr/selectableItemBackground"
                 android:minHeight="128dp"
                 android:minWidth="128dp"
@@ -74,6 +74,17 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/detail_sub_title"
                 app:thumbnail="@{book}" />
+
+            <TextView
+                android:id="@+id/detail_click_me"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:text="@string/click_me"
+                android:textSize="12sp"
+                app:layout_constraintEnd_toEndOf="@+id/detail_cover"
+                app:layout_constraintStart_toStartOf="@+id/detail_cover"
+                app:layout_constraintTop_toBottomOf="@+id/detail_cover" />
 
             <TextView
                 android:id="@+id/detail_author"
@@ -140,7 +151,7 @@
                 app:animation_duration="750"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/detail_cover" />
+                app:layout_constraintTop_toBottomOf="@+id/detail_click_me" />
 
             <TextView
                 android:id="@+id/detail_show_more"
