@@ -43,7 +43,7 @@ public class ScanFragment extends Fragment implements ZXingScannerView.ResultHan
 	}
 
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		mScannerView = new ZXingScannerView(getActivity());
 
 		return mScannerView;
