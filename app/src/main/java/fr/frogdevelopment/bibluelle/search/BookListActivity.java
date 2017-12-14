@@ -104,7 +104,7 @@ public class BookListActivity extends AppCompatActivity {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		if (item.getItemId() == android.R.id.home) {
-			onNavigateUpFromChild(this);
+			onBackPressed();
 			return true;
 		}
 
