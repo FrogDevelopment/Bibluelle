@@ -36,6 +36,7 @@ public class BookListActivity extends AppCompatActivity {
 	private View mSpinner;
 
 	private List<String> isbn;
+	private String[] languages;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -95,6 +96,8 @@ public class BookListActivity extends AppCompatActivity {
 			parameters.add("inpublisher:" + publisher);
 		}
 
+		languages = getIntent().getStringArrayExtra("languages");
+
 		if (!parameters.isEmpty()) {
 			mUrlParameters = TextUtils.join("+", parameters);
 			searchBooks(0);
@@ -114,7 +117,7 @@ public class BookListActivity extends AppCompatActivity {
 	private void searchBooks(int page) {
 		mSpinner.setVisibility(View.VISIBLE);
 
-		GoogleRestHelper.searchBooks(this, mUrlParameters, page, "en,fr", isbn, previews -> {
+		GoogleRestHelper.searchBooks(this, mUrlParameters, page, TextUtils.join(",", languages), isbn, previews -> {
 			mSpinner.setVisibility(View.GONE);
 
 			if (previews != null) {

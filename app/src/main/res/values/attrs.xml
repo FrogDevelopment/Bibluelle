@@ -9,4 +9,9 @@
         <attr name="metaButtonBarButtonStyle" format="reference"/>
     </declare-styleable>
 
+    <declare-styleable name="MultiSpinner">
+        <attr name="android:hint" format="string"/>
+        <attr name="android:entries" />
+    </declare-styleable>
+
 </resources>

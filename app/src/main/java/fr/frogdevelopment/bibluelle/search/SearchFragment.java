@@ -8,14 +8,16 @@ import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+
+import org.apache.commons.lang3.ArrayUtils;
 
 import fr.frogdevelopment.bibluelle.R;
 import fr.frogdevelopment.bibluelle.details.BookDetailActivity;
 import fr.frogdevelopment.bibluelle.details.BookDetailFragment;
 import fr.frogdevelopment.bibluelle.search.rest.google.GoogleRestHelper;
+import fr.frogdevelopment.bibluelle.widget.MultiSpinner;
 
 public class SearchFragment extends Fragment {
 
@@ -23,6 +25,7 @@ public class SearchFragment extends Fragment {
 	private TextInputEditText searchByAuthor;
 	private TextInputEditText searchByPublisher;
 	private TextInputEditText searchByIsbn;
+	private String[] selectedCodes;
 
 	@Override
 	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -36,6 +39,16 @@ public class SearchFragment extends Fragment {
 		searchByTitle = view.findViewById(R.id.search_by_title);
 		searchByAuthor = view.findViewById(R.id.search_by_author);
 		searchByPublisher = view.findViewById(R.id.search_by_publisher);
+		MultiSpinner multiSpinner = view.findViewById(R.id.search_languages);
+		multiSpinner.setMultiSpinnerListener(selected -> {
+			String[] codes = getResources().getStringArray(R.array.search_language_codes);
+			selectedCodes = null;
+			for (int i = 0; i < selected.length; i++) {
+				if (selected[i]) {
+					selectedCodes = ArrayUtils.add(selectedCodes, codes[i]);
+				}
+			}
+		});
 		searchByIsbn = view.findViewById(R.id.search_by_isbn);
 		view.findViewById(R.id.search_scan).setOnClickListener(v ->
 				getFragmentManager()
@@ -60,6 +73,7 @@ public class SearchFragment extends Fragment {
 			intent.putExtra("title", title);
 			intent.putExtra("author", author);
 			intent.putExtra("publisher", publisher);
+			intent.putExtra("languages", selectedCodes);
 
 			startActivity(intent);
 		}
