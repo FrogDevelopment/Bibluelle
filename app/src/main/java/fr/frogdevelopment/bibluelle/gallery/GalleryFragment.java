@@ -87,7 +87,7 @@ public class GalleryFragment extends Fragment {
 	}
 
 	private void setGridList(List<BookPreview> books) {
-		final GridLayoutManager layoutManager = new GridLayoutManager(getActivity(), 2);
+		final GridLayoutManager layoutManager = new GridLayoutManager(getActivity(), 3);
 
 		mRecyclerView.setLayoutManager(layoutManager);
 
