@@ -45,9 +45,10 @@ public class MainActivity extends AppCompatActivity {
 			spinner.setVisibility(View.GONE);
 
 			if (Boolean.TRUE.equals(aBoolean)) {
+				databaseCreator.isDatabaseCreated().removeObservers(MainActivity.this);
 				// when created => display main view
 				switchFragment(R.id.navigation_dashboard, true);
-			} else {
+//			} else {
 				// fixme
 			}
 		});

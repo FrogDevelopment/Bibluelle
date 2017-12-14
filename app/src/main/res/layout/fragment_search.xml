@@ -13,7 +13,7 @@
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:fontFamily="casual"
-        android:text="Search book by"
+        android:text="@string/search_title"
         android:textSize="30sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
@@ -35,7 +35,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:fontFamily="casual"
-            android:hint="Title"
+            android:hint="@string/search_by_title"
             android:imeOptions="actionNext"
             android:inputType="textAutoCorrect"/>
 
@@ -57,7 +57,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fontFamily="casual"
-            android:hint="Author"
+            android:hint="@string/search_by_author"
             android:imeOptions="actionNext"
             android:inputType="textAutoCorrect"
             android:text="Brandon Sanderson"/>
@@ -80,7 +80,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fontFamily="casual"
-            android:hint="Publisher"
+            android:hint="@string/search_by_publisher"
             android:imeOptions="actionNext"
             android:inputType="textAutoCorrect"/>
     </android.support.design.widget.TextInputLayout>
@@ -101,7 +101,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fontFamily="casual"
-            android:hint="ISBN"
+            android:hint="@string/search_by_isbn"
             android:imeOptions="actionSearch"
             android:inputType="number"/>
     </android.support.design.widget.TextInputLayout>
@@ -114,7 +114,8 @@
         android:layout_marginTop="16dp"
         android:src="@drawable/ic_menu_camera"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/search_textInputLayout_publisher"/>
+        app:layout_constraintTop_toBottomOf="@+id/search_textInputLayout_publisher"
+        android:contentDescription="@null" />
 
     <Button
         android:id="@+id/search_button"
@@ -124,7 +125,7 @@
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:text="Search"
+        android:text="@string/search_button"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

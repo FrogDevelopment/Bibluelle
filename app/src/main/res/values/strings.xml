@@ -13,5 +13,11 @@
     <string name="isbn">ISBN</string>
     <string name="categories">Catégories</string>
     <string name="click_me">Click me !</string>
+    <string name="search_title">Search book by</string>
+    <string name="search_by_title">Title</string>
+    <string name="search_by_author">Author</string>
+    <string name="search_by_publisher">Publisher</string>
+    <string name="search_by_isbn">ISBN</string>
+    <string name="search_button">Search</string>
 
 </resources>
