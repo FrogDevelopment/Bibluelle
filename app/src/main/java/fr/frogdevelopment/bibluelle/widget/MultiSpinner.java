@@ -90,7 +90,11 @@ public class MultiSpinner extends AppCompatSpinner {
 	}
 
 	public void setSelected(CharSequence[] selected) {
-		setSelected(TextUtils.join(",", selected));
+		if (selected == null) {
+			setSelected(prompt);
+		} else {
+			setSelected(TextUtils.join(",", selected));
+		}
 	}
 
 	public void setSelected(CharSequence selected) {
