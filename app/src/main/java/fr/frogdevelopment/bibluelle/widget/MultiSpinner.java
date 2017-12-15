@@ -6,14 +6,17 @@ import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.AppCompatSpinner;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.widget.ArrayAdapter;
+
+import org.apache.commons.lang3.ArrayUtils;
 
 import fr.frogdevelopment.bibluelle.R;
 
 public class MultiSpinner extends AppCompatSpinner {
 
-	private CharSequence hint = "";
+	private CharSequence prompt = "";
 	private CharSequence[] entries;
 	private boolean[] selected;
 	private MultiSpinnerListener listener;
@@ -47,7 +50,7 @@ public class MultiSpinner extends AppCompatSpinner {
 			selected = new boolean[entries.length]; // false-filled by default
 		}
 
-		hint = a.getText(R.styleable.MultiSpinner_android_hint);
+		prompt = a.getText(R.styleable.MultiSpinner_android_prompt);
 
 		a.recycle();
 
@@ -55,31 +58,27 @@ public class MultiSpinner extends AppCompatSpinner {
 			performClick();
 			return true;
 		});
+
+		setSelected(prompt);
 	}
 
 	@Override
 	@SuppressLint("ClickableViewAccessibility")
 	public boolean performClick() {
 		AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-		builder.setTitle(hint);
+		builder.setTitle(prompt);
 		builder.setMultiChoiceItems(entries, selected, (dialog, which, isChecked) -> selected[which] = isChecked);
 		builder.setPositiveButton(android.R.string.ok, (dialog, which) -> {
 			// build new spinner text & delimiter management
-			StringBuilder stringBuilder = new StringBuilder();
+			CharSequence[] selectedValues = null;
 			for (int i = 0; i < entries.length; i++) {
 				if (selected[i]) {
-					stringBuilder.append(entries[i]);
-					stringBuilder.append(", ");
+					selectedValues = ArrayUtils.add(selectedValues, entries[i]);
 				}
 			}
 
-			// Remove trailing comma
-			if (stringBuilder.length() > 2) {
-				stringBuilder.setLength(stringBuilder.length() - 2);
-			}
+			setSelected(selectedValues);
 
-			ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, new String[]{stringBuilder.toString()});
-			setAdapter(adapter);
 			if (listener != null) {
 				listener.onItemsSelected(selected);
 			}
@@ -88,6 +87,15 @@ public class MultiSpinner extends AppCompatSpinner {
 		builder.setCancelable(false);
 		builder.show();
 		return true;
+	}
+
+	public void setSelected(CharSequence[] selected) {
+		setSelected(TextUtils.join(",", selected));
+	}
+
+	public void setSelected(CharSequence selected) {
+		ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, new String[]{selected.toString()});
+		setAdapter(adapter);
 	}
 
 	public void setMultiSpinnerListener(MultiSpinnerListener listener) {

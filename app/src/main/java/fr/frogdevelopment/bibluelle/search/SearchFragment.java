@@ -51,13 +51,6 @@ public class SearchFragment extends Fragment {
 					selectedCodes = ArrayUtils.add(selectedCodes, codes[i]);
 				}
 			}
-
-			if (ArrayUtils.isEmpty(selectedCodes)) {
-				Toast.makeText(getContext(), "At least 1 selection is required", Toast.LENGTH_SHORT).show();
-				searchByIsbn.setEnabled(false);
-			} else {
-				searchByIsbn.setEnabled(true);
-			}
 		});
 		view.findViewById(R.id.search_scan).setOnClickListener(v ->
 				getFragmentManager()
@@ -74,9 +67,20 @@ public class SearchFragment extends Fragment {
 		if (!TextUtils.isEmpty(isbn)) {
 			showDetails(isbn);
 		} else {
+
 			String title = searchByTitle.getText().toString();
 			String author = searchByAuthor.getText().toString();
 			String publisher = searchByPublisher.getText().toString();
+
+			if (TextUtils.isEmpty(title) && TextUtils.isEmpty(author) && TextUtils.isEmpty(publisher)) {
+				Toast.makeText(getContext(), "At least 1 field is required", Toast.LENGTH_SHORT).show();
+				return;
+			}
+
+			if (ArrayUtils.isEmpty(selectedCodes)) {
+				Toast.makeText(getContext(), "At least 1 language is required", Toast.LENGTH_SHORT).show();
+				return;
+			}
 
 			Intent intent = new Intent(getActivity(), BookListActivity.class);
 			intent.putExtra("title", title);
@@ -110,4 +114,9 @@ public class SearchFragment extends Fragment {
 		}
 	}
 
+	@Override
+	public void onResume() {
+		super.onResume();
+		selectedCodes = null;
+	}
 }

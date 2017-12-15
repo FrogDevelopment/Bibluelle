@@ -138,7 +138,7 @@
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:entries="@array/search_language_labels"
-        android:hint="@string/search_languages_of_book"
+        android:prompt="@string/search_languages_of_book"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/search_textInputLayout_lang" />

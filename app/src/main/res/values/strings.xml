@@ -20,7 +20,7 @@
     <string name="search_by_isbn">ISBN</string>
     <string name="search_button">Search</string>
     <string name="search_languages">Languages</string>
-    <string name="search_languages_of_book">Languages of book</string>
+    <string name="search_languages_of_book">Select languages</string>
 
     <string-array name="search_language_codes">
         <item>en</item>

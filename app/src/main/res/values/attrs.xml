@@ -10,8 +10,8 @@
     </declare-styleable>
 
     <declare-styleable name="MultiSpinner">
-        <attr name="android:hint" format="string"/>
         <attr name="android:entries" />
+        <attr name="android:prompt"/>
     </declare-styleable>
 
 </resources>
