@@ -22,11 +22,12 @@ import fr.frogdevelopment.bibluelle.widget.MultiSpinner;
 
 public class SearchFragment extends Fragment {
 
-	private TextInputEditText searchByTitle;
-	private TextInputEditText searchByAuthor;
-	private TextInputEditText searchByPublisher;
-	private TextInputEditText searchByIsbn;
-	private String[] selectedCodes;
+	private TextInputEditText mSearchByTitle;
+	private TextInputEditText mSearchByAuthor;
+	private TextInputEditText mSearchByPublisher;
+	private TextInputEditText mSearchByIsbn;
+	private MultiSpinner mLangRestrict;
+	private boolean[] mSelectedLang = null;
 
 	@Override
 	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -37,44 +38,49 @@ public class SearchFragment extends Fragment {
 	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 
-		searchByTitle = view.findViewById(R.id.search_by_title);
-		searchByAuthor = view.findViewById(R.id.search_by_author);
-		searchByPublisher = view.findViewById(R.id.search_by_publisher);
-		searchByIsbn = view.findViewById(R.id.search_by_isbn);
+		mSearchByTitle = view.findViewById(R.id.search_by_title);
+		mSearchByAuthor = view.findViewById(R.id.search_by_author);
+		mSearchByPublisher = view.findViewById(R.id.search_by_publisher);
+		mSearchByIsbn = view.findViewById(R.id.search_by_isbn);
 
-		MultiSpinner multiSpinner = view.findViewById(R.id.search_languages);
-		multiSpinner.setMultiSpinnerListener(selected -> {
-			String[] codes = getResources().getStringArray(R.array.search_language_codes);
-			selectedCodes = null;
-			for (int i = 0; i < selected.length; i++) {
-				if (selected[i]) {
-					selectedCodes = ArrayUtils.add(selectedCodes, codes[i]);
-				}
-			}
-		});
-		view.findViewById(R.id.search_scan).setOnClickListener(v ->
-				getFragmentManager()
-						.beginTransaction()
-						.replace(R.id.content_frame, new ScanFragment(), "SCAN")
-						.addToBackStack(null)
-						.commit()
-		);
+		mLangRestrict = view.findViewById(R.id.search_languages);
+		mLangRestrict.setMultiSpinnerListener(selected -> mSelectedLang = selected);
+
+		view.findViewById(R.id.search_scan).setOnClickListener(v -> onSearchByIsbn());
 		view.findViewById(R.id.search_button).setOnClickListener(v -> onSearch());
 	}
 
+	private int onSearchByIsbn() {
+		return getFragmentManager()
+				.beginTransaction()
+				.replace(R.id.content_frame, new ScanFragment(), "SCAN")
+				.addToBackStack(null)
+				.commit();
+	}
+
 	private void onSearch() {
-		String isbn = searchByIsbn.getText().toString();
+		String isbn = mSearchByIsbn.getText().toString();
 		if (!TextUtils.isEmpty(isbn)) {
 			showDetails(isbn);
 		} else {
 
-			String title = searchByTitle.getText().toString();
-			String author = searchByAuthor.getText().toString();
-			String publisher = searchByPublisher.getText().toString();
+			String title = mSearchByTitle.getText().toString();
+			String author = mSearchByAuthor.getText().toString();
+			String publisher = mSearchByPublisher.getText().toString();
 
 			if (TextUtils.isEmpty(title) && TextUtils.isEmpty(author) && TextUtils.isEmpty(publisher)) {
 				Toast.makeText(getContext(), "At least 1 field is required", Toast.LENGTH_SHORT).show();
 				return;
+			}
+
+			String[] codes = getResources().getStringArray(R.array.search_language_codes);
+			String[] selectedCodes = null;
+			if (mSelectedLang != null) {
+				for (int i = 0; i < mSelectedLang.length; i++) {
+					if (mSelectedLang[i]) {
+						selectedCodes = ArrayUtils.add(selectedCodes, codes[i]);
+					}
+				}
 			}
 
 			if (ArrayUtils.isEmpty(selectedCodes)) {
@@ -86,10 +92,6 @@ public class SearchFragment extends Fragment {
 			intent.putExtra("title", title);
 			intent.putExtra("author", author);
 			intent.putExtra("publisher", publisher);
-
-			if (selectedCodes == null || selectedCodes.length == 0) {
-				selectedCodes = new String[]{"en"}; // fixme
-			}
 			intent.putExtra("languages", selectedCodes);
 
 			startActivity(intent);
@@ -117,6 +119,6 @@ public class SearchFragment extends Fragment {
 	@Override
 	public void onResume() {
 		super.onResume();
-		selectedCodes = null;
+		mLangRestrict.setSelected(mSelectedLang);
 	}
 }

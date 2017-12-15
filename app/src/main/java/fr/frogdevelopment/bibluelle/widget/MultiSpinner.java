@@ -68,8 +68,26 @@ public class MultiSpinner extends AppCompatSpinner {
 		AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
 		builder.setTitle(prompt);
 		builder.setMultiChoiceItems(entries, selected, (dialog, which, isChecked) -> selected[which] = isChecked);
-		builder.setPositiveButton(android.R.string.ok, (dialog, which) -> {
-			// build new spinner text & delimiter management
+		builder.setPositiveButton(android.R.string.ok, (dialog, which) -> onOkClicked());
+
+		builder.setCancelable(false);
+		builder.show();
+		return true;
+	}
+
+	private void onOkClicked() {
+		setSelected(selected);
+
+		if (listener != null) {
+			listener.onItemsSelected(selected);
+		}
+	}
+
+	public void setSelected(boolean[] selected) {
+		if (selected == null) {
+			setSelected(prompt);
+			this.selected = new boolean[entries.length]; // false-filled by default
+		} else {
 			CharSequence[] selectedValues = null;
 			for (int i = 0; i < entries.length; i++) {
 				if (selected[i]) {
@@ -79,14 +97,8 @@ public class MultiSpinner extends AppCompatSpinner {
 
 			setSelected(selectedValues);
 
-			if (listener != null) {
-				listener.onItemsSelected(selected);
-			}
-		});
-
-		builder.setCancelable(false);
-		builder.show();
-		return true;
+			this.selected = selected;
+		}
 	}
 
 	public void setSelected(CharSequence[] selected) {
