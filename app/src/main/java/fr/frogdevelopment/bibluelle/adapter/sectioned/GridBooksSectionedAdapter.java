@@ -1,4 +1,4 @@
-package fr.frogdevelopment.bibluelle.adapter;
+package fr.frogdevelopment.bibluelle.adapter.sectioned;
 
 import android.databinding.DataBindingUtil;
 import android.view.LayoutInflater;
@@ -6,14 +6,16 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.List;
+import java.util.Map;
 
 import fr.frogdevelopment.bibluelle.R;
+import fr.frogdevelopment.bibluelle.adapter.OnClickListener;
 import fr.frogdevelopment.bibluelle.data.entities.BookPreview;
 import fr.frogdevelopment.bibluelle.databinding.ItemGridBinding;
 
-public class GridBooksAdapter extends AbstractBooksAdapter<GridBooksAdapter.ViewHolder> {
+public class GridBooksSectionedAdapter extends AbstractBooksSectionedAdapter<GridBooksSectionedAdapter.ViewHolder> {
 
-	public static class ViewHolder extends AbstractBooksAdapter.BookViewHolder {
+	public static class ViewHolder extends AbstractBooksSectionedAdapter.BookViewHolder {
 
 		private final ItemGridBinding mBinding;
 
@@ -29,12 +31,12 @@ public class GridBooksAdapter extends AbstractBooksAdapter<GridBooksAdapter.View
 		}
 	}
 
-	public GridBooksAdapter(List<BookPreview> previews, OnClickListener listener) {
+	public GridBooksSectionedAdapter(Map<String, List<BookPreview>> previews, OnClickListener listener) {
 		super(previews, listener);
 	}
 
 	@Override
-	public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+	protected ViewHolder onCreateItemViewHolder(ViewGroup parent, int viewType) {
 		return new ViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_grid, parent, false));
 	}
 }

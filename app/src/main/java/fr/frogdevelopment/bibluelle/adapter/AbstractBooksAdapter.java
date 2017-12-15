@@ -18,10 +18,6 @@ public abstract class AbstractBooksAdapter<V extends AbstractBooksAdapter.BookVi
 		abstract protected void bind(BookPreview preview);
 	}
 
-	public interface OnClickListener {
-		void onClick(View v, BookPreview preview);
-	}
-
 	protected final List<BookPreview> mItems;
 	private final OnClickListener mListener;
 

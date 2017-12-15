@@ -32,7 +32,7 @@ public abstract class BookDao {
 	@Query("SELECT * FROM book WHERE isbn = :isbn")
 	public abstract LiveData<Book> getBook(String isbn);
 
-	@Query("SELECT * FROM book")
+	@Query("SELECT * FROM book ORDER BY title")
 	public abstract LiveData<List<Book>> loadAllBooks();
 
 	@Query("SELECT isbn FROM book")

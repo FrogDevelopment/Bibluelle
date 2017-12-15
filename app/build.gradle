@@ -82,7 +82,7 @@ dependencies {
     implementation 'com.github.ybq:Android-SpinKit:1.1.0'
 
     // commons
-    implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.6'
+    implementation 'org.apache.commons:commons-lang3:3.7'
 
     // https://github.com/Blogcat/Android-ExpandableTextView
     implementation 'at.blogc:expandabletextview:1.0.5'
@@ -92,5 +92,8 @@ dependencies {
 
     // https://github.com/Clans/FloatingActionButton
     implementation 'com.github.clans:fab:1.6.4'
+
+    // https://github.com/truizlop/SectionedRecyclerView
+    implementation 'com.truizlop.sectionedrecyclerview:library:1.2.0'
 
 }

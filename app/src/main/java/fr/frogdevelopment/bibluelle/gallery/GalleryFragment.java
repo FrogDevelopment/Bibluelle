@@ -20,25 +20,29 @@ import android.widget.ImageView;
 
 import com.azoft.carousellayoutmanager.CarouselLayoutManager;
 import com.azoft.carousellayoutmanager.CarouselZoomPostLayoutListener;
+import com.truizlop.sectionedrecyclerview.SectionedSpanSizeLookup;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import fr.frogdevelopment.bibluelle.CoverViewHelper;
 import fr.frogdevelopment.bibluelle.R;
-import fr.frogdevelopment.bibluelle.adapter.AbstractBooksAdapter;
 import fr.frogdevelopment.bibluelle.adapter.CarouselBooksAdapter;
-import fr.frogdevelopment.bibluelle.adapter.GridBooksAdapter;
-import fr.frogdevelopment.bibluelle.adapter.ListBooksAdapter;
+import fr.frogdevelopment.bibluelle.adapter.OnClickListener;
 import fr.frogdevelopment.bibluelle.data.DatabaseCreator;
 import fr.frogdevelopment.bibluelle.data.entities.Book;
 import fr.frogdevelopment.bibluelle.data.entities.BookPreview;
 import fr.frogdevelopment.bibluelle.details.BookDetailActivity;
 import fr.frogdevelopment.bibluelle.details.BookDetailFragment;
+import fr.frogdevelopment.bibluelle.adapter.sectioned.GridBooksSectionedAdapter;
+import fr.frogdevelopment.bibluelle.adapter.sectioned.ListBooksSectionedAdapter;
 
 public class GalleryFragment extends Fragment {
 
 	private RecyclerView mRecyclerView;
-	private List<BookPreview> mPreviews;
+	private Map<String, List<BookPreview>> mPreviews;
 
 	@Override
 	public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -60,40 +64,57 @@ public class GalleryFragment extends Fragment {
 
 		DatabaseCreator.getInstance().getBookDao().loadAllPreviews().observe(this, books -> {
 			view.findViewById(R.id.spinner).setVisibility(View.GONE);
-			mPreviews = books;
+
+			mPreviews = new HashMap<>();
+			if (books != null) {
+				List<BookPreview> previews;
+				for (BookPreview book : books) {
+					// fixme dynamic section
+					if (this.mPreviews.containsKey(book.author)) {
+						previews = this.mPreviews.get(book.author);
+					} else {
+						previews = new ArrayList<>();
+						this.mPreviews.put(book.author, previews);
+					}
+
+					previews.add(book);
+				}
+			}
 
 			// default
-			setGridList(books);
+			setGridList(mPreviews);
 		});
 	}
 
-	private void setSimpleList(List<BookPreview> books) {
-		final LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
+	private void setSimpleList(Map<String, List<BookPreview>> previews) {
+		mRecyclerView.setAdapter(new ListBooksSectionedAdapter(previews, mListener));
 
-		mRecyclerView.setLayoutManager(layoutManager);
-
-//		mRecyclerView.removeOnScrollListener();
-		mRecyclerView.setAdapter(new ListBooksAdapter(books, mListener));
+		mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 	}
 
-	private void setCarouselList(List<BookPreview> books) {
+	private void setCarouselList(Map<String, List<BookPreview>> previews) {
+		List<BookPreview> items = new ArrayList<>();
+		for (Map.Entry<String, List<BookPreview>> entry : previews.entrySet()) {
+			items.addAll(entry.getValue());
+		}
+		mRecyclerView.setAdapter(new CarouselBooksAdapter(items, mListener));
+
 		// https://github.com/Azoft/CarouselLayoutManager
 		final CarouselLayoutManager layoutManager = new CarouselLayoutManager(CarouselLayoutManager.HORIZONTAL);
 		layoutManager.setPostLayoutListener(new CarouselZoomPostLayoutListener());
 		layoutManager.setMaxVisibleItems(3);
 
-//		mRecyclerView.addOnScrollListener(new CenterScrollListener());
 		mRecyclerView.setLayoutManager(layoutManager);
-		mRecyclerView.setAdapter(new CarouselBooksAdapter(books, mListener));
 	}
 
-	private void setGridList(List<BookPreview> books) {
+	private void setGridList(Map<String, List<BookPreview>> previews) {
+		GridBooksSectionedAdapter adapter = new GridBooksSectionedAdapter(previews, mListener);
+		mRecyclerView.setAdapter(adapter);
+
 		final GridLayoutManager layoutManager = new GridLayoutManager(getActivity(), 3);
-
+		SectionedSpanSizeLookup lookup = new SectionedSpanSizeLookup(adapter, layoutManager);
+		layoutManager.setSpanSizeLookup(lookup);
 		mRecyclerView.setLayoutManager(layoutManager);
-
-//		mRecyclerView.removeOnScrollListener();
-		mRecyclerView.setAdapter(new GridBooksAdapter(books, mListener));
 	}
 
 	@Override
@@ -123,7 +144,7 @@ public class GalleryFragment extends Fragment {
 		}
 	}
 
-	private AbstractBooksAdapter.OnClickListener mListener = (v, preview) -> {
+	private OnClickListener mListener = (v, preview) -> {
 		ImageView coverView = v.findViewById(R.id.item_cover);
 
 		LiveData<Book> bookLiveData = DatabaseCreator.getInstance().getBookDao().getBook(preview.isbn);
