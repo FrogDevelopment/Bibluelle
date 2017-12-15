@@ -15,6 +15,9 @@ public class BookPreview implements Serializable {
 	@ColumnInfo(name = "title")
 	public String title;
 
+	@ColumnInfo(name = "sub_title")
+	public String subTitle;
+
 	@ColumnInfo(name = "author")
 	public String author;
 

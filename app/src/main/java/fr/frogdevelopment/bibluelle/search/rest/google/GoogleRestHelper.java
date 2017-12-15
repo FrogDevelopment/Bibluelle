@@ -26,7 +26,7 @@ public class GoogleRestHelper {
 
 	private static final String PRINT_TYPE = "books";
 	private static final int MAX_RESULTS = 40;
-	private static final String PREVIEW_FIELDS = "totalItems,items/volumeInfo(title,authors,imageLinks(thumbnail),industryIdentifiers)";
+	private static final String PREVIEW_FIELDS = "totalItems,items/volumeInfo(title,subtitle,authors,imageLinks(thumbnail),industryIdentifiers)";
 	private static final String FULL_FIELDS = "totalItems,items(id,volumeInfo(title,subtitle,authors,imageLinks(thumbnail),publisher,publishedDate,description,pageCount,categories))";
 	private static final String DETAIL_FIELDS = "totalItems,items(id,volumeInfo(subtitle,publisher,publishedDate,description,pageCount,categories))";
 
@@ -50,6 +50,7 @@ public class GoogleRestHelper {
 								BookPreview preview = new BookPreview();
 								VolumeInfo volumeInfo = googleBook.getVolumeInfo();
 								preview.title = volumeInfo.getTitle();
+								preview.subTitle = volumeInfo.getSubtitle();
 								if (volumeInfo.getAuthors() != null) {
 									preview.author = TextUtils.join(",", volumeInfo.getAuthors());
 								}
