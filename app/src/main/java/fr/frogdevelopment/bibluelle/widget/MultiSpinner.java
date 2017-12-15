@@ -78,9 +78,6 @@ public class MultiSpinner extends AppCompatSpinner {
 			if (listener != null) {
 				listener.onItemsSelected(selected);
 			}
-
-			// hide dialog
-			dialog.dismiss();
 		});
 
 		builder.setCancelable(false);

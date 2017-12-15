@@ -10,6 +10,7 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import org.apache.commons.lang3.ArrayUtils;
 
@@ -39,6 +40,8 @@ public class SearchFragment extends Fragment {
 		searchByTitle = view.findViewById(R.id.search_by_title);
 		searchByAuthor = view.findViewById(R.id.search_by_author);
 		searchByPublisher = view.findViewById(R.id.search_by_publisher);
+		searchByIsbn = view.findViewById(R.id.search_by_isbn);
+
 		MultiSpinner multiSpinner = view.findViewById(R.id.search_languages);
 		multiSpinner.setMultiSpinnerListener(selected -> {
 			String[] codes = getResources().getStringArray(R.array.search_language_codes);
@@ -48,8 +51,14 @@ public class SearchFragment extends Fragment {
 					selectedCodes = ArrayUtils.add(selectedCodes, codes[i]);
 				}
 			}
+
+			if (ArrayUtils.isEmpty(selectedCodes)) {
+				Toast.makeText(getContext(), "At least 1 selection is required", Toast.LENGTH_SHORT).show();
+				searchByIsbn.setEnabled(false);
+			} else {
+				searchByIsbn.setEnabled(true);
+			}
 		});
-		searchByIsbn = view.findViewById(R.id.search_by_isbn);
 		view.findViewById(R.id.search_scan).setOnClickListener(v ->
 				getFragmentManager()
 						.beginTransaction()
