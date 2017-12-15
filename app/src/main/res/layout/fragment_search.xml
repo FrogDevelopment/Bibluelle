@@ -117,6 +117,20 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/search_textInputLayout_publisher" />
 
+    <TextView
+        android:id="@+id/search_textInputLayout_lang"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:paddingStart="4dp"
+        android:layout_marginTop="8dp"
+        android:fontFamily="casual"
+        android:text="@string/search_languages"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/search_textInputLayout_isbn" />
+
     <fr.frogdevelopment.bibluelle.widget.MultiSpinner
         android:id="@+id/search_languages"
         android:layout_width="0dp"
@@ -124,10 +138,10 @@
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:entries="@array/search_language_labels"
-        android:hint="Languages"
+        android:hint="@string/search_languages_of_book"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/search_textInputLayout_isbn" />
+        app:layout_constraintTop_toBottomOf="@+id/search_textInputLayout_lang" />
 
     <Button
         android:id="@+id/search_button"

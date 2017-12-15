@@ -83,6 +83,7 @@ public class MultiSpinner extends AppCompatSpinner {
 			dialog.dismiss();
 		});
 
+		builder.setCancelable(false);
 		builder.show();
 		return true;
 	}

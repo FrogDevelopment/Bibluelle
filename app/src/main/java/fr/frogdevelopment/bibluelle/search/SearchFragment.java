@@ -73,6 +73,10 @@ public class SearchFragment extends Fragment {
 			intent.putExtra("title", title);
 			intent.putExtra("author", author);
 			intent.putExtra("publisher", publisher);
+
+			if (selectedCodes == null || selectedCodes.length == 0) {
+				selectedCodes = new String[]{"en"}; // fixme
+			}
 			intent.putExtra("languages", selectedCodes);
 
 			startActivity(intent);
