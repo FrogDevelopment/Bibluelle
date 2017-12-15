@@ -26,7 +26,7 @@ public abstract class BookDao {
 	@Delete
 	abstract void deleteBook(Book book);
 
-	@Query("SELECT isbn, author, title, sub_title FROM book")
+	@Query("SELECT isbn, author, title, sub_title FROM book ORDER BY title")
 	public abstract LiveData<List<BookPreview>> loadAllPreviews();
 
 	@Query("SELECT * FROM book WHERE isbn = :isbn")

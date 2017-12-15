@@ -21,18 +21,9 @@ public abstract class AbstractBooksAdapter<V extends AbstractBooksAdapter.BookVi
 	protected final List<BookPreview> mItems;
 	private final OnClickListener mListener;
 
-	AbstractBooksAdapter(List<BookPreview> previews) {
-		this(previews, null);
-	}
-
 	AbstractBooksAdapter(List<BookPreview> previews, OnClickListener listener) {
 		this.mItems = previews;
 		this.mListener = listener;
-	}
-
-	public void addBooks(List<BookPreview> previews) {
-		mItems.addAll(previews);
-		notifyDataSetChanged();
 	}
 
 	@Override
