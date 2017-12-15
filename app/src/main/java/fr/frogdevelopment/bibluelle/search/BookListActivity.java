@@ -1,5 +1,6 @@
 package fr.frogdevelopment.bibluelle.search;
 
+import android.annotation.SuppressLint;
 import android.arch.lifecycle.LiveData;
 import android.content.Intent;
 import android.os.Bundle;
@@ -154,6 +155,7 @@ public class BookListActivity extends AppCompatActivity {
 		}
 	}
 
+	@SuppressLint("RestrictedApi")
 	private void doShowDetails(ImageView sharedElement, Book book) {
 		CoverViewHelper.searchColors(sharedElement, book);
 
@@ -180,5 +182,21 @@ public class BookListActivity extends AppCompatActivity {
 				startActivityForResult(intent, 123, options.toBundle());
 			}
 		}
+	}
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		if (requestCode == 123) {
+			String isbn = data.getStringExtra("isbn");
+			switch (resultCode) {
+				case 1:
+					mAdapter.setBookUpdated(isbn, true);
+					break;
+				case 2:
+					mAdapter.setBookUpdated(isbn, false);
+					break;
+			}
+		}
+		super.onActivityResult(requestCode, resultCode, data);
 	}
 }

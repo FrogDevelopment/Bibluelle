@@ -1,5 +1,6 @@
 package fr.frogdevelopment.bibluelle.details;
 
+import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -44,6 +45,7 @@ public class BookDetailActivity extends AppCompatActivity {
 
 	private Book mBook;
 	private ActivityBookDetailBinding viewDataBinding;
+	private boolean mBookSaved = false;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -106,7 +108,8 @@ public class BookDetailActivity extends AppCompatActivity {
 					.setTitle("Attention")
 					.setMessage("Book already saved ! You'll override existing data")
 					.setPositiveButton(android.R.string.ok, (dialog, which) -> doSaveBook())
-					.setNegativeButton(android.R.string.no, (dialog, which) -> {})
+					.setNegativeButton(android.R.string.no, (dialog, which) -> {
+					})
 					.show();
 		} else {
 			doSaveBook();
@@ -145,8 +148,13 @@ public class BookDetailActivity extends AppCompatActivity {
 	private void onSaveBook() {
 		if (thumbnailSaved && coverSaved) {
 			// save book
-			BookDao.insert(mBook, () -> Toast.makeText(getApplicationContext(), "Book saved", Toast.LENGTH_LONG).show());
+			BookDao.insert(mBook, this::onBookSaved);
 		}
+	}
+
+	private void onBookSaved() {
+		mBookSaved = true;
+		Toast.makeText(getApplicationContext(), "Book saved", Toast.LENGTH_LONG).show();
 	}
 
 	private boolean saveFile(File file, String fileName) {
@@ -187,10 +195,17 @@ public class BookDetailActivity extends AppCompatActivity {
 		deleteSavedFile(mBook.getCoverFile());
 
 		// delete book
-		BookDao.delete(mBook, () -> {
-			Toast.makeText(getApplicationContext(), "Book deleted", Toast.LENGTH_LONG).show();
-			finish();
-		});
+		BookDao.delete(mBook, this::onBookDeleted);
+	}
+
+	private void onBookDeleted() {
+		Toast.makeText(getApplicationContext(), "Book deleted", Toast.LENGTH_LONG).show();
+
+		Intent data = new Intent();
+		data.putExtra("isbn", mBook.isbn);
+		setResult(2, data);
+
+		finish();
 	}
 
 	private void syncBook() {
@@ -227,4 +242,13 @@ public class BookDetailActivity extends AppCompatActivity {
 		return super.onOptionsItemSelected(item);
 	}
 
+	@Override
+	public void onBackPressed() {
+		if (mBookSaved) {
+			Intent data = new Intent();
+			data.putExtra("isbn", mBook.isbn);
+			setResult(1, data);
+		}
+		super.onBackPressed();
+	}
 }

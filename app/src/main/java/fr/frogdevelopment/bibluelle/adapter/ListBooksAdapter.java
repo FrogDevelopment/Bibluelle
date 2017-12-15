@@ -37,4 +37,15 @@ public class ListBooksAdapter extends AbstractBooksAdapter<ListBooksAdapter.View
 	public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 		return new ViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_list, parent, false));
 	}
+
+	public void setBookUpdated(String isbn, boolean saved) {
+		for (int i = 0; i < mItems.size(); i++) {
+			BookPreview item = mItems.get(i);
+			if (item.isbn.equals(isbn)) {
+				item.alreadySaved = saved;
+				notifyItemChanged(i);
+				break;
+			}
+		}
+	}
 }

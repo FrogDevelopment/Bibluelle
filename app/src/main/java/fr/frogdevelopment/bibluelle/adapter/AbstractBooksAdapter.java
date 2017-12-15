@@ -22,7 +22,7 @@ public abstract class AbstractBooksAdapter<V extends AbstractBooksAdapter.BookVi
 		void onClick(View v, BookPreview preview);
 	}
 
-	private final List<BookPreview> mItems;
+	protected final List<BookPreview> mItems;
 	private final OnClickListener mListener;
 
 	AbstractBooksAdapter(List<BookPreview> previews) {
