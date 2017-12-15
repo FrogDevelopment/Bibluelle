@@ -50,6 +50,11 @@ public class MultiSpinner extends AppCompatSpinner {
 		hint = a.getText(R.styleable.MultiSpinner_android_hint);
 
 		a.recycle();
+
+		setOnLongClickListener(view -> {
+			performClick();
+			return true;
+		});
 	}
 
 	@Override
