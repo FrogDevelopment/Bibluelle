@@ -3,12 +3,15 @@ package fr.frogdevelopment.bibluelle.data;
 import android.annotation.SuppressLint;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
+import android.arch.persistence.db.SupportSQLiteDatabase;
 import android.arch.persistence.room.Database;
 import android.arch.persistence.room.Room;
 import android.arch.persistence.room.RoomDatabase;
 import android.arch.persistence.room.TypeConverters;
+import android.arch.persistence.room.migration.Migration;
 import android.content.Context;
 import android.os.AsyncTask;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -26,8 +29,7 @@ public class DatabaseCreator {
 	// https://developer.android.com/training/data-storage/room/migrating-db-versions.html
 	@Database(
 			entities = {Book.class, Borrowing.class},
-			version = 1,
-			exportSchema = false
+			version = 1
 	)
 	@TypeConverters({LocalDateConverters.class})
 	static abstract class DaoFactory extends RoomDatabase {
@@ -90,7 +92,9 @@ public class DatabaseCreator {
 				Context context = params[0].getApplicationContext();
 
 				// Build the database!
-				DaoFactory db = Room.databaseBuilder(context.getApplicationContext(), DaoFactory.class, DaoFactory.DATABASE_NAME).build();
+				DaoFactory db = Room.databaseBuilder(context.getApplicationContext(), DaoFactory.class, DaoFactory.DATABASE_NAME)
+//						.addMigrations(MIGRATION_1_2)
+						.build();
 
 				// Add some data to the database
 				Log.d("DatabaseCreator", "DB was populated in thread " + Thread.currentThread().getName());
@@ -115,4 +119,12 @@ public class DatabaseCreator {
 	public BookDao getBookDao() {
 		return mDb.bookDao();
 	}
+
+	static final Migration MIGRATION_1_2 = new Migration(1, 2) {
+
+		@Override
+		public void migrate(@NonNull SupportSQLiteDatabase database) {
+//			database.execSQL("CREATE TABLE `Fruit` (`id` INTEGER, `name` TEXT, PRIMARY KEY(`id`))");
+		}
+	};
 }
