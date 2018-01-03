@@ -16,6 +16,7 @@ import org.junit.runner.RunWith;
 import java.io.IOException;
 import java.util.List;
 
+import fr.frogdevelopment.bibluelle.data.DatabaseCreator.DaoFactory;
 import fr.frogdevelopment.bibluelle.data.dao.BookDao;
 import fr.frogdevelopment.bibluelle.data.entities.Book;
 
