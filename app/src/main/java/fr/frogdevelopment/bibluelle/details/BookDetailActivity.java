@@ -69,15 +69,9 @@ public class BookDetailActivity extends AppCompatActivity {
 		viewDataBinding.setBook(mBook);
 
 		if (isSearch) {
-			if (mBook.alreadySaved) {
-				FloatingActionButton fabSync = findViewById(R.id.fab_sync);
-				fabSync.setVisibility(View.VISIBLE);
-				fabSync.setOnClickListener(view -> syncBook());
-			} else {
-				FloatingActionButton fabAdd = findViewById(R.id.fab_save);
-				fabAdd.setOnClickListener(view -> saveBook());
-				fabAdd.setVisibility(View.VISIBLE);
-			}
+			handleFabActions(mBook.alreadySaved);
+		} else {
+			handleFabActions(true);
 		}
 
 		FloatingActionButton fabDelete = findViewById(R.id.fab_delete);
@@ -99,6 +93,18 @@ public class BookDetailActivity extends AppCompatActivity {
 					.beginTransaction()
 					.add(R.id.book_detail_container, fragment)
 					.commit();
+		}
+	}
+
+	private void handleFabActions(boolean saved) {
+		if (saved) {
+			FloatingActionButton fabSync = findViewById(R.id.fab_sync);
+			fabSync.setVisibility(View.VISIBLE);
+			fabSync.setOnClickListener(view -> syncBook());
+		} else {
+			FloatingActionButton fabAdd = findViewById(R.id.fab_save);
+			fabAdd.setOnClickListener(view -> saveBook());
+			fabAdd.setVisibility(View.VISIBLE);
 		}
 	}
 
@@ -149,6 +155,8 @@ public class BookDetailActivity extends AppCompatActivity {
 		if (thumbnailSaved && coverSaved) {
 			// save book
 			BookDao.insert(mBook, this::onBookSaved);
+
+			handleFabActions(true);
 		}
 	}
 

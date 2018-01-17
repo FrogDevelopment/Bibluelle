@@ -186,7 +186,7 @@ public class BookListActivity extends AppCompatActivity {
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		if (requestCode == 123) {
+		if (requestCode == 123 && data != null) {
 			String isbn = data.getStringExtra("isbn");
 			switch (resultCode) {
 				case 1:
