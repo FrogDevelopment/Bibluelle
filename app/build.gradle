@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
 
 android {
     compileSdkVersion 27
@@ -116,5 +117,9 @@ dependencies {
 
     // https://github.com/truizlop/SectionedRecyclerView
     implementation 'com.truizlop.sectionedrecyclerview:library:1.2.0'
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 
+}
+repositories {
+    mavenCentral()
 }
