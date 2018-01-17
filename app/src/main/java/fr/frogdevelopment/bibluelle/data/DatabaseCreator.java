@@ -18,7 +18,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import fr.frogdevelopment.bibluelle.data.dao.BookDao;
 import fr.frogdevelopment.bibluelle.data.entities.Book;
-import fr.frogdevelopment.bibluelle.data.entities.Borrowing;
 
 /**
  * Creates the {@link DaoFactory} asynchronously, exposing a LiveData object to notify of creation.
@@ -28,7 +27,7 @@ public class DatabaseCreator {
 
 	// https://developer.android.com/training/data-storage/room/migrating-db-versions.html
 	@Database(
-			entities = {Book.class, Borrowing.class},
+			entities = {Book.class},
 			version = 1
 	)
 	@TypeConverters({LocalDateConverters.class})
