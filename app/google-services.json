@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "510347106594",
+    "project_id": "firebase-bibluelle"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:510347106594:android:655e70054d700e90",
+        "android_client_info": {
+          "package_name": "fr.frogdevelopment.bibluelle"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "510347106594-bpqova412cp5qq1eu0f0jcn9af476uqa.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "fr.frogdevelopment.bibluelle",
+            "certificate_hash": "d60e72d28f7d808124bac2923d4ac3039b883232"
+          }
+        },
+        {
+          "client_id": "510347106594-dluhv50ibe2011mhsfag2fjncc38ldrn.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD64LG43yZva739Ja4W85iZbOeSeIMk5M8"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 1
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

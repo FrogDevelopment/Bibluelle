@@ -14,6 +14,7 @@ import com.jakewharton.threetenabp.AndroidThreeTen;
 
 import fr.frogdevelopment.bibluelle.data.DatabaseCreator;
 import fr.frogdevelopment.bibluelle.gallery.GalleryFragment;
+import fr.frogdevelopment.bibluelle.manage.ManageFragment;
 import fr.frogdevelopment.bibluelle.search.SearchFragment;
 
 public class MainActivity extends AppCompatActivity {
@@ -59,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
 	private void buildFragmentsList() {
 		fragments.put(R.id.navigation_dashboard, Pair.create(new GalleryFragment(), "DASHBOARD_FRAGMENT"));
 		fragments.put(R.id.nav_search, Pair.create(new SearchFragment(), "SEARCH_FRAGMENT"));
-		fragments.put(R.id.nav_manage, Pair.create(null, "MANAGE_FRAGMENT"));
+		fragments.put(R.id.nav_manage, Pair.create(new ManageFragment(), "MANAGE_FRAGMENT"));
 	}
 
 	@Override
