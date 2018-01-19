@@ -10,6 +10,8 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.github.ybq.android.spinkit.SpinKitView;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.jakewharton.threetenabp.AndroidThreeTen;
 
 import fr.frogdevelopment.bibluelle.data.DatabaseCreator;
@@ -55,6 +57,17 @@ public class MainActivity extends AppCompatActivity {
 		});
 
 		databaseCreator.createDb(this.getApplication());
+	}
+
+	@Override
+	protected void onStart() {
+		super.onStart();
+
+		// Check for existing Google Sign In account, if the user is already signed in the GoogleSignInAccount will be non-null.
+		GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
+		if (account != null) {
+			Toast.makeText(this, "Welcome back " + account.getGivenName(), Toast.LENGTH_SHORT).show();
+		}
 	}
 
 	private void buildFragmentsList() {
