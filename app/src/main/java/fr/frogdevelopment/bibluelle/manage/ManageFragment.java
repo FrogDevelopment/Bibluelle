@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,12 +19,19 @@ import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.drive.Drive;
 import com.google.android.gms.drive.DriveContents;
+import com.google.android.gms.drive.DriveFile;
 import com.google.android.gms.drive.DriveFolder;
 import com.google.android.gms.drive.DriveResourceClient;
+import com.google.android.gms.drive.Metadata;
+import com.google.android.gms.drive.MetadataBuffer;
 import com.google.android.gms.drive.MetadataChangeSet;
+import com.google.android.gms.drive.metadata.CustomPropertyKey;
+import com.google.android.gms.drive.query.Filters;
+import com.google.android.gms.drive.query.Query;
+import com.google.android.gms.drive.query.SearchableField;
 import com.google.android.gms.tasks.Task;
-import com.google.android.gms.tasks.Tasks;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,6 +40,7 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.Date;
 
+import es.dmoral.toasty.Toasty;
 import fr.frogdevelopment.bibluelle.GlideApp;
 import fr.frogdevelopment.bibluelle.R;
 import fr.frogdevelopment.bibluelle.data.DatabaseCreator;
@@ -43,15 +50,16 @@ public class ManageFragment extends Fragment implements View.OnClickListener {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ManageFragment.class);
 
 	private static final int REQUEST_CODE_SIGN_IN = 0;
+	public static final String FILE_NAME = "isbn-saved.txt";
 
 	private GoogleSignInClient mGoogleSignInClient;
-	//	private DriveClient mDriveClient;
 	private DriveResourceClient mDriveResourceClient;
 	private SignInButton mSignInButton;
 	private ImageView mPhoto;
 	private TextView mName;
 	private TextView mEmail;
 	private View mConnectedView;
+	private DriveContents driveContents;
 
 	@Override
 	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -59,7 +67,7 @@ public class ManageFragment extends Fragment implements View.OnClickListener {
 		GoogleSignInOptions signInOptions = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
 				.requestScopes(Drive.SCOPE_APPFOLDER)
 				.build();
-		mGoogleSignInClient = GoogleSignIn.getClient(getContext(), signInOptions);
+		mGoogleSignInClient = GoogleSignIn.getClient(getActivity(), signInOptions);
 
 		// Inflate the layout for this fragment
 		return inflater.inflate(R.layout.fragment_manage, container, false);
@@ -90,7 +98,7 @@ public class ManageFragment extends Fragment implements View.OnClickListener {
 		LOGGER.info("Start sign in");
 
 		// Check for existing Google Sign In account, if the user is already signed in the GoogleSignInAccount will be non-null.
-		GoogleSignInAccount lastSignedInAccount = GoogleSignIn.getLastSignedInAccount(getContext());
+		GoogleSignInAccount lastSignedInAccount = GoogleSignIn.getLastSignedInAccount(getActivity());
 		updateUI(lastSignedInAccount);
 	}
 
@@ -141,8 +149,7 @@ public class ManageFragment extends Fragment implements View.OnClickListener {
 			mSignInButton.setVisibility(View.GONE);
 			mConnectedView.setVisibility(View.VISIBLE);
 
-//			mDriveClient = Drive.getDriveClient(getContext(), account);
-			mDriveResourceClient = Drive.getDriveResourceClient(getContext(), account);
+			mDriveResourceClient = Drive.getDriveResourceClient(getActivity(), account);
 
 			GlideApp.with(this)
 					.asBitmap()
@@ -157,6 +164,8 @@ public class ManageFragment extends Fragment implements View.OnClickListener {
 		}
 	}
 
+	private static final CustomPropertyKey versionPropertyKey = new CustomPropertyKey("version", CustomPropertyKey.PUBLIC);
+
 	private void saveBooks() {
 		DatabaseCreator.getInstance().getBookDao().getAllIsbn().observe(this, list -> {
 //			view.findViewById(R.id.spinner).setVisibility(View.GONE);
@@ -164,12 +173,38 @@ public class ManageFragment extends Fragment implements View.OnClickListener {
 			if (list != null) {
 
 				final Task<DriveFolder> appFolderTask = mDriveResourceClient.getAppFolder();
-				final Task<DriveContents> createContentsTask = mDriveResourceClient.createContents();
-				DriveFolder parent = appFolderTask.getResult();
-				DriveContents driveContents = createContentsTask.getResult();
-
-				Tasks.whenAll(appFolderTask, createContentsTask)
+				appFolderTask
 						.continueWithTask(task -> {
+							DriveFolder appFolderResult = task.getResult();
+							Query query = new Query.Builder()
+									.addFilter(Filters.eq(SearchableField.TITLE, FILE_NAME))
+									.build();
+
+							return mDriveResourceClient.queryChildren(appFolderResult, query);
+						})
+						.continueWithTask(task -> {
+							MetadataBuffer queryResult = task.getResult();
+							if (queryResult.getCount() > 0) {
+								for (Metadata metadata : queryResult) {
+									if (FILE_NAME.equals(metadata.getTitle())) { // already exist => use it
+//										// todo check last modification time
+//										Map<CustomPropertyKey, String> customProperties = metadata.getCustomProperties();
+//										String version = customProperties.get(versionPropertyKey);
+
+										DriveFile driveFile = metadata.getDriveId().asDriveFile();
+
+										return mDriveResourceClient.openFile(driveFile, DriveFile.MODE_WRITE_ONLY);
+									}
+								}
+							}
+
+							// create a new file
+							return mDriveResourceClient.createContents();
+						})
+						.continueWithTask(task -> {
+							DriveFolder parent = appFolderTask.getResult();
+
+							driveContents = task.getResult();
 							OutputStream outputStream = driveContents.getOutputStream();
 
 							try (Writer writer = new OutputStreamWriter(outputStream)) {
@@ -179,29 +214,24 @@ public class ManageFragment extends Fragment implements View.OnClickListener {
 							}
 
 							MetadataChangeSet changeSet = new MetadataChangeSet.Builder()
-									.setTitle("isbn-saved.txt")
+									.setTitle(FILE_NAME)
 									.setDescription("Isbn list of books")
 									.setMimeType("text/plain")
 									.setStarred(true)
 									.setLastViewedByMeDate(new Date())
+									.setCustomProperty(versionPropertyKey, "1") // fixme dynamic version for update sync
 									.build();
 
 							return mDriveResourceClient.createFile(parent, changeSet, driveContents);
 						})
-						.addOnSuccessListener(getActivity(), driveFile -> {
-							LOGGER.info("Success to create file");
-							showMessage("File created : " + driveFile.getDriveId().encodeToString());
-							mDriveResourceClient.commitContents(driveContents, null);
-						})
-						.addOnFailureListener(getActivity(), e -> {
+						.continueWithTask(task -> mDriveResourceClient.commitContents(driveContents, null))
+						.addOnSuccessListener(Void -> Toasty.success(getActivity(), "Data saved").show())
+						.addOnFailureListener(e -> {
 							LOGGER.error("Unable to create file", e);
-							showMessage("file create error");
-						});
+							Toasty.error(getActivity(), "error : " + ExceptionUtils.getMessage(e)).show();
+						})
+				;
 			}
 		});
-	}
-
-	private void showMessage(String message) {
-		Snackbar.make(getView(), message, Snackbar.LENGTH_SHORT).show();
 	}
 }
