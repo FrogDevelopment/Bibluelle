@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "2b1583d75cb5d3cb0fa3b3b6bfbe5a82",
+    "identityHash": "27c94c30fbcdb59ed180284abef23f60",
     "entities": [
       {
         "tableName": "book",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `title` TEXT NOT NULL, `sub_title` TEXT, `author` TEXT NOT NULL, `publisher` TEXT NOT NULL, `published_date` TEXT NOT NULL, `isbn` TEXT NOT NULL, `description` TEXT NOT NULL, `page_count` TEXT, `categories` TEXT NOT NULL, `rate` INTEGER, `tag` TEXT)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `title` TEXT NOT NULL, `sub_title` TEXT, `author` TEXT NOT NULL, `publisher` TEXT NOT NULL, `published_date` TEXT NOT NULL, `isbn` TEXT NOT NULL, `description` TEXT NOT NULL, `page_count` TEXT, `categories` TEXT NOT NULL, `rate` INTEGER)",
         "fields": [
           {
             "fieldPath": "id",
@@ -72,12 +72,6 @@
             "fieldPath": "rate",
             "columnName": "rate",
             "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "tag",
-            "columnName": "tag",
-            "affinity": "TEXT",
             "notNull": false
           }
         ],
@@ -158,7 +152,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"2b1583d75cb5d3cb0fa3b3b6bfbe5a82\")"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"27c94c30fbcdb59ed180284abef23f60\")"
     ]
   }
 }

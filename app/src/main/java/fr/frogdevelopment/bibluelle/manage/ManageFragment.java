@@ -1,6 +1,8 @@
 package fr.frogdevelopment.bibluelle.manage;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -19,17 +21,12 @@ import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.drive.Drive;
 import com.google.android.gms.drive.DriveContents;
-import com.google.android.gms.drive.DriveFile;
 import com.google.android.gms.drive.DriveFolder;
 import com.google.android.gms.drive.DriveResourceClient;
-import com.google.android.gms.drive.Metadata;
-import com.google.android.gms.drive.MetadataBuffer;
 import com.google.android.gms.drive.MetadataChangeSet;
 import com.google.android.gms.drive.metadata.CustomPropertyKey;
-import com.google.android.gms.drive.query.Filters;
-import com.google.android.gms.drive.query.Query;
-import com.google.android.gms.drive.query.SearchableField;
 import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
@@ -59,7 +56,6 @@ public class ManageFragment extends Fragment implements View.OnClickListener {
 	private TextView mName;
 	private TextView mEmail;
 	private View mConnectedView;
-	private DriveContents driveContents;
 
 	@Override
 	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -164,54 +160,36 @@ public class ManageFragment extends Fragment implements View.OnClickListener {
 		}
 	}
 
-	private static final CustomPropertyKey versionPropertyKey = new CustomPropertyKey("version", CustomPropertyKey.PUBLIC);
+	public static final CustomPropertyKey VERSION_PROPERTY_KEY = new CustomPropertyKey("version", CustomPropertyKey.PUBLIC);
+
+	private DriveContents contents;
 
 	private void saveBooks() {
 		DatabaseCreator.getInstance().getBookDao().getAllIsbn().observe(this, list -> {
 //			view.findViewById(R.id.spinner).setVisibility(View.GONE);
 
 			if (list != null) {
+				SharedPreferences preferences = getActivity().getPreferences(Context.MODE_PRIVATE);
+				int new_version = preferences.getInt("sync_version", 0) + 1;
 
 				final Task<DriveFolder> appFolderTask = mDriveResourceClient.getAppFolder();
-				appFolderTask
-						.continueWithTask(task -> {
-							DriveFolder appFolderResult = task.getResult();
-							Query query = new Query.Builder()
-									.addFilter(Filters.eq(SearchableField.TITLE, FILE_NAME))
-									.build();
-
-							return mDriveResourceClient.queryChildren(appFolderResult, query);
-						})
-						.continueWithTask(task -> {
-							MetadataBuffer queryResult = task.getResult();
-							if (queryResult.getCount() > 0) {
-								for (Metadata metadata : queryResult) {
-									if (FILE_NAME.equals(metadata.getTitle())) { // already exist => use it
-//										// todo check last modification time
-//										Map<CustomPropertyKey, String> customProperties = metadata.getCustomProperties();
-//										String version = customProperties.get(versionPropertyKey);
-
-										DriveFile driveFile = metadata.getDriveId().asDriveFile();
-
-										return mDriveResourceClient.openFile(driveFile, DriveFile.MODE_WRITE_ONLY);
-									}
-								}
-							}
-
-							// create a new file
-							return mDriveResourceClient.createContents();
-						})
+				final Task<DriveContents> driveContentsTask = mDriveResourceClient.createContents();
+				Tasks.whenAll(appFolderTask, driveContentsTask)
 						.continueWithTask(task -> {
 							DriveFolder parent = appFolderTask.getResult();
+							contents = driveContentsTask.getResult();
 
-							driveContents = task.getResult();
-							OutputStream outputStream = driveContents.getOutputStream();
-
-							try (Writer writer = new OutputStreamWriter(outputStream)) {
+							try (OutputStream outputStream = contents.getOutputStream();
+							     Writer writer = new OutputStreamWriter(outputStream)) {
 								for (String isbn : list) {
 									writer.write(isbn + "\n");
 								}
 							}
+
+
+							SharedPreferences.Editor edit = preferences.edit();
+							edit.putInt("sync_version", new_version);
+							edit.apply();
 
 							MetadataChangeSet changeSet = new MetadataChangeSet.Builder()
 									.setTitle(FILE_NAME)
@@ -219,16 +197,17 @@ public class ManageFragment extends Fragment implements View.OnClickListener {
 									.setMimeType("text/plain")
 									.setStarred(true)
 									.setLastViewedByMeDate(new Date())
-									.setCustomProperty(versionPropertyKey, "1") // fixme dynamic version for update sync
+									.setCustomProperty(VERSION_PROPERTY_KEY, String.valueOf(new_version))
 									.build();
 
-							return mDriveResourceClient.createFile(parent, changeSet, driveContents);
+							return mDriveResourceClient.createFile(parent, changeSet, contents);
 						})
-						.continueWithTask(task -> mDriveResourceClient.commitContents(driveContents, null))
-						.addOnSuccessListener(Void -> Toasty.success(getActivity(), "Data saved").show())
+//						.continueWithTask(task -> mDriveResourceClient.commitContents(contents, null))
+						.addOnSuccessListener(driveFile -> Toasty.success(getActivity(), "Data saved with version " + new_version).show())
 						.addOnFailureListener(e -> {
 							LOGGER.error("Unable to create file", e);
 							Toasty.error(getActivity(), "error : " + ExceptionUtils.getMessage(e)).show();
+							// fixme decrement new_version if error on saving ?
 						})
 				;
 			}
