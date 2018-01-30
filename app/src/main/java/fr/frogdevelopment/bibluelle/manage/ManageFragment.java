@@ -1,5 +1,7 @@
 package fr.frogdevelopment.bibluelle.manage;
 
+import android.app.AlertDialog;
+import android.arch.lifecycle.LiveData;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -23,8 +25,12 @@ import com.google.android.gms.drive.Drive;
 import com.google.android.gms.drive.DriveContents;
 import com.google.android.gms.drive.DriveFolder;
 import com.google.android.gms.drive.DriveResourceClient;
+import com.google.android.gms.drive.Metadata;
 import com.google.android.gms.drive.MetadataChangeSet;
 import com.google.android.gms.drive.metadata.CustomPropertyKey;
+import com.google.android.gms.drive.query.Filters;
+import com.google.android.gms.drive.query.Query;
+import com.google.android.gms.drive.query.SearchableField;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 
@@ -36,6 +42,8 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 import es.dmoral.toasty.Toasty;
 import fr.frogdevelopment.bibluelle.GlideApp;
@@ -47,7 +55,8 @@ public class ManageFragment extends Fragment implements View.OnClickListener {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ManageFragment.class);
 
 	private static final int REQUEST_CODE_SIGN_IN = 0;
-	public static final String FILE_NAME = "isbn-saved.txt";
+	private static final String FILE_NAME = "isbn-saved.txt";
+	private static final String SYNC_VERSION = "sync_version";
 
 	private GoogleSignInClient mGoogleSignInClient;
 	private DriveResourceClient mDriveResourceClient;
@@ -56,6 +65,7 @@ public class ManageFragment extends Fragment implements View.OnClickListener {
 	private TextView mName;
 	private TextView mEmail;
 	private View mConnectedView;
+	private SharedPreferences preferences;
 
 	@Override
 	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -86,6 +96,7 @@ public class ManageFragment extends Fragment implements View.OnClickListener {
 		view.findViewById(R.id.sign_out_button).setOnClickListener(this);
 		view.findViewById(R.id.disconnect_button).setOnClickListener(this);
 		view.findViewById(R.id.save_button).setOnClickListener(this);
+		view.findViewById(R.id.sync_button).setOnClickListener(this);
 	}
 
 	@Override
@@ -105,14 +116,9 @@ public class ManageFragment extends Fragment implements View.OnClickListener {
 		if (requestCode == REQUEST_CODE_SIGN_IN) {
 			Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
 			try {
-				// Signed in successfully, show authenticated UI.
 				GoogleSignInAccount account = task.getResult(ApiException.class);
-
-				LOGGER.info("Signed in successfully.");
 				updateUI(account);
 			} catch (ApiException e) {
-				// The ApiException status code indicates the detailed failure reason.
-				// Please refer to the GoogleSignInStatusCodes class reference for more information.
 				LOGGER.error("signInResult:failed code=" + e.getStatusCode(), e);
 				updateUI(null);
 			}
@@ -135,7 +141,11 @@ public class ManageFragment extends Fragment implements View.OnClickListener {
 				break;
 
 			case R.id.save_button:
-				saveBooks();
+				saveData();
+				break;
+
+			case R.id.sync_button:
+				syncData();
 				break;
 		}
 	}
@@ -154,6 +164,8 @@ public class ManageFragment extends Fragment implements View.OnClickListener {
 
 			mName.setText(account.getDisplayName());
 			mEmail.setText(account.getEmail());
+
+			preferences = getActivity().getPreferences(Context.MODE_PRIVATE);
 		} else {
 			mSignInButton.setVisibility(View.VISIBLE);
 			mConnectedView.setVisibility(View.GONE);
@@ -164,13 +176,15 @@ public class ManageFragment extends Fragment implements View.OnClickListener {
 
 	private DriveContents contents;
 
-	private void saveBooks() {
-		DatabaseCreator.getInstance().getBookDao().getAllIsbn().observe(this, list -> {
-//			view.findViewById(R.id.spinner).setVisibility(View.GONE);
+	private void saveData() {
+		LiveData<List<String>> allIsbn = DatabaseCreator.getInstance().getBookDao().getAllIsbn();
 
-			if (list != null) {
-				SharedPreferences preferences = getActivity().getPreferences(Context.MODE_PRIVATE);
-				int new_version = preferences.getInt("sync_version", 0) + 1;
+		allIsbn.observe(this, data -> {
+//			view.findViewById(R.id.spinner).setVisibility(View.GONE); todo
+			allIsbn.removeObservers(ManageFragment.this);
+
+			if (data != null) {
+				int new_version = preferences.getInt(SYNC_VERSION, 0) + 1;
 
 				final Task<DriveFolder> appFolderTask = mDriveResourceClient.getAppFolder();
 				final Task<DriveContents> driveContentsTask = mDriveResourceClient.createContents();
@@ -181,14 +195,13 @@ public class ManageFragment extends Fragment implements View.OnClickListener {
 
 							try (OutputStream outputStream = contents.getOutputStream();
 							     Writer writer = new OutputStreamWriter(outputStream)) {
-								for (String isbn : list) {
+								for (String isbn : data) {
 									writer.write(isbn + "\n");
 								}
 							}
 
-
 							SharedPreferences.Editor edit = preferences.edit();
-							edit.putInt("sync_version", new_version);
+							edit.putInt(SYNC_VERSION, new_version);
 							edit.apply();
 
 							MetadataChangeSet changeSet = new MetadataChangeSet.Builder()
@@ -202,7 +215,6 @@ public class ManageFragment extends Fragment implements View.OnClickListener {
 
 							return mDriveResourceClient.createFile(parent, changeSet, contents);
 						})
-//						.continueWithTask(task -> mDriveResourceClient.commitContents(contents, null))
 						.addOnSuccessListener(driveFile -> Toasty.success(getActivity(), "Data saved with version " + new_version).show())
 						.addOnFailureListener(e -> {
 							LOGGER.error("Unable to create file", e);
@@ -213,4 +225,65 @@ public class ManageFragment extends Fragment implements View.OnClickListener {
 			}
 		});
 	}
+
+	private void syncData() {
+		int sync_version = preferences.getInt(SYNC_VERSION, 0);
+
+		mDriveResourceClient.getAppFolder()
+				.continueWithTask(task -> {
+					DriveFolder appFolderResult = task.getResult();
+					Query query = new Query.Builder()
+							.addFilter(Filters.eq(SearchableField.TITLE, FILE_NAME))
+							.build();
+
+					return mDriveResourceClient.queryChildren(appFolderResult, query);
+				})
+				.addOnSuccessListener(metadataBuffer -> {
+					if (metadataBuffer.getCount() > 0) {
+						for (Metadata metadata : metadataBuffer) {
+							if (FILE_NAME.equals(metadata.getTitle())) {
+								Map<CustomPropertyKey, String> customProperties = metadata.getCustomProperties();
+								String version = customProperties.getOrDefault(VERSION_PROPERTY_KEY, "0");
+
+								Integer driveVersion = Integer.valueOf(version);
+
+								if (driveVersion > sync_version) {
+									new AlertDialog.Builder(getActivity())
+											.setTitle("INFORMATION")
+											.setMessage("Une version plus récente de votre librairie existe, la mettre à jour?")
+											.setPositiveButton(android.R.string.yes, (dialog, which) -> {
+												Toasty.info(getActivity(), "Incoming").show();
+												// todo
+											})
+											.setNegativeButton(android.R.string.no, null)
+											.setCancelable(false)
+											.show();
+								} else {
+									new AlertDialog.Builder(getActivity())
+											.setTitle("INFORMATION")
+											.setMessage("Vous avez la version la plus récente de votre librairie.")
+											.setPositiveButton(android.R.string.ok, null)
+											.setCancelable(false)
+											.show();
+								}
+
+								return;
+							}
+						}
+					}
+
+					new AlertDialog.Builder(getActivity())
+							.setTitle("INFORMATION")
+							.setMessage("Vous n'avez aucune données sauvegardées !")
+							.setPositiveButton(android.R.string.ok, null)
+							.setCancelable(false)
+							.show();
+				})
+				.addOnFailureListener(e -> {
+					LOGGER.error("Error while checking sync data", e);
+					Toasty.error(getActivity(), "Error while checking sync data").show();
+				})
+		;
+	}
+
 }

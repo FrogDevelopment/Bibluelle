@@ -1,9 +1,5 @@
 package fr.frogdevelopment.bibluelle;
 
-import android.app.AlertDialog;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
@@ -14,22 +10,8 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.github.ybq.android.spinkit.SpinKitView;
-import com.google.android.gms.auth.api.signin.GoogleSignIn;
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.android.gms.drive.Drive;
-import com.google.android.gms.drive.DriveFile;
-import com.google.android.gms.drive.DriveFolder;
-import com.google.android.gms.drive.DriveResourceClient;
-import com.google.android.gms.drive.Metadata;
-import com.google.android.gms.drive.metadata.CustomPropertyKey;
-import com.google.android.gms.drive.query.Filters;
-import com.google.android.gms.drive.query.Query;
-import com.google.android.gms.drive.query.SearchableField;
 import com.jakewharton.threetenabp.AndroidThreeTen;
 
-import java.util.Map;
-
-import es.dmoral.toasty.Toasty;
 import fr.frogdevelopment.bibluelle.data.DatabaseCreator;
 import fr.frogdevelopment.bibluelle.gallery.GalleryFragment;
 import fr.frogdevelopment.bibluelle.manage.ManageFragment;
@@ -73,8 +55,6 @@ public class MainActivity extends AppCompatActivity {
 		});
 
 		databaseCreator.createDb(this.getApplication());
-
-		checkAccount();
 	}
 
 	private void buildFragmentsList() {
@@ -119,66 +99,5 @@ public class MainActivity extends AppCompatActivity {
 		} else {
 			return false;
 		}
-	}
-
-
-	private void checkAccount() {
-		// Check for existing Google Sign In account, if the user is already signed in the GoogleSignInAccount will be non-null.
-		GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
-		if (account != null) {
-			Toast.makeText(this, "Welcome back " + account.getGivenName(), Toast.LENGTH_SHORT).show();
-			SharedPreferences preferences = getPreferences(Context.MODE_PRIVATE);
-			int sync_version = preferences.getInt("sync_version", 0);
-
-			final DriveResourceClient driveResourceClient = Drive.getDriveResourceClient(this, account);
-
-			driveResourceClient.getAppFolder()
-					.continueWithTask(task -> {
-						DriveFolder appFolderResult = task.getResult();
-						Query query = new Query.Builder()
-								.addFilter(Filters.eq(SearchableField.TITLE, ManageFragment.FILE_NAME))
-								.build();
-
-						return driveResourceClient.queryChildren(appFolderResult, query);
-					})
-					.addOnSuccessListener(metadataBuffer -> {
-						if (metadataBuffer.getCount() > 0) {
-							for (Metadata metadata : metadataBuffer) {
-								if (ManageFragment.FILE_NAME.equals(metadata.getTitle())) {
-									Map<CustomPropertyKey, String> customProperties = metadata.getCustomProperties();
-									String version = customProperties.getOrDefault(ManageFragment.VERSION_PROPERTY_KEY, "0");
-
-									Integer driveVersion = Integer.valueOf(version);
-
-									if (driveVersion > sync_version) {
-										askUpdateData(metadata.getDriveId().asDriveFile());
-									}
-
-									return;
-								}
-							}
-						}
-					})
-					.addOnFailureListener(e -> {
-//							LOG fixme
-						Toasty.error(this, "Error while checking sync data").show();
-					})
-			;
-		}
-	}
-
-	private void askUpdateData(DriveFile driveFile) {
-		new AlertDialog.Builder(this)
-				.setTitle("INFORMATION")
-				.setMessage("Une version plus récente de votre librairie existe, la mettre à jour?")
-				.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						Toasty.info(getBaseContext(), "Yeah").show();
-					}
-				})
-				.setNegativeButton(android.R.string.no, null)
-				.setCancelable(false)
-				.show();
 	}
 }
