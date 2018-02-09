@@ -11,7 +11,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="8dp" />
+        android:layout_marginTop="8dp"
+        android:visibility="invisible" />
 
     <android.support.constraint.ConstraintLayout
         android:id="@+id/manager_connected"
@@ -20,14 +21,14 @@
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true">
 
-        <ImageView
+        <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/profile_photo"
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
-            android:contentDescription="@null"
-            android:scaleType="centerCrop"
+            app:civ_border_color="#FF000000"
+            app:civ_border_width="0dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -38,6 +39,9 @@
             android:layout_marginEnd="8dp"
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
+            android:text="Benoît Le Gall"
+            android:textColor="@android:color/black"
+            android:textSize="15sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/profile_photo"
             app:layout_constraintTop_toTopOf="parent" />
@@ -48,6 +52,8 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
             android:layout_marginStart="8dp"
+            android:text="legall.benoit@gmail.com"
+            android:textSize="12sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/profile_photo"
             app:layout_constraintTop_toBottomOf="@+id/profile_name" />
@@ -102,4 +108,11 @@
             app:layout_constraintTop_toBottomOf="@+id/disconnect_button" />
 
     </android.support.constraint.ConstraintLayout>
+
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_below="@id/manager_connected"
+        android:layout_centerHorizontal="true" />
 </RelativeLayout>

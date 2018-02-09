@@ -13,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -52,238 +53,249 @@ import fr.frogdevelopment.bibluelle.data.DatabaseCreator;
 
 public class ManageFragment extends Fragment implements View.OnClickListener {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(ManageFragment.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ManageFragment.class);
 
-	private static final int REQUEST_CODE_SIGN_IN = 0;
-	private static final String FILE_NAME = "isbn-saved.txt";
-	private static final String SYNC_VERSION = "sync_version";
+    private static final int REQUEST_CODE_SIGN_IN = 0;
+    private static final String FILE_NAME = "isbn-saved.txt";
+    private static final String SYNC_VERSION = "sync_version";
 
-	private GoogleSignInClient mGoogleSignInClient;
-	private DriveResourceClient mDriveResourceClient;
-	private SignInButton mSignInButton;
-	private ImageView mPhoto;
-	private TextView mName;
-	private TextView mEmail;
-	private View mConnectedView;
-	private SharedPreferences preferences;
+    private GoogleSignInClient mGoogleSignInClient;
+    private DriveResourceClient mDriveResourceClient;
+    private SignInButton mSignInButton;
+    private ImageView mPhoto;
+    private TextView mName;
+    private TextView mEmail;
+    private View mConnectedView;
+    private SharedPreferences preferences;
+    private ProgressBar mProgressBar;
 
-	@Override
-	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		// Build a Google SignIn client.
-		GoogleSignInOptions signInOptions = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-				.requestScopes(Drive.SCOPE_APPFOLDER)
-				.build();
-		mGoogleSignInClient = GoogleSignIn.getClient(getActivity(), signInOptions);
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        // Build a Google SignIn client.
+        GoogleSignInOptions signInOptions = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestScopes(Drive.SCOPE_APPFOLDER)
+                .requestEmail()
+                .build();
+        mGoogleSignInClient = GoogleSignIn.getClient(getActivity(), signInOptions);
 
-		// Inflate the layout for this fragment
-		return inflater.inflate(R.layout.fragment_manage, container, false);
-	}
+        // Inflate the layout for this fragment
+        return inflater.inflate(R.layout.fragment_manage, container, false);
+    }
 
-	@Override
-	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-		super.onViewCreated(view, savedInstanceState);
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
-		mConnectedView = view.findViewById(R.id.manager_connected);
+        mConnectedView = view.findViewById(R.id.manager_connected);
 
-		mSignInButton = view.findViewById(R.id.sign_in_button);
-		mSignInButton.setSize(SignInButton.SIZE_WIDE);
-		mSignInButton.setOnClickListener(this);
+        mSignInButton = view.findViewById(R.id.sign_in_button);
+        mSignInButton.setSize(SignInButton.SIZE_WIDE);
+        mSignInButton.setOnClickListener(this);
 
-		mPhoto = view.findViewById(R.id.profile_photo);
-		mName = view.findViewById(R.id.profile_name);
-		mEmail = view.findViewById(R.id.profile_email);
+        mPhoto = view.findViewById(R.id.profile_photo);
+        mName = view.findViewById(R.id.profile_name);
+        mEmail = view.findViewById(R.id.profile_email);
 
-		view.findViewById(R.id.sign_out_button).setOnClickListener(this);
-		view.findViewById(R.id.disconnect_button).setOnClickListener(this);
-		view.findViewById(R.id.save_button).setOnClickListener(this);
-		view.findViewById(R.id.sync_button).setOnClickListener(this);
-	}
+        mProgressBar = view.findViewById(R.id.progress_bar);
 
-	@Override
-	public void onStart() {
-		super.onStart();
-		LOGGER.info("Start sign in");
+        view.findViewById(R.id.sign_out_button).setOnClickListener(this);
+        view.findViewById(R.id.disconnect_button).setOnClickListener(this);
+        view.findViewById(R.id.save_button).setOnClickListener(this);
+        view.findViewById(R.id.sync_button).setOnClickListener(this);
+    }
 
-		// Check for existing Google Sign In account, if the user is already signed in the GoogleSignInAccount will be non-null.
-		GoogleSignInAccount lastSignedInAccount = GoogleSignIn.getLastSignedInAccount(getActivity());
-		updateUI(lastSignedInAccount);
-	}
+    @Override
+    public void onStart() {
+        super.onStart();
+        LOGGER.info("Start sign in");
 
-	@Override
-	public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
-		super.onActivityResult(requestCode, resultCode, data);
+        // Check for existing Google Sign In account, if the user is already signed in the GoogleSignInAccount will be non-null.
+        GoogleSignInAccount lastSignedInAccount = GoogleSignIn.getLastSignedInAccount(getActivity());
+        updateUI(lastSignedInAccount);
+    }
 
-		if (requestCode == REQUEST_CODE_SIGN_IN) {
-			Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
-			try {
-				GoogleSignInAccount account = task.getResult(ApiException.class);
-				updateUI(account);
-			} catch (ApiException e) {
-				LOGGER.error("signInResult:failed code=" + e.getStatusCode(), e);
-				updateUI(null);
-			}
-		}
-	}
+    @Override
+    public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
 
-	@Override
-	public void onClick(View v) {
-		switch (v.getId()) {
-			case R.id.sign_in_button:
-				startActivityForResult(mGoogleSignInClient.getSignInIntent(), REQUEST_CODE_SIGN_IN);
-				break;
+        if (requestCode == REQUEST_CODE_SIGN_IN) {
+            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+            try {
+                GoogleSignInAccount account = task.getResult(ApiException.class);
+                updateUI(account);
+            } catch (ApiException e) {
+                LOGGER.error("signInResult:failed code=" + e.getStatusCode(), e);
+                updateUI(null);
+            }
+        }
+    }
 
-			case R.id.sign_out_button:
-				mGoogleSignInClient.signOut().addOnCompleteListener(getActivity(), task -> updateUI(null));
-				break;
+    @Override
+    public void onClick(View v) {
+        mProgressBar.setVisibility(View.VISIBLE);
+        switch (v.getId()) {
+            case R.id.sign_in_button:
+                startActivityForResult(mGoogleSignInClient.getSignInIntent(), REQUEST_CODE_SIGN_IN);
+                break;
 
-			case R.id.disconnect_button:
-				mGoogleSignInClient.revokeAccess().addOnCompleteListener(getActivity(), task -> updateUI(null));
-				break;
+            case R.id.sign_out_button:
+                mGoogleSignInClient.signOut().addOnCompleteListener(getActivity(), task -> updateUI(null));
+                break;
 
-			case R.id.save_button:
-				saveData();
-				break;
+            case R.id.disconnect_button:
+                mGoogleSignInClient.revokeAccess().addOnCompleteListener(getActivity(), task -> updateUI(null));
+                break;
 
-			case R.id.sync_button:
-				syncData();
-				break;
-		}
-	}
+            case R.id.save_button:
+                saveData();
+                break;
 
-	private void updateUI(@Nullable GoogleSignInAccount account) {
-		if (account != null) {
-			mSignInButton.setVisibility(View.GONE);
-			mConnectedView.setVisibility(View.VISIBLE);
+            case R.id.sync_button:
+                syncData();
+                break;
+        }
+    }
 
-			mDriveResourceClient = Drive.getDriveResourceClient(getActivity(), account);
+    private void updateUI(@Nullable GoogleSignInAccount account) {
+        if (account != null) {
+            mSignInButton.setVisibility(View.INVISIBLE);
+            mConnectedView.setVisibility(View.VISIBLE);
 
-			GlideApp.with(this)
-					.asBitmap()
-					.load(account.getPhotoUrl())
-					.into(mPhoto);
+            mDriveResourceClient = Drive.getDriveResourceClient(getActivity(), account);
 
-			mName.setText(account.getDisplayName());
-			mEmail.setText(account.getEmail());
+            GlideApp.with(this)
+                    .asBitmap()
+                    .dontAnimate()
+                    .load(account.getPhotoUrl())
+                    .into(mPhoto);
 
-			preferences = getActivity().getPreferences(Context.MODE_PRIVATE);
-		} else {
-			mSignInButton.setVisibility(View.VISIBLE);
-			mConnectedView.setVisibility(View.GONE);
-		}
-	}
+            mName.setText(account.getDisplayName());
+            mEmail.setText(account.getEmail());
 
-	public static final CustomPropertyKey VERSION_PROPERTY_KEY = new CustomPropertyKey("version", CustomPropertyKey.PUBLIC);
+            preferences = getActivity().getPreferences(Context.MODE_PRIVATE);
+        } else {
+            mSignInButton.setVisibility(View.VISIBLE);
+            mConnectedView.setVisibility(View.INVISIBLE);
+        }
 
-	private DriveContents contents;
+        mProgressBar.setVisibility(View.INVISIBLE);
+    }
 
-	private void saveData() {
-		LiveData<List<String>> allIsbn = DatabaseCreator.getInstance().getBookDao().getAllIsbn();
+    public static final CustomPropertyKey VERSION_PROPERTY_KEY = new CustomPropertyKey("version", CustomPropertyKey.PUBLIC);
 
-		allIsbn.observe(this, data -> {
+    private DriveContents contents;
+
+    private void saveData() {
+        LiveData<List<String>> allIsbn = DatabaseCreator.getInstance().getBookDao().getAllIsbn();
+
+        allIsbn.observe(this, data -> {
 //			view.findViewById(R.id.spinner).setVisibility(View.GONE); todo
-			allIsbn.removeObservers(ManageFragment.this);
+            allIsbn.removeObservers(ManageFragment.this);
 
-			if (data != null) {
-				int new_version = preferences.getInt(SYNC_VERSION, 0) + 1;
+            if (data != null) {
+                int nextVersion = preferences.getInt(SYNC_VERSION, 0) + 1;
 
-				final Task<DriveFolder> appFolderTask = mDriveResourceClient.getAppFolder();
-				final Task<DriveContents> driveContentsTask = mDriveResourceClient.createContents();
-				Tasks.whenAll(appFolderTask, driveContentsTask)
-						.continueWithTask(task -> {
-							DriveFolder parent = appFolderTask.getResult();
-							contents = driveContentsTask.getResult();
+                final Task<DriveFolder> appFolderTask = mDriveResourceClient.getAppFolder();
+                final Task<DriveContents> driveContentsTask = mDriveResourceClient.createContents();
+                Tasks.whenAll(appFolderTask, driveContentsTask)
+                        .continueWithTask(task -> {
+                            DriveFolder parent = appFolderTask.getResult();
+                            contents = driveContentsTask.getResult();
 
-							try (OutputStream outputStream = contents.getOutputStream();
-							     Writer writer = new OutputStreamWriter(outputStream)) {
-								for (String isbn : data) {
-									writer.write(isbn + "\n");
-								}
-							}
+                            try (OutputStream outputStream = contents.getOutputStream();
+                                 Writer writer = new OutputStreamWriter(outputStream)) {
+                                for (String isbn : data) {
+                                    writer.write(isbn + "\n");
+                                }
+                            }
+                            MetadataChangeSet changeSet = new MetadataChangeSet.Builder()
+                                    .setTitle(FILE_NAME)
+                                    .setDescription("Isbn list of books")
+                                    .setMimeType("text/plain")
+                                    .setStarred(true)
+                                    .setLastViewedByMeDate(new Date())
+                                    .setCustomProperty(VERSION_PROPERTY_KEY, String.valueOf(nextVersion))
+                                    .build();
 
-							SharedPreferences.Editor edit = preferences.edit();
-							edit.putInt(SYNC_VERSION, new_version);
-							edit.apply();
+                            return mDriveResourceClient.createFile(parent, changeSet, contents);
+                        })
+                        .addOnSuccessListener(driveFile -> {
+                            mProgressBar.setVisibility(View.INVISIBLE);
+                            Toasty.success(getActivity(), "Data saved with version " + nextVersion).show();
 
-							MetadataChangeSet changeSet = new MetadataChangeSet.Builder()
-									.setTitle(FILE_NAME)
-									.setDescription("Isbn list of books")
-									.setMimeType("text/plain")
-									.setStarred(true)
-									.setLastViewedByMeDate(new Date())
-									.setCustomProperty(VERSION_PROPERTY_KEY, String.valueOf(new_version))
-									.build();
+                            SharedPreferences.Editor edit = preferences.edit();
+                            edit.putInt(SYNC_VERSION, nextVersion);
+                            edit.apply();
+                        })
+                        .addOnFailureListener(e -> {
+                            LOGGER.error("Unable to create file", e);
+                            mProgressBar.setVisibility(View.INVISIBLE);
+                            Toasty.error(getActivity(), "error : " + ExceptionUtils.getMessage(e)).show();
+                        })
+                ;
+            }
+        });
+    }
 
-							return mDriveResourceClient.createFile(parent, changeSet, contents);
-						})
-						.addOnSuccessListener(driveFile -> Toasty.success(getActivity(), "Data saved with version " + new_version).show())
-						.addOnFailureListener(e -> {
-							LOGGER.error("Unable to create file", e);
-							Toasty.error(getActivity(), "error : " + ExceptionUtils.getMessage(e)).show();
-							// fixme decrement new_version if error on saving ?
-						})
-				;
-			}
-		});
-	}
+    private void syncData() {
+        int sync_version = preferences.getInt(SYNC_VERSION, 0);
 
-	private void syncData() {
-		int sync_version = preferences.getInt(SYNC_VERSION, 0);
+        mDriveResourceClient.getAppFolder()
+                .continueWithTask(task -> {
+                    DriveFolder appFolderResult = task.getResult();
+                    Query query = new Query.Builder()
+                            .addFilter(Filters.eq(SearchableField.TITLE, FILE_NAME))
+                            .build();
 
-		mDriveResourceClient.getAppFolder()
-				.continueWithTask(task -> {
-					DriveFolder appFolderResult = task.getResult();
-					Query query = new Query.Builder()
-							.addFilter(Filters.eq(SearchableField.TITLE, FILE_NAME))
-							.build();
+                    return mDriveResourceClient.queryChildren(appFolderResult, query);
+                })
+                .addOnSuccessListener(metadataBuffer -> {
+                    if (metadataBuffer.getCount() > 0) {
+                        for (Metadata metadata : metadataBuffer) {
+                            if (FILE_NAME.equals(metadata.getTitle())) {
+                                Map<CustomPropertyKey, String> customProperties = metadata.getCustomProperties();
+                                String version = customProperties.getOrDefault(VERSION_PROPERTY_KEY, "0");
 
-					return mDriveResourceClient.queryChildren(appFolderResult, query);
-				})
-				.addOnSuccessListener(metadataBuffer -> {
-					if (metadataBuffer.getCount() > 0) {
-						for (Metadata metadata : metadataBuffer) {
-							if (FILE_NAME.equals(metadata.getTitle())) {
-								Map<CustomPropertyKey, String> customProperties = metadata.getCustomProperties();
-								String version = customProperties.getOrDefault(VERSION_PROPERTY_KEY, "0");
+                                Integer driveVersion = Integer.valueOf(version);
 
-								Integer driveVersion = Integer.valueOf(version);
+                                if (driveVersion > sync_version) {
+                                    new AlertDialog.Builder(getActivity())
+                                            .setTitle("INFORMATION")
+                                            .setMessage("Une version plus récente de votre librairie existe, la mettre à jour?")
+                                            .setPositiveButton(android.R.string.yes, (dialog, which) -> {
+                                                Toasty.info(getActivity(), "Incoming").show();
+                                                // todo
+                                            })
+                                            .setNegativeButton(android.R.string.no, (dialog, which) -> mProgressBar.setVisibility(View.INVISIBLE))
+                                            .setCancelable(false)
+                                            .show();
+                                } else {
+                                    new AlertDialog.Builder(getActivity())
+                                            .setTitle("INFORMATION")
+                                            .setMessage("Vous avez la version la plus récente de votre librairie.")
+                                            .setPositiveButton(android.R.string.ok, (dialog, which) -> mProgressBar.setVisibility(View.INVISIBLE))
+                                            .setCancelable(false)
+                                            .show();
+                                }
 
-								if (driveVersion > sync_version) {
-									new AlertDialog.Builder(getActivity())
-											.setTitle("INFORMATION")
-											.setMessage("Une version plus récente de votre librairie existe, la mettre à jour?")
-											.setPositiveButton(android.R.string.yes, (dialog, which) -> {
-												Toasty.info(getActivity(), "Incoming").show();
-												// todo
-											})
-											.setNegativeButton(android.R.string.no, null)
-											.setCancelable(false)
-											.show();
-								} else {
-									new AlertDialog.Builder(getActivity())
-											.setTitle("INFORMATION")
-											.setMessage("Vous avez la version la plus récente de votre librairie.")
-											.setPositiveButton(android.R.string.ok, null)
-											.setCancelable(false)
-											.show();
-								}
+                                return;
+                            }
+                        }
+                    }
 
-								return;
-							}
-						}
-					}
-
-					new AlertDialog.Builder(getActivity())
-							.setTitle("INFORMATION")
-							.setMessage("Vous n'avez aucune données sauvegardées !")
-							.setPositiveButton(android.R.string.ok, null)
-							.setCancelable(false)
-							.show();
-				})
-				.addOnFailureListener(e -> {
-					LOGGER.error("Error while checking sync data", e);
-					Toasty.error(getActivity(), "Error while checking sync data").show();
-				})
-		;
-	}
+                    new AlertDialog.Builder(getActivity())
+                            .setTitle("INFORMATION")
+                            .setMessage("Vous n'avez aucune données sauvegardées !")
+                            .setPositiveButton(android.R.string.ok, (dialog, which) -> mProgressBar.setVisibility(View.INVISIBLE))
+                            .setCancelable(false)
+                            .show();
+                })
+                .addOnFailureListener(e -> {
+                    LOGGER.error("Error while checking sync data", e);
+                    Toasty.error(getActivity(), "Error while checking sync data").show();
+                    mProgressBar.setVisibility(View.INVISIBLE);
+                })
+        ;
+    }
 
 }
