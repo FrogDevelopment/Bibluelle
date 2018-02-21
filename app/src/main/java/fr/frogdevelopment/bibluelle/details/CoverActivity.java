@@ -36,6 +36,8 @@ public class CoverActivity extends AppCompatActivity {
 			}
 		}
 
+		postponeEnterTransition();
+
 	}
 
 	@Override

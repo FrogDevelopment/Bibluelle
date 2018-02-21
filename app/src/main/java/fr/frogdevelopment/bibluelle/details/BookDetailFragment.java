@@ -93,6 +93,8 @@ public class BookDetailFragment extends Fragment {
 					description.expand();
 				});
 
+		postponeEnterTransition();
+
 		return rootView;
 	}
 
