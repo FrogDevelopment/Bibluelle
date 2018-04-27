@@ -1,7 +1,9 @@
 {
   "project_info": {
     "project_number": "510347106594",
-    "project_id": "firebase-bibluelle"
+    "firebase_url": "https://fir-bibluelle.firebaseio.com",
+    "project_id": "firebase-bibluelle",
+    "storage_bucket": "firebase-bibluelle.appspot.com"
   },
   "client": [
     {
@@ -12,6 +14,10 @@
         }
       },
       "oauth_client": [
+        {
+          "client_id": "510347106594-u57h88fopiam70vu4kv0k1o6r3s4fp59.apps.googleusercontent.com",
+          "client_type": 3
+        },
         {
           "client_id": "510347106594-bpqova412cp5qq1eu0f0jcn9af476uqa.apps.googleusercontent.com",
           "client_type": 1,
@@ -35,11 +41,16 @@
           "status": 1
         },
         "appinvite_service": {
-          "status": 1,
-          "other_platform_oauth_client": []
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "510347106594-u57h88fopiam70vu4kv0k1o6r3s4fp59.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         },
         "ads_service": {
-          "status": 1
+          "status": 2
         }
       }
     }
