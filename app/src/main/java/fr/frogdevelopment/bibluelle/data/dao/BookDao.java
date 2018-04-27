@@ -17,29 +17,29 @@ import fr.frogdevelopment.bibluelle.data.entities.BookPreview;
 @Dao
 public abstract class BookDao {
 
-	@Insert(onConflict = OnConflictStrategy.REPLACE)
-	public abstract void insertBook(Book book);
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    public abstract void insertBook(Book book);
 //
 //	@Update
 //	void updateBook(Book book);
 
-	@Delete
-	abstract void deleteBook(Book book);
+    @Delete
+    abstract void deleteBook(Book book);
 
-	@Query("SELECT isbn FROM book")
-	public abstract LiveData<List<String>> getAllIsbn();
+    @Query("SELECT isbn FROM book")
+    public abstract LiveData<List<String>> getAllIsbn();
 
-	@Query("SELECT isbn, author, title, sub_title FROM book ORDER BY title")
-	public abstract LiveData<List<BookPreview>> loadAllPreviews();
+    @Query("SELECT isbn, author, title, sub_title FROM book ORDER BY title")
+    public abstract LiveData<List<BookPreview>> loadAllPreviews();
 
-	@Query("SELECT * FROM book WHERE isbn = :isbn")
-	public abstract LiveData<Book> getBook(String isbn);
+    @Query("SELECT * FROM book WHERE isbn = :isbn")
+    public abstract LiveData<Book> getBook(String isbn);
 
-	@Query("SELECT * FROM book ORDER BY title")
-	public abstract LiveData<List<Book>> loadAllBooks();
+    @Query("SELECT * FROM book ORDER BY title")
+    public abstract LiveData<List<Book>> loadAllBooks();
 
-	@Query("SELECT isbn FROM book")
-	public abstract LiveData<List<String>> loadAllISBN();
+    @Query("SELECT isbn FROM book")
+    public abstract LiveData<List<String>> loadAllISBN();
 
 //	@Query("SELECT DISTINCT author FROM book")
 //	public abstract List<String> loadAllAuthors();
@@ -47,65 +47,69 @@ public abstract class BookDao {
 //	@Query("SELECT * FROM book WHERE author = :author")
 //	public abstract List<Book> loadAllBooksFromAuthor(String author);
 
-	public static void insert(Book book, InsertBookTask.OnSavedListener listener) {
-		new InsertBookTask(listener).execute(book);
-	}
+    public static void insert(Book book, InsertBookTask.OnSavedListener listener) {
+        // fixme
+        if (book.description == null) {
+            book.description = "";
+        }
+        new InsertBookTask(listener).execute(book);
+    }
 
-	public static void delete(Book book, DeleteBookTask.OnDeletedListener listener) {
-		new DeleteBookTask(listener).execute(book);
-	}
+    public static void delete(Book book, DeleteBookTask.OnDeletedListener listener) {
+        new DeleteBookTask(listener).execute(book);
+    }
 
-	private static class InsertBookTask extends AsyncTask<Book, Void, Void> {
+    private static class InsertBookTask extends AsyncTask<Book, Void, Void> {
 
-		public interface OnSavedListener {
-			void onSave();
-		}
+        public interface OnSavedListener {
+            void onSave();
+        }
 
-		private final InsertBookTask.OnSavedListener mListener;
+        private final InsertBookTask.OnSavedListener mListener;
 
-		private InsertBookTask(InsertBookTask.OnSavedListener listener) {
-			this.mListener = listener;
-		}
+        private InsertBookTask(InsertBookTask.OnSavedListener listener) {
+            this.mListener = listener;
+        }
 
-		@Override
-		protected Void doInBackground(Book... books) {
-			Book book = books[0];
+        @Override
+        protected Void doInBackground(Book... books) {
+            Book book = books[0];
 
-			DatabaseCreator.getInstance().getBookDao().insertBook(book);
+            DatabaseCreator.getInstance().getBookDao().insertBook(book);
 
-			return null;
-		}
+            return null;
+        }
 
-		@Override
-		protected void onPostExecute(Void aVoid) {
-			mListener.onSave();
-		}
-	}
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            mListener.onSave();
+        }
+    }
 
-	private static class DeleteBookTask extends AsyncTask<Book, Void, Void> {
+    private static class DeleteBookTask extends AsyncTask<Book, Void, Void> {
 
-		public interface OnDeletedListener {
-			void onDelete();
-		}
+        public interface OnDeletedListener {
+            void onDelete();
+        }
 
-		private final DeleteBookTask.OnDeletedListener mListener;
+        private final DeleteBookTask.OnDeletedListener mListener;
 
-		private DeleteBookTask(DeleteBookTask.OnDeletedListener listener) {
-			this.mListener = listener;
-		}
+        private DeleteBookTask(DeleteBookTask.OnDeletedListener listener) {
+            this.mListener = listener;
+        }
 
-		@Override
-		protected Void doInBackground(Book... books) {
-			Book book = books[0];
+        @Override
+        protected Void doInBackground(Book... books) {
+            Book book = books[0];
 
-			DatabaseCreator.getInstance().getBookDao().deleteBook(book);
+            DatabaseCreator.getInstance().getBookDao().deleteBook(book);
 
-			return null;
-		}
+            return null;
+        }
 
-		@Override
-		protected void onPostExecute(Void aVoid) {
-			mListener.onDelete();
-		}
-	}
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            mListener.onDelete();
+        }
+    }
 }
