@@ -17,8 +17,8 @@ node() {
       } catch(error) {
         slackSend channel: '#build-failures', color: 'bad', message: "This build is broken ${env.BUILD_URL}", token: 'XXXXXXXXXXX'
         currentBuild.result = 'FAILURE'
-      } finally {
-        junit '**/test-results/**/*.xml'
+      //} finally {
+      //  junit '**/test-results/**/*.xml'
       }
     }
     stage('Archive') {
