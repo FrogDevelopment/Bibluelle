@@ -2,14 +2,15 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 
 android {
-    signingConfigs {
-        debug {
-            keyAlias 'bbl_keystore'
-            keyPassword 'bibluelle'
-            storeFile file('C:/Users/b.legall/.android/key_store.jks')
-            storePassword 'b3E12h21On'
-        }
-    }
+//    FIXME
+//    signingConfigs {
+//        debug {
+//            keyAlias 'bbl_keystore'
+//            keyPassword 'bibluelle'
+//            storeFile file('C:/Users/b.legall/.android/key_store.jks')
+//            storePassword 'b3E12h21On'
+//        }
+//    }
     compileSdkVersion 27
     buildToolsVersion "27.0.3"
     defaultConfig {
