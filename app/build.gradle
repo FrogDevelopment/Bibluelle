@@ -1,24 +1,22 @@
 apply plugin: 'com.android.application'
 
 android {
-//    FIXME
-//    signingConfigs {
-//        debug {
-//            keyAlias 'bbl_keystore'
-//            keyPassword 'bibluelle'
-//            storeFile file('C:/Users/b.legall/.android/key_store.jks')
-//            storePassword 'b3E12h21On'
-//        }
-//    }
+
     compileSdkVersion 27
     buildToolsVersion "27.0.3"
+
     defaultConfig {
         applicationId "fr.frogdevelopment.bibluelle"
 
         minSdkVersion 24
         targetSdkVersion 27
 
-        versionCode 1
+        // count nb tag to determine the current versionCode
+        def cmd = 'git tag --list'
+        def gitVersion = cmd.execute().text.trim().split("\n").size()
+
+        versionCode gitVersion
+
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
@@ -28,22 +26,61 @@ android {
             }
         }
     }
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+
+    signingConfigs {
+        Properties props = new Properties()
+        def propFile = new File(System.getenv("SIGNING_PROPERTIES"))
+        if (propFile.canRead()) {
+            props.load(new FileInputStream(propFile))
+            if (props == null || props.isEmpty()) {
+                println 'signing.properties found but entries are missing'
+                debug = null
+                release = null
+            } else {
+                debug {
+                    keyAlias props['bbl_key_alias']
+                    keyPassword props['bbl_key_password']
+                    storePassword props['store_password']
+                    storeFile file(props['store_file'])
+                }
+                release {
+                    keyAlias props['bbl_key_alias']
+                    keyPassword props['bbl_key_password']
+                    storePassword props['store_password']
+                    storeFile file(props['store_file'])
+                }
+            }
+        } else {
+            println 'signing.properties not found'
         }
     }
+
+    buildTypes {
+        debug {
+            debuggable true
+            minifyEnabled false
+            signingConfig signingConfigs.debug
+        }
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
+        }
+    }
+
     dataBinding {
         enabled = true
     }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+
     sourceSets {
         androidTest.assets.srcDirs += files("$projectDir/schemas".toString())
     }
+
 }
 
 ext.support_version = '27.1.1'
