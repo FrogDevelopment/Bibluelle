@@ -21,8 +21,8 @@ node() {
       //  junit '**/test-results/**/*.xml'
       }
     }
-    stage('Archive') {
-      archiveArtifacts 'app/build/outputs/apk/*'
-    }
+    //stage('Archive') {
+    //  archiveArtifacts 'app/build/outputs/apk/*'
+    //}
     //step([$class: 'StashNotifier'])
 }
