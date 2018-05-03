@@ -76,7 +76,7 @@ public class ManageFragment extends Fragment implements View.OnClickListener {
                 .requestScopes(Drive.SCOPE_APPFOLDER)
                 .requestEmail()
                 .build();
-        mGoogleSignInClient = GoogleSignIn.getClient(getActivity(), signInOptions);
+        mGoogleSignInClient = GoogleSignIn.getClient(requireContext(), signInOptions);
 
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_manage, container, false);
@@ -98,10 +98,10 @@ public class ManageFragment extends Fragment implements View.OnClickListener {
 
         mProgressBar = view.findViewById(R.id.progress_bar);
 
-        view.findViewById(R.id.sign_out_button).setOnClickListener(this);
-        view.findViewById(R.id.disconnect_button).setOnClickListener(this);
-        view.findViewById(R.id.save_button).setOnClickListener(this);
-        view.findViewById(R.id.sync_button).setOnClickListener(this);
+        view.findViewById(R.id.sign_out).setOnClickListener(this);
+        view.findViewById(R.id.disconnect).setOnClickListener(this);
+        view.findViewById(R.id.save).setOnClickListener(this);
+        view.findViewById(R.id.synchronize).setOnClickListener(this);
     }
 
     @Override
@@ -110,7 +110,7 @@ public class ManageFragment extends Fragment implements View.OnClickListener {
         LOGGER.info("Start sign in");
 
         // Check for existing Google Sign In account, if the user is already signed in the GoogleSignInAccount will be non-null.
-        GoogleSignInAccount lastSignedInAccount = GoogleSignIn.getLastSignedInAccount(getActivity());
+        GoogleSignInAccount lastSignedInAccount = GoogleSignIn.getLastSignedInAccount(requireContext());
         updateUI(lastSignedInAccount);
     }
 
@@ -138,19 +138,19 @@ public class ManageFragment extends Fragment implements View.OnClickListener {
                 startActivityForResult(mGoogleSignInClient.getSignInIntent(), REQUEST_CODE_SIGN_IN);
                 break;
 
-            case R.id.sign_out_button:
-                mGoogleSignInClient.signOut().addOnCompleteListener(getActivity(), task -> updateUI(null));
+            case R.id.sign_out:
+                mGoogleSignInClient.signOut().addOnCompleteListener(requireActivity(), task -> updateUI(null));
                 break;
 
-            case R.id.disconnect_button:
-                mGoogleSignInClient.revokeAccess().addOnCompleteListener(getActivity(), task -> updateUI(null));
+            case R.id.disconnect:
+                mGoogleSignInClient.revokeAccess().addOnCompleteListener(requireActivity(), task -> updateUI(null));
                 break;
 
-            case R.id.save_button:
+            case R.id.save:
                 saveData();
                 break;
 
-            case R.id.sync_button:
+            case R.id.synchronize:
                 syncData();
                 break;
         }
@@ -161,7 +161,7 @@ public class ManageFragment extends Fragment implements View.OnClickListener {
             mSignInButton.setVisibility(View.INVISIBLE);
             mConnectedView.setVisibility(View.VISIBLE);
 
-            mDriveResourceClient = Drive.getDriveResourceClient(getActivity(), account);
+            mDriveResourceClient = Drive.getDriveResourceClient(requireContext(), account);
 
             GlideApp.with(this)
                     .asBitmap()
@@ -172,7 +172,7 @@ public class ManageFragment extends Fragment implements View.OnClickListener {
             mName.setText(account.getDisplayName());
             mEmail.setText(account.getEmail());
 
-            preferences = getActivity().getPreferences(Context.MODE_PRIVATE);
+            preferences = requireActivity().getPreferences(Context.MODE_PRIVATE);
         } else {
             mSignInButton.setVisibility(View.VISIBLE);
             mConnectedView.setVisibility(View.INVISIBLE);
@@ -221,7 +221,7 @@ public class ManageFragment extends Fragment implements View.OnClickListener {
                         })
                         .addOnSuccessListener(driveFile -> {
                             mProgressBar.setVisibility(View.INVISIBLE);
-                            Toasty.success(getActivity(), "Data saved with version " + nextVersion).show();
+                            Toasty.success(requireContext(), "Data saved with version " + nextVersion).show();
 
                             SharedPreferences.Editor edit = preferences.edit();
                             edit.putInt(SYNC_VERSION, nextVersion);
@@ -230,7 +230,7 @@ public class ManageFragment extends Fragment implements View.OnClickListener {
                         .addOnFailureListener(e -> {
                             LOGGER.error("Unable to create file", e);
                             mProgressBar.setVisibility(View.INVISIBLE);
-                            Toasty.error(getActivity(), "error : " + ExceptionUtils.getMessage(e)).show();
+                            Toasty.error(requireContext(), "error : " + ExceptionUtils.getMessage(e)).show();
                         })
                 ;
             }
@@ -259,18 +259,18 @@ public class ManageFragment extends Fragment implements View.OnClickListener {
                                 Integer driveVersion = Integer.valueOf(version);
 
                                 if (driveVersion > sync_version) {
-                                    new AlertDialog.Builder(getActivity())
+                                    new AlertDialog.Builder(requireContext())
                                             .setTitle("INFORMATION")
                                             .setMessage("Une version plus récente de votre librairie existe, la mettre à jour?")
                                             .setPositiveButton(android.R.string.yes, (dialog, which) -> {
-                                                Toasty.info(getActivity(), "Incoming").show();
+                                                Toasty.info(requireContext(), "Incoming").show();
                                                 // todo
                                             })
                                             .setNegativeButton(android.R.string.no, (dialog, which) -> mProgressBar.setVisibility(View.INVISIBLE))
                                             .setCancelable(false)
                                             .show();
                                 } else {
-                                    new AlertDialog.Builder(getActivity())
+                                    new AlertDialog.Builder(requireContext())
                                             .setTitle("INFORMATION")
                                             .setMessage("Vous avez la version la plus récente de votre librairie.")
                                             .setPositiveButton(android.R.string.ok, (dialog, which) -> mProgressBar.setVisibility(View.INVISIBLE))
@@ -283,7 +283,7 @@ public class ManageFragment extends Fragment implements View.OnClickListener {
                         }
                     }
 
-                    new AlertDialog.Builder(getActivity())
+                    new AlertDialog.Builder(requireContext())
                             .setTitle("INFORMATION")
                             .setMessage("Vous n'avez aucune données sauvegardées !")
                             .setPositiveButton(android.R.string.ok, (dialog, which) -> mProgressBar.setVisibility(View.INVISIBLE))
@@ -292,7 +292,7 @@ public class ManageFragment extends Fragment implements View.OnClickListener {
                 })
                 .addOnFailureListener(e -> {
                     LOGGER.error("Error while checking sync data", e);
-                    Toasty.error(getActivity(), "Error while checking sync data").show();
+                    Toasty.error(requireContext(), "Error while checking sync data").show();
                     mProgressBar.setVisibility(View.INVISIBLE);
                 })
         ;
