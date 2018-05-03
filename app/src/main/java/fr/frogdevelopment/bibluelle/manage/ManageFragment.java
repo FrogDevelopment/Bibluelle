@@ -86,7 +86,7 @@ public class ManageFragment extends Fragment implements View.OnClickListener {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        mConnectedView = view.findViewById(R.id.manager_connected);
+        mConnectedView = view.findViewById(R.id.card_profile);
 
         mSignInButton = view.findViewById(R.id.sign_in_button);
         mSignInButton.setSize(SignInButton.SIZE_WIDE);
