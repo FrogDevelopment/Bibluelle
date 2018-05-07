@@ -95,7 +95,7 @@
                 android:focusable="true"
                 android:gravity="center_vertical"
                 android:padding="5dp"
-                android:text="Synchronize"
+                android:text="@string/profile_sync"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/stroke" />
@@ -112,7 +112,7 @@
                 android:focusable="true"
                 android:gravity="center_vertical"
                 android:padding="5dp"
-                android:text="Save"
+                android:text="@string/profile_save"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/synchronize" />
@@ -129,7 +129,7 @@
                 android:focusable="true"
                 android:gravity="center_vertical"
                 android:padding="5dp"
-                android:text="Disconnect"
+                android:text="@string/profile_disconnect"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/save" />
@@ -146,7 +146,7 @@
                 android:focusable="true"
                 android:gravity="center_vertical"
                 android:padding="5dp"
-                android:text="Sign out"
+                android:text="@string/profile_sign_out"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/disconnect" />

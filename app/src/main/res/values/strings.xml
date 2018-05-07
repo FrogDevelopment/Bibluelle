@@ -21,6 +21,10 @@
     <string name="search_button">Search</string>
     <string name="search_languages">Languages</string>
     <string name="search_languages_of_book">Select languages</string>
+    <string name="profile_sync">Synchronize</string>
+    <string name="profile_save">Save</string>
+    <string name="profile_disconnect">Disconnect</string>
+    <string name="profile_sign_out">Sign out</string>
 
     <string-array name="search_language_codes">
         <item>en</item>
