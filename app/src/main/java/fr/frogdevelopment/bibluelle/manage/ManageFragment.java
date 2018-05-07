@@ -97,6 +97,7 @@ public class ManageFragment extends Fragment implements View.OnClickListener {
         mEmail = view.findViewById(R.id.profile_email);
 
         mProgressBar = view.findViewById(R.id.progress_bar);
+        mProgressBar.setIndeterminate(true);
 
         view.findViewById(R.id.sign_out).setOnClickListener(this);
         view.findViewById(R.id.disconnect).setOnClickListener(this);
