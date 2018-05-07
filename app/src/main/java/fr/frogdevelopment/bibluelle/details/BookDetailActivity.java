@@ -5,6 +5,7 @@ import android.databinding.DataBindingUtil;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -129,7 +130,7 @@ public class BookDetailActivity extends AppCompatActivity {
 				.load(mBook.thumbnailUrl)
 				.into(new SimpleTarget<File>() {
 					@Override
-					public void onResourceReady(File resource, Transition<? super File> transition) {
+					public void onResourceReady(@NonNull File resource, Transition<? super File> transition) {
 						thumbnailSaved = saveFile(resource, mBook.getThumbnailFile());
 						onSaveBook();
 					}
@@ -141,7 +142,7 @@ public class BookDetailActivity extends AppCompatActivity {
 				.load(mBook.coverUrl)
 				.into(new SimpleTarget<File>() {
 					@Override
-					public void onResourceReady(File resource, Transition<? super File> transition) {
+					public void onResourceReady(@NonNull File resource, Transition<? super File> transition) {
 						coverSaved = saveFile(resource, mBook.getCoverFile());
 						onSaveBook();
 					}
