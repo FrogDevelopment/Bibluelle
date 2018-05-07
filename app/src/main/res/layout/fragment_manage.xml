@@ -90,7 +90,7 @@
                 android:background="?attr/selectableItemBackground"
                 android:clickable="true"
                 android:drawablePadding="15dp"
-                android:drawableStart="@drawable/fab_sync"
+                android:drawableStart="@drawable/ic_cloud_download"
                 android:drawableTint="@android:color/black"
                 android:focusable="true"
                 android:gravity="center_vertical"
