@@ -25,6 +25,13 @@
     <string name="profile_save">Save</string>
     <string name="profile_disconnect">Disconnect</string>
     <string name="profile_sign_out">Sign out</string>
+    <string name="title_information">INFORMATION</string>
+    <string name="profile_msg_new_version">Une version plus récente de votre librairie existe</string>
+    <string name="profile_action_update">Mettre à jour</string>
+    <string name="profile_msg_no_new_version">Vous avez la version la plus récente de votre librairie.</string>
+    <string name="profile_msg_no_data_saved">Vous n\'avez aucune données sauvegardées !</string>
+    <string name="profile_msg_no_data_to_save">No data to save !!!</string>
+    <string name="profile_msg_data_save_version">Data saved with version %1$d</string>
 
     <string-array name="search_language_codes">
         <item>en</item>

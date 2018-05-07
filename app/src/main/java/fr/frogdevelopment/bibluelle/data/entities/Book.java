@@ -25,8 +25,9 @@ public class Book implements Serializable {
 
 	private static final long serialVersionUID = 1270210172748954066L;
 
-	@PrimaryKey(autoGenerate = true)
-	public Integer id;
+    @JsonExclude
+    @PrimaryKey(autoGenerate = true)
+    public Integer id;
 
 	@NonNull
 	@ColumnInfo(name = "title")
@@ -69,14 +70,23 @@ public class Book implements Serializable {
 	public Integer rate;
 
 	@Ignore
+    @JsonExclude
 	public String thumbnailUrl;
+    @Ignore
+    public byte[] thumbnailByte;
 	@Ignore
+    @JsonExclude
 	public String coverUrl;
+    @Ignore
+    public byte[] coverByte;
 	@Ignore
+    @JsonExclude
 	public boolean alreadySaved = true;
 	@Ignore
+    @JsonExclude
 	public int collapsedTitleColor = 0;
 	@Ignore
+    @JsonExclude
 	public int dominantRgb = 0;
 
 	public String getThumbnailFile() {
@@ -138,4 +148,5 @@ public class Book implements Serializable {
 				.append("alreadySaved", alreadySaved)
 				.toString();
 	}
+
 }
