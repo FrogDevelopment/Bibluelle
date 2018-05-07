@@ -145,6 +145,10 @@ dependencies {
     // https://github.com/GrenderG/Toasty
     implementation 'com.github.GrenderG:Toasty:1.3.0'
 
+    // https://github.com/pedant/sweet-alert-dialog
+    // https://jitpack.io/p/thomper/sweet-alert-dialog/v1.4.0
+    implementation 'com.github.thomper:sweet-alert-dialog:v1.4.0'
+
     // commons
     implementation 'org.apache.commons:commons-lang3:3.7'
 

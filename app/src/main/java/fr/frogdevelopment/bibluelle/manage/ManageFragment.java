@@ -1,10 +1,8 @@
 package fr.frogdevelopment.bibluelle.manage;
 
-import android.app.AlertDialog;
 import android.arch.lifecycle.LiveData;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -15,7 +13,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -24,7 +21,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.common.api.Scope;
 import com.google.android.gms.common.util.IOUtils;
 import com.google.android.gms.drive.Drive;
 import com.google.android.gms.drive.DriveContents;
@@ -33,7 +29,6 @@ import com.google.android.gms.drive.DriveFolder;
 import com.google.android.gms.drive.DriveResourceClient;
 import com.google.android.gms.drive.Metadata;
 import com.google.android.gms.drive.MetadataChangeSet;
-import com.google.android.gms.drive.metadata.CustomPropertyKey;
 import com.google.android.gms.drive.query.Filters;
 import com.google.android.gms.drive.query.Query;
 import com.google.android.gms.drive.query.SearchableField;
@@ -43,6 +38,7 @@ import com.google.gson.ExclusionStrategy;
 import com.google.gson.FieldAttributes;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.ontbee.legacyforks.cn.pedant.SweetAlert.SweetAlertDialog;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
@@ -55,14 +51,11 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import es.dmoral.toasty.Toasty;
 import fr.frogdevelopment.bibluelle.GlideApp;
 import fr.frogdevelopment.bibluelle.R;
 import fr.frogdevelopment.bibluelle.data.DatabaseCreator;
@@ -76,7 +69,7 @@ public class ManageFragment extends Fragment implements View.OnClickListener {
 
     private static final int REQUEST_CODE_SIGN_IN = 0;
     private static final String FILE_NAME = "isbn-saved.txt";
-    private static final String SYNC_VERSION = "sync_version";
+//    private static final String SYNC_VERSION = "sync_version";
 
     private GoogleSignInClient mGoogleSignInClient;
     private DriveResourceClient mDriveResourceClient;
@@ -85,8 +78,23 @@ public class ManageFragment extends Fragment implements View.OnClickListener {
     private TextView mName;
     private TextView mEmail;
     private View mConnectedView;
-    private SharedPreferences preferences;
-    private ProgressBar mProgressBar;
+//    private SharedPreferences preferences;
+
+    private final Gson mGson = new GsonBuilder()
+            .serializeNulls()
+            .setPrettyPrinting()
+            .setExclusionStrategies(new ExclusionStrategy() {
+                @Override
+                public boolean shouldSkipField(FieldAttributes f) {
+                    return f.getAnnotation(JsonExclude.class) != null;
+                }
+
+                @Override
+                public boolean shouldSkipClass(Class<?> clazz) {
+                    return false;
+                }
+            })
+            .create();
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -108,47 +116,13 @@ public class ManageFragment extends Fragment implements View.OnClickListener {
         mName = view.findViewById(R.id.profile_name);
         mEmail = view.findViewById(R.id.profile_email);
 
-        mProgressBar = view.findViewById(R.id.progress_bar);
-        mProgressBar.setIndeterminate(true);
-
         view.findViewById(R.id.sign_out).setOnClickListener(this);
         view.findViewById(R.id.disconnect).setOnClickListener(this);
         view.findViewById(R.id.save).setOnClickListener(this);
         view.findViewById(R.id.synchronize).setOnClickListener(this);
     }
 
-    private final Gson mGson = new GsonBuilder()
-            .serializeNulls()
-            .setPrettyPrinting()
-            .setExclusionStrategies(new ExclusionStrategy() {
-                @Override
-                public boolean shouldSkipField(FieldAttributes f) {
-                    return f.getAnnotation(JsonExclude.class) != null;
-                }
-
-                @Override
-                public boolean shouldSkipClass(Class<?> clazz) {
-                    return false;
-                }
-            })
-            .create();
-    boolean isLoading = false;
-
-    @Override
-    public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == REQUEST_CODE_SIGN_IN) {
-            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
-            try {
-                GoogleSignInAccount account = task.getResult(ApiException.class);
-                updateUI(account);
-            } catch (ApiException e) {
-                LOGGER.error("signInResult:failed code=" + e.getStatusCode(), e);
-                updateUI(null);
-            }
-        }
-    }
+    private SweetAlertDialog mSweetAlertDialog;
 
     @Override
     public void onStart() {
@@ -157,55 +131,77 @@ public class ManageFragment extends Fragment implements View.OnClickListener {
         signIn();
     }
 
+    @Override
+    public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == REQUEST_CODE_SIGN_IN) {
+            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+            try {
+
+                dismissSuccess();
+
+                GoogleSignInAccount account = task.getResult(ApiException.class);
+                updateUI(account);
+
+            } catch (ApiException e) {
+                LOGGER.error("signInResult:failed code=" + e.getStatusCode(), e);
+                updateUI(null);
+
+                showError("signInResult:failed code=" + e.getStatusCode());
+            }
+        }
+    }
+
+//    public static final CustomPropertyKey VERSION_PROPERTY_KEY = new CustomPropertyKey("version", CustomPropertyKey.PUBLIC);
+
     /**
      * Starts the sign-in process and initializes the Drive client.
      */
     protected void signIn() {
         LOGGER.info("Start sign in");
-        Set<Scope> requiredScopes = new HashSet<>(2);
-        requiredScopes.add(Drive.SCOPE_FILE);
-        requiredScopes.add(Drive.SCOPE_APPFOLDER);
+        GoogleSignInOptions signInOptions = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestScopes(Drive.SCOPE_FILE, Drive.SCOPE_APPFOLDER)
+                .build();
+        mGoogleSignInClient = GoogleSignIn.getClient(requireContext(), signInOptions);
 
         GoogleSignInAccount lastSignedInAccount = GoogleSignIn.getLastSignedInAccount(requireContext());
-        if (lastSignedInAccount == null || !lastSignedInAccount.getGrantedScopes().containsAll(requiredScopes)) {
-            GoogleSignInOptions signInOptions = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                    .requestScopes(Drive.SCOPE_FILE, Drive.SCOPE_APPFOLDER)
-                    .build();
-            mGoogleSignInClient = GoogleSignIn.getClient(requireContext(), signInOptions);
-        }
-
         updateUI(lastSignedInAccount);
     }
 
-    public static final CustomPropertyKey VERSION_PROPERTY_KEY = new CustomPropertyKey("version", CustomPropertyKey.PUBLIC);
-
     @Override
     public void onClick(View v) {
-        if (this.isLoading) {
-            return;
-        }
-
-        setLoading(true);
 
         switch (v.getId()) {
             case R.id.sign_in_button:
+                showLoading("SIGNING IN");
                 startActivityForResult(mGoogleSignInClient.getSignInIntent(), REQUEST_CODE_SIGN_IN);
                 break;
 
             case R.id.sign_out:
-                mGoogleSignInClient.signOut().addOnCompleteListener(requireActivity(), task -> updateUI(null));
+                showLoading("SIGNING OUT");
+                mGoogleSignInClient.signOut().addOnCompleteListener(requireActivity(), task -> {
+                    dismissSuccess();
+
+                    updateUI(null);
+                });
                 break;
 
             case R.id.disconnect:
-                mGoogleSignInClient.revokeAccess().addOnCompleteListener(requireActivity(), task -> updateUI(null));
+                showLoading("DISCONNECTING");
+                mGoogleSignInClient.revokeAccess().addOnCompleteListener(requireActivity(), task -> {
+                    dismissSuccess();
+
+                    updateUI(null);
+                });
                 break;
 
             case R.id.save:
-                saveData();
+                showConfirm("Upload data to cloud", "Save", sweetAlertDialog -> saveData());
                 break;
 
             case R.id.synchronize:
-                syncData();
+                showConfirm("Download data from cloud", "Synchronize", sweetAlertDialog -> syncData());
                 break;
         }
     }
@@ -226,16 +222,16 @@ public class ManageFragment extends Fragment implements View.OnClickListener {
             mName.setText(account.getDisplayName());
             mEmail.setText(account.getEmail());
 
-            preferences = requireActivity().getPreferences(Context.MODE_PRIVATE);
+//            preferences = requireActivity().getPreferences(Context.MODE_PRIVATE);
         } else {
             mSignInButton.setVisibility(View.VISIBLE);
             mConnectedView.setVisibility(View.INVISIBLE);
         }
-
-        setLoading(false);
     }
 
     private void saveData() {
+        showLoading("Uploading");
+
         LOGGER.info("Save data -> fetch data");
 
         LiveData<List<Book>> allIsbn = DatabaseCreator.getInstance().getBookDao().loadAllBooks();
@@ -245,14 +241,13 @@ public class ManageFragment extends Fragment implements View.OnClickListener {
             if (data != null && !data.isEmpty()) {
                 saveData(data);
             } else {
-                // fixme
-                Toasty.error(requireContext(), getString(R.string.profile_msg_no_data_to_save)).show();
+                showError(getString(R.string.profile_msg_no_data_to_save));
             }
         });
     }
 
     private void saveData(List<Book> data) {
-        int nextVersion = preferences.getInt(SYNC_VERSION, 0) + 1;
+//        int nextVersion = preferences.getInt(SYNC_VERSION, 0) + 1;
 
         LOGGER.info("Save data -> access AppFolder & Drive contents");
         final Task<DriveFolder> appFolderTask = mDriveResourceClient.getAppFolder();
@@ -286,11 +281,11 @@ public class ManageFragment extends Fragment implements View.OnClickListener {
 
                     MetadataChangeSet changeSet = new MetadataChangeSet.Builder()
                             .setTitle(FILE_NAME)
-                            .setDescription("Bibluelle save version " + nextVersion)
+                            .setDescription("Bibluelle saved books")
                             .setMimeType("text/plain")
                             .setStarred(true)
                             .setLastViewedByMeDate(new Date())
-                            .setCustomProperty(VERSION_PROPERTY_KEY, String.valueOf(nextVersion))
+//                            .setCustomProperty(VERSION_PROPERTY_KEY, String.valueOf(nextVersion))
                             .build();
 
                     LOGGER.info("Save data -> create file");
@@ -298,8 +293,7 @@ public class ManageFragment extends Fragment implements View.OnClickListener {
                 })
                 .addOnSuccessListener(driveFile -> {
                     LOGGER.info("Save data -> File created");
-                    setLoading(false);
-                    Toasty.success(requireContext(), getString(R.string.profile_msg_data_save_version, nextVersion)).show();
+                    showSuccess(getString(R.string.profile_msg_data_saved));
 
 //                            SharedPreferences.Editor edit = preferences.edit();
 //                            edit.putInt(SYNC_VERSION, nextVersion);
@@ -307,12 +301,12 @@ public class ManageFragment extends Fragment implements View.OnClickListener {
                 })
                 .addOnFailureListener(e -> {
                     LOGGER.error("Save data -> Unable to create file", e);
-                    setLoading(false);
-                    Toasty.error(requireContext(), "error : " + ExceptionUtils.getMessage(e)).show();
+                    showError("error : " + ExceptionUtils.getMessage(e));
                 });
     }
 
     private void syncData() {
+        showLoading("Downloading");
 //        int sync_version = preferences.getInt(SYNC_VERSION, 0);
 
         LOGGER.info("Sync data -> access App Folder");
@@ -326,7 +320,9 @@ public class ManageFragment extends Fragment implements View.OnClickListener {
                     return mDriveResourceClient.queryChildren(appFolderResult, query);
                 })
                 .addOnSuccessListener(metadataBuffer -> {
-                    if (metadataBuffer.getCount() > 0) {
+                    if (metadataBuffer.getCount() == 0) {
+                        showError(getString(R.string.profile_msg_no_data_saved));
+                    } else {
                         for (Metadata metadata : metadataBuffer) {
                             if (FILE_NAME.equals(metadata.getTitle())) {
 
@@ -345,14 +341,14 @@ public class ManageFragment extends Fragment implements View.OnClickListener {
 //                                                Toasty.info(requireContext(), "Incoming").show();
 //                                                // todo
 //                                            })
-//                                            .setNegativeButton(android.R.string.cancel, (dialog, which) -> setLoading(false))
+//                                            .setNegativeButton(android.R.string.cancel, (dialog, which) -> showLoading(false))
 //                                            .setCancelable(false)
 //                                            .show();
 //                                } else {
 //                                    new AlertDialog.Builder(requireContext())
 //                                            .setTitle(R.string.title_information)
 //                                            .setMessage(R.string.profile_msg_no_new_version)
-//                                            .setPositiveButton(android.R.string.ok, (dialog, which) -> setLoading(false))
+//                                            .setPositiveButton(android.R.string.ok, (dialog, which) -> showLoading(false))
 //                                            .setCancelable(false)
 //                                            .show();
 //                                }
@@ -361,20 +357,22 @@ public class ManageFragment extends Fragment implements View.OnClickListener {
                             }
                         }
                     }
-
-                    new AlertDialog.Builder(requireContext())
-                            .setTitle(R.string.title_information)
-                            .setMessage(R.string.profile_msg_no_data_saved)
-                            .setPositiveButton(android.R.string.ok, (dialog, which) -> setLoading(false))
-                            .setCancelable(false)
-                            .show();
                 })
                 .addOnFailureListener(e -> {
                     LOGGER.error("Sync data -> Error while checking sync data", e);
-                    Toasty.error(requireContext(), "Error while checking sync data").show();
-                    setLoading(false);
+                    showError("Error while checking sync data");
                 })
         ;
+    }
+
+    /**
+     * Create a new ThreadPoolExecutor with 2 threads for each processor on the device and a 60 second keep-alive time.
+     * cf https://developers.google.com/android/guides/tasks
+     **/
+    @NonNull
+    private ThreadPoolExecutor getExecutor() {
+        int numCores = Runtime.getRuntime().availableProcessors();
+        return new ThreadPoolExecutor(numCores * 2, numCores * 2, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<>());
     }
 
     private void retrieveContents(DriveFile file) {
@@ -394,62 +392,122 @@ public class ManageFragment extends Fragment implements View.OnClickListener {
                             builder.append(line);
                         }
 
-                        String json = builder.toString();
-                        LOGGER.debug(json);
-
-
                         LOGGER.info("Sync data -> Transform from JSON");
-                        Book[] books = mGson.fromJson(json, Book[].class);
+                        Book[] books = mGson.fromJson(builder.toString(), Book[].class);
 
+                        LOGGER.info("Sync data -> save into database");
                         for (Book book : books) {
                             saveFile(book.coverByte, book.getCoverFile());
                             saveFile(book.thumbnailByte, book.getThumbnailFile());
 
                             BookDao.insert(book);
                         }
-
                     }
 
                     return mDriveResourceClient.discardContents(contents);
                 })
                 .addOnSuccessListener(aVoid -> {
                     LOGGER.info("Sync data -> Data retrieved");
-                    Toasty.success(requireContext(), "Data retrieved").show();
-                    setLoading(false);
+
+                    showSuccess("Data retrieved");
                 })
                 .addOnFailureListener(e -> {
                     LOGGER.error("Sync data -> Unable to read contents", e);
-                    Toasty.error(requireContext(), "Unable to read contents").show();
-                    setLoading(false);
+
+                    showError("Unable to read contents");
                 });
     }
 
-    /**
-     * Create a new ThreadPoolExecutor with 2 threads for each processor on the device and a 60 second keep-alive time.
-     * cf https://developers.google.com/android/guides/tasks
-     **/
-    @NonNull
-    private ThreadPoolExecutor getExecutor() {
-        int numCores = Runtime.getRuntime().availableProcessors();
-        return new ThreadPoolExecutor(numCores * 2, numCores * 2, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<>());
+    private void showLoading(String message) {
+        if (mSweetAlertDialog == null) {
+            mSweetAlertDialog = new SweetAlertDialog(requireContext(), SweetAlertDialog.PROGRESS_TYPE);
+        } else {
+            mSweetAlertDialog.changeAlertType(SweetAlertDialog.PROGRESS_TYPE);
+        }
+        mSweetAlertDialog.setTitleText(message);
+        mSweetAlertDialog.setCancelable(false);
+        mSweetAlertDialog.showCancelButton(false);
+        mSweetAlertDialog.showContentText(false);
+
+        if (!mSweetAlertDialog.isShowing()) {
+            mSweetAlertDialog.show();
+        }
     }
 
-    private void setLoading(boolean isLoading) {
-        this.isLoading = isLoading;
-        mProgressBar.setVisibility(isLoading ? View.VISIBLE : View.INVISIBLE);
+    private void showError(String message) {
+        if (mSweetAlertDialog == null) {
+            mSweetAlertDialog = new SweetAlertDialog(requireContext(), SweetAlertDialog.ERROR_TYPE);
+        } else {
+            mSweetAlertDialog.changeAlertType(SweetAlertDialog.ERROR_TYPE);
+        }
+
+        mSweetAlertDialog.setTitleText("ERROR");
+        mSweetAlertDialog.setContentText(message);
+        mSweetAlertDialog.setConfirmText("OK");
+        mSweetAlertDialog.setConfirmClickListener(sweetAlertDialog -> {
+            sweetAlertDialog.dismissWithAnimation();
+            mSweetAlertDialog = null;
+        });
+
+        if (!mSweetAlertDialog.isShowing()) {
+            mSweetAlertDialog.show();
+        }
     }
 
-    private boolean saveFile(byte[] data, String fileName) {
+    private void showSuccess(String message) {
+        if (mSweetAlertDialog == null) {
+            mSweetAlertDialog = new SweetAlertDialog(requireContext(), SweetAlertDialog.SUCCESS_TYPE);
+        } else {
+            mSweetAlertDialog.changeAlertType(SweetAlertDialog.SUCCESS_TYPE);
+        }
+        mSweetAlertDialog.setTitleText("SUCCESS");
+        mSweetAlertDialog.setContentText(message);
+        mSweetAlertDialog.setConfirmText("OK");
+        mSweetAlertDialog.showContentText(true);
+        mSweetAlertDialog.setConfirmClickListener(sweetAlertDialog -> {
+            sweetAlertDialog.dismissWithAnimation();
+            mSweetAlertDialog = null;
+        });
+
+        if (!mSweetAlertDialog.isShowing()) {
+            mSweetAlertDialog.show();
+        }
+    }
+
+    private void dismissSuccess() {
+        mSweetAlertDialog.changeAlertType(SweetAlertDialog.SUCCESS_TYPE);
+        mSweetAlertDialog.dismissWithAnimation();
+        mSweetAlertDialog = null;
+    }
+
+    private void showConfirm(String message, String confirmText, SweetAlertDialog.OnSweetClickListener listener) {
+        if (mSweetAlertDialog == null) {
+            mSweetAlertDialog = new SweetAlertDialog(requireContext(), SweetAlertDialog.WARNING_TYPE);
+        } else {
+            mSweetAlertDialog.changeAlertType(SweetAlertDialog.WARNING_TYPE);
+        }
+
+        mSweetAlertDialog.setTitleText(message);
+        mSweetAlertDialog.setCancelText("Cancel");
+        mSweetAlertDialog.setCancelClickListener(sweetAlertDialog -> {
+            sweetAlertDialog.dismissWithAnimation();
+            mSweetAlertDialog = null;
+        });
+        mSweetAlertDialog.setConfirmText(confirmText);
+        mSweetAlertDialog.setConfirmClickListener(listener);
+
+        if (!mSweetAlertDialog.isShowing()) {
+            mSweetAlertDialog.show();
+        }
+    }
+
+    private void saveFile(byte[] data, String fileName) {
         try (OutputStream fOut = requireContext().openFileOutput(fileName, Context.MODE_PRIVATE)) {
             Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fOut);
-
-            return true;
         } catch (Exception e) {
             e.printStackTrace(); // fixme
 //            Toast.makeText(requireContext(), "Error", Toast.LENGTH_LONG).show();
-
-            return false;
         }
     }
 
