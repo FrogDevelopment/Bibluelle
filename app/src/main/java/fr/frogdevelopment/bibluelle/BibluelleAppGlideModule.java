@@ -5,5 +5,5 @@ import com.bumptech.glide.module.AppGlideModule;
 
 //cf http://bumptech.github.io/glide/doc/generatedapi.html
 @GlideModule
-public class MyAppGlideModule extends AppGlideModule {
+public class BibluelleAppGlideModule extends AppGlideModule {
 }
