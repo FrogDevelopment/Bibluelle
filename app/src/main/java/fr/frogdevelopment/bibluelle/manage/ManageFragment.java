@@ -3,6 +3,7 @@ package fr.frogdevelopment.bibluelle.manage;
 import android.arch.lifecycle.LiveData;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -26,9 +27,11 @@ import com.google.android.gms.drive.Drive;
 import com.google.android.gms.drive.DriveContents;
 import com.google.android.gms.drive.DriveFile;
 import com.google.android.gms.drive.DriveFolder;
+import com.google.android.gms.drive.DriveId;
 import com.google.android.gms.drive.DriveResourceClient;
 import com.google.android.gms.drive.Metadata;
 import com.google.android.gms.drive.MetadataChangeSet;
+import com.google.android.gms.drive.metadata.CustomPropertyKey;
 import com.google.android.gms.drive.query.Filters;
 import com.google.android.gms.drive.query.Query;
 import com.google.android.gms.drive.query.SearchableField;
@@ -55,6 +58,7 @@ import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 import fr.frogdevelopment.bibluelle.GlideApp;
 import fr.frogdevelopment.bibluelle.R;
@@ -69,7 +73,8 @@ public class ManageFragment extends Fragment implements View.OnClickListener {
 
     private static final int REQUEST_CODE_SIGN_IN = 0;
     private static final String FILE_NAME = "isbn-saved.txt";
-//    private static final String SYNC_VERSION = "sync_version";
+    private static final String SYNC_VERSION = "sync_version";
+    private static final CustomPropertyKey VERSION_PROPERTY_KEY = new CustomPropertyKey("version", CustomPropertyKey.PUBLIC);
 
     private GoogleSignInClient mGoogleSignInClient;
     private DriveResourceClient mDriveResourceClient;
@@ -78,7 +83,7 @@ public class ManageFragment extends Fragment implements View.OnClickListener {
     private TextView mName;
     private TextView mEmail;
     private View mConnectedView;
-//    private SharedPreferences preferences;
+    private SharedPreferences preferences;
 
     private final Gson mGson = new GsonBuilder()
             .serializeNulls()
@@ -128,7 +133,15 @@ public class ManageFragment extends Fragment implements View.OnClickListener {
     public void onStart() {
         super.onStart();
 
-        signIn();
+        LOGGER.info("Start sign in");
+
+        GoogleSignInOptions signInOptions = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestScopes(Drive.SCOPE_FILE, Drive.SCOPE_APPFOLDER)
+                .build();
+        mGoogleSignInClient = GoogleSignIn.getClient(requireContext(), signInOptions);
+
+        GoogleSignInAccount lastSignedInAccount = GoogleSignIn.getLastSignedInAccount(requireContext());
+        updateUI(lastSignedInAccount);
     }
 
     @Override
@@ -153,22 +166,6 @@ public class ManageFragment extends Fragment implements View.OnClickListener {
         }
     }
 
-//    public static final CustomPropertyKey VERSION_PROPERTY_KEY = new CustomPropertyKey("version", CustomPropertyKey.PUBLIC);
-
-    /**
-     * Starts the sign-in process and initializes the Drive client.
-     */
-    protected void signIn() {
-        LOGGER.info("Start sign in");
-        GoogleSignInOptions signInOptions = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestScopes(Drive.SCOPE_FILE, Drive.SCOPE_APPFOLDER)
-                .build();
-        mGoogleSignInClient = GoogleSignIn.getClient(requireContext(), signInOptions);
-
-        GoogleSignInAccount lastSignedInAccount = GoogleSignIn.getLastSignedInAccount(requireContext());
-        updateUI(lastSignedInAccount);
-    }
-
     @Override
     public void onClick(View v) {
 
@@ -188,12 +185,8 @@ public class ManageFragment extends Fragment implements View.OnClickListener {
                 break;
 
             case R.id.disconnect:
-                showLoading("DISCONNECTING");
-                mGoogleSignInClient.revokeAccess().addOnCompleteListener(requireActivity(), task -> {
-                    dismissSuccess();
+                showConfirm("You're going to disconnect, which lead to erase the data saved on Drive !", "Continue", sweetAlertDialog -> revokeAccess());
 
-                    updateUI(null);
-                });
                 break;
 
             case R.id.save:
@@ -204,6 +197,33 @@ public class ManageFragment extends Fragment implements View.OnClickListener {
                 showConfirm("Download data from cloud", "Synchronize", sweetAlertDialog -> syncData());
                 break;
         }
+    }
+
+    private void revokeAccess() {
+        searchFile(driveId -> {
+            LOGGER.info("revokeAccess -> delete file");
+
+            mDriveResourceClient
+                    .delete(driveId.asDriveResource())
+                    .continueWithTask(task -> {
+                        LOGGER.info("revokeAccess -> sign out");
+                        return mGoogleSignInClient.revokeAccess();
+                    })
+                    .addOnSuccessListener(driveFile -> {
+
+                        SharedPreferences.Editor edit = preferences.edit();
+                        edit.putInt(SYNC_VERSION, 0);
+                        edit.apply();
+
+                        dismissSuccess();
+
+                        updateUI(null);
+                    })
+                    .addOnFailureListener(e -> {
+                        LOGGER.error("revokeAccess -> Unable to delete file", e);
+                        showError("error : " + ExceptionUtils.getMessage(e));
+                    });
+        });
     }
 
     private void updateUI(@Nullable GoogleSignInAccount account) {
@@ -222,7 +242,7 @@ public class ManageFragment extends Fragment implements View.OnClickListener {
             mName.setText(account.getDisplayName());
             mEmail.setText(account.getEmail());
 
-//            preferences = requireActivity().getPreferences(Context.MODE_PRIVATE);
+            preferences = requireActivity().getPreferences(Context.MODE_PRIVATE);
         } else {
             mSignInButton.setVisibility(View.VISIBLE);
             mConnectedView.setVisibility(View.INVISIBLE);
@@ -309,24 +329,8 @@ public class ManageFragment extends Fragment implements View.OnClickListener {
         showLoading("Downloading");
 //        int sync_version = preferences.getInt(SYNC_VERSION, 0);
 
-        LOGGER.info("Sync data -> access App Folder");
-        mDriveResourceClient.getAppFolder()
-                .continueWithTask(getExecutor(), task -> {
-                    DriveFolder appFolderResult = task.getResult();
-                    Query query = new Query.Builder()
-                            .addFilter(Filters.eq(SearchableField.TITLE, FILE_NAME))
-                            .build();
-
-                    return mDriveResourceClient.queryChildren(appFolderResult, query);
-                })
-                .addOnSuccessListener(metadataBuffer -> {
-                    if (metadataBuffer.getCount() == 0) {
-                        showError(getString(R.string.profile_msg_no_data_saved));
-                    } else {
-                        for (Metadata metadata : metadataBuffer) {
-                            if (FILE_NAME.equals(metadata.getTitle())) {
-
-                                retrieveContents(metadata.getDriveId().asDriveFile());
+        searchFile(driveId -> {
+            retrieveContents(driveId.asDriveFile());
 
 //                                Map<CustomPropertyKey, String> customProperties = metadata.getCustomProperties();
 //                                String version = customProperties.getOrDefault(VERSION_PROPERTY_KEY, "0");
@@ -352,14 +356,36 @@ public class ManageFragment extends Fragment implements View.OnClickListener {
 //                                            .setCancelable(false)
 //                                            .show();
 //                                }
+        });
+    }
 
+    private void searchFile(Consumer<DriveId> consumer) {
+        showLoading("Connecting ...");
+
+        LOGGER.info("Search file -> access App Folder");
+        mDriveResourceClient.getAppFolder()
+                .continueWithTask(getExecutor(), task -> {
+                    DriveFolder appFolderResult = task.getResult();
+                    Query query = new Query.Builder()
+                            .addFilter(Filters.eq(SearchableField.TITLE, FILE_NAME))
+                            .build();
+
+                    return mDriveResourceClient.queryChildren(appFolderResult, query);
+                })
+                .addOnSuccessListener(metadataBuffer -> {
+                    if (metadataBuffer.getCount() > 0) {
+                        for (Metadata metadata : metadataBuffer) {
+                            if (FILE_NAME.equals(metadata.getTitle())) {
+                                consumer.accept(metadata.getDriveId());
                                 return;
                             }
                         }
                     }
+
+                    showError(getString(R.string.profile_msg_no_data_saved));
                 })
                 .addOnFailureListener(e -> {
-                    LOGGER.error("Sync data -> Error while checking sync data", e);
+                    LOGGER.error("Search file -> Error while checking sync data", e);
                     showError("Error while checking sync data");
                 })
         ;
