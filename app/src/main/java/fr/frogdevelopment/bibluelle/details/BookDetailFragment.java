@@ -38,9 +38,9 @@ public class BookDetailFragment extends Fragment {
 		super.onCreate(savedInstanceState);
 
 		mBook = (Book) getArguments().getSerializable(ARG_KEY);
-		CollapsingToolbarLayout collapseToolbar = getActivity().findViewById(R.id.toolbar_layout);
+        CollapsingToolbarLayout collapseToolbar = requireActivity().findViewById(R.id.toolbar_layout);
 		if (mBook != null && collapseToolbar != null) {
-			AppBarLayout appBarLayout = getActivity().findViewById(R.id.app_bar);
+            AppBarLayout appBarLayout = requireActivity().findViewById(R.id.app_bar);
 			appBarLayout.addOnOffsetChangedListener(new AppBarStateChangeListener() {
 				@Override
 				public void onStateChanged(AppBarLayout appBarLayout, @AppBarStateChangeListener.State int state) {
@@ -68,12 +68,13 @@ public class BookDetailFragment extends Fragment {
 			Intent intent = new Intent(getActivity(), CoverActivity.class);
 			intent.putExtra("book", mBook);
 			// cf https://guides.codepath.com/android/Shared-Element-Activity-Transition#3-start-activity
-			ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(getActivity(), background, "cover");
+            ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(requireActivity(), background, "cover");
 
 			startActivity(intent, options.toBundle());
+//			startActivity(intent);
 		});
 
-		// fixme via databing
+        // fixme via data binding
 		TextView publishedDate = rootView.findViewById(R.id.detail_publication_date);
 		try {
 			LocalDate localDate = LocalDate.parse(mBook.publishedDate, DateTimeFormatter.ISO_DATE);
@@ -93,8 +94,6 @@ public class BookDetailFragment extends Fragment {
 					description.expand();
 				});
 
-		postponeEnterTransition();
-
 		return rootView;
 	}
 
@@ -104,7 +103,7 @@ public class BookDetailFragment extends Fragment {
 		switch (item.getItemId()) {
 			// Respond to the action bar's Up/Home button
 			case android.R.id.home:
-				getActivity().supportFinishAfterTransition();
+                requireActivity().supportFinishAfterTransition();
 				return true;
 		}
 		return super.onOptionsItemSelected(item);

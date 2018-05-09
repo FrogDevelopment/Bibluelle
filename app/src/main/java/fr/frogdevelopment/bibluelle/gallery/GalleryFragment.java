@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
@@ -31,13 +30,13 @@ import fr.frogdevelopment.bibluelle.CoverViewHelper;
 import fr.frogdevelopment.bibluelle.R;
 import fr.frogdevelopment.bibluelle.adapter.CarouselBooksAdapter;
 import fr.frogdevelopment.bibluelle.adapter.OnClickListener;
+import fr.frogdevelopment.bibluelle.adapter.sectioned.GridBooksSectionedAdapter;
+import fr.frogdevelopment.bibluelle.adapter.sectioned.ListBooksSectionedAdapter;
 import fr.frogdevelopment.bibluelle.data.DatabaseCreator;
 import fr.frogdevelopment.bibluelle.data.entities.Book;
 import fr.frogdevelopment.bibluelle.data.entities.BookPreview;
 import fr.frogdevelopment.bibluelle.details.BookDetailActivity;
 import fr.frogdevelopment.bibluelle.details.BookDetailFragment;
-import fr.frogdevelopment.bibluelle.adapter.sectioned.GridBooksSectionedAdapter;
-import fr.frogdevelopment.bibluelle.adapter.sectioned.ListBooksSectionedAdapter;
 
 public class GalleryFragment extends Fragment {
 
@@ -148,25 +147,25 @@ public class GalleryFragment extends Fragment {
 		ImageView coverView = v.findViewById(R.id.item_cover);
 
 		LiveData<Book> bookLiveData = DatabaseCreator.getInstance().getBookDao().getBook(preview.isbn);
-		bookLiveData.observe(getActivity(), book -> {
+		bookLiveData.observe(requireActivity(), book -> {
 
-			bookLiveData.removeObservers(getActivity());
+			bookLiveData.removeObservers(requireActivity());
 
 			CoverViewHelper.searchColors(coverView, book);
 
 			Bundle arguments = new Bundle();
 			arguments.putSerializable(BookDetailFragment.ARG_KEY, book);
 
-			Intent intent = new Intent(getActivity(), BookDetailActivity.class);
+			Intent intent = new Intent(requireContext(), BookDetailActivity.class);
 			intent.putExtras(arguments);
-			if (coverView != null) {
-				// cf https://guides.codepath.com/android/Shared-Element-Activity-Transition#3-start-activity
-				ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(getActivity(), coverView, "cover");
-
-				startActivity(intent, options.toBundle());
-			} else {
+//			if (coverView != null) {
+//				// cf https://guides.codepath.com/android/Shared-Element-Activity-Transition#3-start-activity
+//				ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(requireActivity(), coverView, "cover");
+//
+//				startActivity(intent, options.toBundle());
+//			} else {
 				startActivity(intent);
-			}
+//			}
 		});
 
 	};

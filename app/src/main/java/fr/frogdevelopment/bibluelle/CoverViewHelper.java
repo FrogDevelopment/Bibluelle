@@ -2,11 +2,14 @@ package fr.frogdevelopment.bibluelle;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.databinding.BindingAdapter;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.RippleDrawable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.graphics.ColorUtils;
@@ -64,7 +67,7 @@ public class CoverViewHelper {
         if (TextUtils.isEmpty(book.coverUrl)) {
             loadFromFile(imageView, book.getCoverFile());
         } else {
-            loadFromUrl(imageView, book.coverUrl, DiskCacheStrategy.RESOURCE);
+            loadFromUrl(imageView, book.coverUrl, DiskCacheStrategy.DATA);
         }
     }
 
@@ -76,7 +79,7 @@ public class CoverViewHelper {
                 .load(url)
                 .diskCacheStrategy(diskCacheStrategy)
                 .listener(new TransitionRequestListener(context))
-                .into(imageView);
+                .into(new RippleTarget(imageView));
     }
 
     private static void loadFromFile(ImageView imageView, String fileName) {
@@ -88,7 +91,7 @@ public class CoverViewHelper {
                 .asDrawable()
                 .load(file)
                 .listener(new TransitionRequestListener(context))
-                .into(imageView);
+                .into(new RippleTarget(imageView));
     }
 
     @BindingAdapter("coverCropTop")
@@ -100,7 +103,6 @@ public class CoverViewHelper {
         GlideApp.with(context)
                 .asDrawable()
                 .load(loadArg)
-                .listener(new TransitionRequestListener(context))
                 .into(new SimpleTarget<Drawable>() {
 
                     @Override
@@ -118,12 +120,34 @@ public class CoverViewHelper {
                 });
     }
 
+    private static Bitmap drawableToBitmap(Drawable drawable) {
+        Bitmap bitmap;
+
+        if (drawable instanceof BitmapDrawable) {
+            BitmapDrawable bitmapDrawable = (BitmapDrawable) drawable;
+            if (bitmapDrawable.getBitmap() != null) {
+                return bitmapDrawable.getBitmap();
+            }
+        }
+
+        if (drawable.getIntrinsicWidth() <= 0 || drawable.getIntrinsicHeight() <= 0) {
+            bitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888); // Single color bitmap will be created of 1x1 pixel
+        } else {
+            bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+        }
+
+        Canvas canvas = new Canvas(bitmap);
+        drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+        drawable.draw(canvas);
+        return bitmap;
+    }
+
     public static void searchColors(@Nullable ImageView coverView, @NonNull Book book) {
         if (coverView == null || coverView.getDrawable() == null) {
             return;
         }
 
-        Bitmap bitmap = ((BitmapDrawable) coverView.getDrawable()).getBitmap();
+        Bitmap bitmap = drawableToBitmap(coverView.getDrawable());
 
         Palette palette = Palette.from(bitmap).generate();
         Palette.Swatch dominantSwatch = palette.getDominantSwatch();
@@ -178,6 +202,21 @@ public class CoverViewHelper {
         @Override
         public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
             return startPostponedEnterTransition();
+        }
+    }
+
+    private static class RippleTarget extends SimpleTarget<Drawable> {
+        private final ImageView imageView;
+
+        private RippleTarget(ImageView imageView) {
+            this.imageView = imageView;
+        }
+
+        @Override
+        public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
+            RippleDrawable rippledImage = new RippleDrawable(ColorStateList.valueOf(imageView.getContext().getColor(R.color.colorPrimaryDark)), resource, null);
+
+            imageView.setImageDrawable(rippledImage);
         }
     }
 }

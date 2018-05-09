@@ -24,7 +24,6 @@
                 android:id="@+id/item_cover"
                 android:layout_width="100dp"
                 android:layout_height="160dp"
-                android:background="?attr/selectableItemBackground"
                 android:contentDescription="@null"
                 android:scaleType="centerInside"
                 android:src="@drawable/no_image"

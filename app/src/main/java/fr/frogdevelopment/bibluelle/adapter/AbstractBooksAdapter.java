@@ -1,5 +1,6 @@
 package fr.frogdevelopment.bibluelle.adapter;
 
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
@@ -27,7 +28,7 @@ public abstract class AbstractBooksAdapter<V extends AbstractBooksAdapter.BookVi
 	}
 
 	@Override
-	public void onBindViewHolder(BookViewHolder viewHolder, int position) {
+    public void onBindViewHolder(@NonNull BookViewHolder viewHolder, int position) {
 		BookPreview preview = mItems.get(position);
 
 		viewHolder.bind(preview);

@@ -31,15 +31,8 @@ import fr.frogdevelopment.bibluelle.data.dao.BookDao;
 import fr.frogdevelopment.bibluelle.data.entities.Book;
 import fr.frogdevelopment.bibluelle.data.entities.BookPreview;
 import fr.frogdevelopment.bibluelle.databinding.ActivityBookDetailBinding;
-import fr.frogdevelopment.bibluelle.search.BookListActivity;
 import fr.frogdevelopment.bibluelle.search.rest.google.GoogleRestHelper;
 
-/**
- * An activity representing a single Book detail screen. This
- * activity is only used on narrow width devices. On tablet-size devices,
- * item details are presented side-by-side with a list of items
- * in a {@link BookListActivity}.
- */
 public class BookDetailActivity extends AppCompatActivity {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(BookDetailActivity.class);

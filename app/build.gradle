@@ -118,8 +118,6 @@ dependencies {
     implementation 'com.google.android.gms:play-services-auth:15.0.1'
     implementation 'com.google.firebase:firebase-core:15.0.2'
 
-    // CAROUSEL
-    implementation 'com.azoft.carousellayoutmanager:carousel:1.2.1'
     // ZXING
     implementation 'me.dm7.barcodescanner:zxing:1.9.8'
     // GSON
@@ -151,6 +149,9 @@ dependencies {
 
     // commons
     implementation 'org.apache.commons:commons-lang3:3.7'
+
+    // https://github.com/Azoft/CarouselLayoutManager
+    implementation 'com.azoft.carousellayoutmanager:carousel:1.2.1'
 
     // https://github.com/Blogcat/Android-ExpandableTextView
     implementation 'at.blogc:expandabletextview:1.0.5'
