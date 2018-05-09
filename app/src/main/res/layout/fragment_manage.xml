@@ -87,7 +87,7 @@
                 android:focusable="true"
                 android:gravity="center_vertical"
                 android:padding="5dp"
-                android:text="@string/profile_sync"
+                android:text="@string/profile_action_sync"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/stroke" />
@@ -104,13 +104,13 @@
                 android:focusable="true"
                 android:gravity="center_vertical"
                 android:padding="5dp"
-                android:text="@string/profile_save"
+                android:text="@string/profile_action_save"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/synchronize" />
 
             <TextView
-                android:id="@+id/disconnect"
+                android:id="@+id/sign_out"
                 android:layout_width="match_parent"
                 android:layout_height="40dp"
                 android:background="?attr/selectableItemBackground"
@@ -121,27 +121,27 @@
                 android:focusable="true"
                 android:gravity="center_vertical"
                 android:padding="5dp"
-                android:text="@string/profile_disconnect"
+                android:text="@string/profile_action_sign_out"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/save" />
 
             <TextView
-                android:id="@+id/sign_out"
+                android:id="@+id/disconnect"
                 android:layout_width="match_parent"
                 android:layout_height="40dp"
                 android:background="?attr/selectableItemBackground"
                 android:clickable="true"
-                android:drawableStart="@drawable/ic_sign_out"
+                android:drawableStart="@drawable/ic_disconnect"
                 android:drawablePadding="15dp"
                 android:drawableTint="@android:color/black"
                 android:focusable="true"
                 android:gravity="center_vertical"
                 android:padding="5dp"
-                android:text="@string/profile_sign_out"
+                android:text="@string/profile_action_disconnect"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/disconnect" />
+                app:layout_constraintTop_toBottomOf="@id/sign_out" />
         </android.support.constraint.ConstraintLayout>
 
     </android.support.v7.widget.CardView>
