@@ -104,7 +104,7 @@ public class CoverViewHelper {
                 .into(new SimpleTarget<Drawable>() {
 
                     @Override
-                    public void onResourceReady(Drawable resource, Transition<? super Drawable> transition) {
+                    public void onResourceReady(@NonNull Drawable resource, Transition<? super Drawable> transition) {
                         final float imageWidth = resource.getIntrinsicWidth();
                         final int screenWidth = context.getResources().getDisplayMetrics().widthPixels;
                         final float scaleRatio = screenWidth / imageWidth;

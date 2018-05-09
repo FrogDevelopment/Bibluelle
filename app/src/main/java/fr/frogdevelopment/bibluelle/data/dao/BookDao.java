@@ -26,9 +26,6 @@ public abstract class BookDao {
     @Delete
     abstract void deleteBook(Book book);
 
-    @Query("SELECT isbn FROM book")
-    public abstract LiveData<List<String>> getAllIsbn();
-
     @Query("SELECT isbn, author, title, sub_title FROM book ORDER BY title")
     public abstract LiveData<List<BookPreview>> loadAllPreviews();
 
@@ -46,6 +43,10 @@ public abstract class BookDao {
 //
 //	@Query("SELECT * FROM book WHERE author = :author")
 //	public abstract List<Book> loadAllBooksFromAuthor(String author);
+
+    public static void insert(Book book) {
+        insert(book, null);
+    }
 
     public static void insert(Book book, InsertBookTask.OnSavedListener listener) {
         // fixme
@@ -82,7 +83,9 @@ public abstract class BookDao {
 
         @Override
         protected void onPostExecute(Void aVoid) {
-            mListener.onSave();
+            if (mListener != null) {
+                mListener.onSave();
+            }
         }
     }
 

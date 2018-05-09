@@ -1,6 +1,13 @@
 <resources>
     <string name="app_name">Bibluelle</string>
 
+    <string name="global_continue">Continue</string>
+
+    <string name="title_information">INFORMATION</string>
+    <string name="title_warning">ATTENTION</string>
+    <string name="title_error">ERROR</string>
+    <string name="title_success">SUCCESS</string>
+
     <string name="action_settings">Settings</string>
 
     <string name="title_home">Home</string>
@@ -13,6 +20,7 @@
     <string name="isbn">ISBN</string>
     <string name="categories">Catégories</string>
     <string name="click_me">Click me !</string>
+
     <string name="search_title">Search book by</string>
     <string name="search_by_title">Title</string>
     <string name="search_by_author">Author</string>
@@ -21,6 +29,31 @@
     <string name="search_button">Search</string>
     <string name="search_languages">Languages</string>
     <string name="search_languages_of_book">Select languages</string>
+
+    <string name="profile_action_disconnect">Disconnect</string>
+    <string name="profile_action_sign_out">Sign out</string>
+    <string name="profile_action_save">Save</string>
+    <string name="profile_action_update">Mettre à jour</string>
+    <string name="profile_action_sync">Synchronize</string>
+    <string name="profile_msg_warning_new_version">Une version plus récente de votre librairie existe</string>
+    <string name="profile_msg_error_no_data_saved">Vous n\'avez aucune données sauvegardées !</string>
+    <string name="profile_msg_error_no_data_to_save">No data to save !!!</string>
+    <string name="profile_msg_error_no_data_to_sync">No file on drive to sync !!!</string>
+    <string name="profile_msg_error_signing">signInResult:failed code=%1$s</string>
+    <string name="profile_msg_error_save_data">Save error : %1$s</string>
+    <string name="profile_msg_error_sync_data">Sync error : %1$s</string>
+    <string name="profile_msg_error_revoke_access">Revoke access error : %1$s</string>
+    <string name="profile_msg_success_new_version_sync">Vous avez la maintenant version la plus récente de votre librairie.</string>
+    <string name="profile_msg_success_no_new_version">Vous avez déjà la version la plus récente de votre librairie.</string>
+    <string name="profile_msg_success_data_saved">Data saved</string>
+    <string name="profile_msg_confirm_save">Upload data to cloud</string>
+    <string name="profile_msg_confirm_disconnect">You\'re going to disconnect, which lead to erase the data saved on Drive !</string>
+    <string name="profile_msg_confirm_sync">Download data from cloud</string>
+    <string name="profile_msg_loading_sign_in">Signing in …</string>
+    <string name="profile_msg_loading_sign_out">Signing out …</string>
+    <string name="profile_msg_loading_connecting">Connecting …</string>
+    <string name="profile_msg_loading_uploading">Uploading …</string>
+    <string name="profile_msg_loading_downloading">Downloading …</string>
 
     <string-array name="search_language_codes">
         <item>en</item>
