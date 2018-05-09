@@ -269,7 +269,38 @@ public class ManageFragment extends Fragment implements View.OnClickListener {
             allIsbn.removeObservers(ManageFragment.this);
 
             if (data != null && !data.isEmpty()) {
-                saveData(data);
+                ThreadPoolExecutor executor = getExecutor();
+                searchFile(executor)
+                        .continueWithTask(task -> {
+                            if (task.isCanceled()) { // no file to sync
+                                // save data
+                                saveData(data);
+                            } else {
+                                Metadata metadata = task.getResult();
+
+                                if (isDriveNewerVersion(metadata)) {
+                                    mSweetAlertDialog.changeAlertType(SweetAlertDialog.WARNING_TYPE);
+                                    mSweetAlertDialog
+                                            .setTitleText(getString(R.string.title_warning))
+                                            .setContentText(getString(R.string.profile_msg_warning_new_version))
+                                            .showContentText(true)
+                                            .setConfirmText(getString(R.string.profile_action_update))
+                                            .setConfirmClickListener(sweetAlertDialog -> {
+                                                // update data
+                                                downloadData(executor, metadata.getDriveId().asDriveFile());
+                                            })
+                                            .setCancelText("Override")
+                                            .setCancelClickListener(sweetAlertDialog -> {
+                                                // save data
+                                            });
+                                } else {
+                                    // save data
+                                    saveData(data);
+                                }
+                            }
+
+                            return Tasks.forResult(null);
+                        });
             } else {
                 showError(R.string.profile_msg_error_no_data_to_save);
             }
@@ -469,7 +500,7 @@ public class ManageFragment extends Fragment implements View.OnClickListener {
 
         int sync_version = preferences.getInt(SYNC_VERSION, 0);
 
-        return driveVersion > sync_version;
+        return driveVersion >= sync_version;
     }
 
     /**
