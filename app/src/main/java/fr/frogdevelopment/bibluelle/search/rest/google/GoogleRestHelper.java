@@ -24,11 +24,11 @@ public class GoogleRestHelper {
 
 	private static final GoogleRestService mGoogleRestService = GoogleRestServiceFactory.getGoogleRestService();
 
-	private static final String PRINT_TYPE = "books";
-	private static final int MAX_RESULTS = 40;
+	private static final String PRINT_TYPE     = "books";
+	private static final int    MAX_RESULTS    = 40;
 	private static final String PREVIEW_FIELDS = "totalItems,items/volumeInfo(title,subtitle,authors,imageLinks(thumbnail),industryIdentifiers)";
-	private static final String FULL_FIELDS = "totalItems,items(id,volumeInfo(title,subtitle,authors,imageLinks(thumbnail),publisher,publishedDate,description,pageCount,categories))";
-	private static final String DETAIL_FIELDS = "totalItems,items(id,volumeInfo(subtitle,publisher,publishedDate,description,pageCount,categories))";
+	private static final String FULL_FIELDS    = "totalItems,items(id,volumeInfo(title,subtitle,authors,imageLinks(thumbnail),publisher,publishedDate,description,pageCount,categories))";
+	private static final String DETAIL_FIELDS  = "totalItems,items(id,volumeInfo(subtitle,publisher,publishedDate,description,pageCount,categories))";
 
 	public interface OnSearchBooksListener {
 		void onDone(List<BookPreview> previews);
@@ -135,7 +135,11 @@ public class GoogleRestHelper {
 						book.publishedDate = volumeInfo.getPublishedDate();
 						book.description = volumeInfo.getDescription();
 						book.pageCount = volumeInfo.getPageCount();
-						book.categories = TextUtils.join(" / ", volumeInfo.getCategories());
+						if (volumeInfo.getCategories() != null) {
+							book.categories = TextUtils.join(" / ", volumeInfo.getCategories());
+						} else {
+							book.categories = "no information";
+						}
 					} else {
 						// fixme
 						Toast.makeText(context, "No data", Toast.LENGTH_LONG).show();
