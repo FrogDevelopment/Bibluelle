@@ -292,6 +292,7 @@ public class ManageFragment extends Fragment implements View.OnClickListener {
                                             .setCancelText("Override")
                                             .setCancelClickListener(sweetAlertDialog -> {
                                                 // save data
+                                                saveData(data);
                                             });
                                 } else {
                                     // save data
