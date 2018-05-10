@@ -51,7 +51,7 @@ public class SearchFragment extends Fragment {
 	}
 
 	private int onSearchByIsbn() {
-		return getFragmentManager()
+		return requireFragmentManager()
 				.beginTransaction()
 				.replace(R.id.content_frame, new ScanFragment(), "SCAN")
 				.addToBackStack(null)
@@ -88,7 +88,7 @@ public class SearchFragment extends Fragment {
 				return;
 			}
 
-			Intent intent = new Intent(getActivity(), BookListActivity.class);
+			Intent intent = new Intent(requireActivity(), BookListActivity.class);
 			intent.putExtra("title", title);
 			intent.putExtra("author", author);
 			intent.putExtra("publisher", publisher);
@@ -100,11 +100,13 @@ public class SearchFragment extends Fragment {
 
 	private void showDetails(String isbn) {
 		// fixme show Spinner
-		GoogleRestHelper.searchBook(getActivity(), isbn, book -> {
+		GoogleRestHelper.searchBook(requireActivity(), isbn, book -> {
 			// fixme hide Spinner
 			if (book != null) {
-				Intent intent = new Intent(getActivity(), BookDetailActivity.class);
+				book.alreadySaved = false;
+				Intent intent = new Intent(requireActivity(), BookDetailActivity.class);
 				intent.putExtra(BookDetailFragment.ARG_KEY, book);
+				intent.putExtra("IS_SEARCH", true);
 				startActivity(intent);
 			}
 		});
