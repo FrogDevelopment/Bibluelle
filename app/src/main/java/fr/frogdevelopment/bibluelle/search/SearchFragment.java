@@ -26,8 +26,8 @@ public class SearchFragment extends Fragment {
 	private TextInputEditText mSearchByAuthor;
 	private TextInputEditText mSearchByPublisher;
 	private TextInputEditText mSearchByIsbn;
-	private MultiSpinner mLangRestrict;
-	private boolean[] mSelectedLang = null;
+	private MultiSpinner      mLangRestrict;
+	private boolean[]         mSelectedLang = null;
 
 	@Override
 	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -110,12 +110,6 @@ public class SearchFragment extends Fragment {
 				startActivity(intent);
 			}
 		});
-	}
-
-	void setIsbn(String isbn) {
-		if (!TextUtils.isEmpty(isbn)) {
-			showDetails(isbn);
-		}
 	}
 
 	@Override
