@@ -501,7 +501,7 @@ public class ManageFragment extends Fragment implements View.OnClickListener {
 
         int sync_version = preferences.getInt(SYNC_VERSION, 0);
 
-        return driveVersion >= sync_version;
+	    return driveVersion > sync_version;
     }
 
     /**
