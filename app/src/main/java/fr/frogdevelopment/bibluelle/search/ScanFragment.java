@@ -27,24 +27,24 @@ public class ScanFragment extends Fragment implements ZXingScannerView.ResultHan
 	}
 
 	@Override
-	public void onCreate(@Nullable Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-
-		if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-			ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.CAMERA}, ZXING_CAMERA_PERMISSION);
+	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+		if (requestCode == ZXING_CAMERA_PERMISSION && (grantResults.length == 0 || grantResults[0] != PackageManager.PERMISSION_GRANTED)) {
+			Toast.makeText(requireContext(), "Please grant camera permission to use the QR Scanner", Toast.LENGTH_SHORT).show();
 		}
 	}
 
 	@Override
-	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-		if (requestCode == ZXING_CAMERA_PERMISSION && (grantResults.length == 0 || grantResults[0] != PackageManager.PERMISSION_GRANTED)) {
-			Toast.makeText(getActivity(), "Please grant camera permission to use the QR Scanner", Toast.LENGTH_SHORT).show();
+	public void onCreate(@Nullable Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+
+		if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+			ActivityCompat.requestPermissions(requireActivity(), new String[]{Manifest.permission.CAMERA}, ZXING_CAMERA_PERMISSION);
 		}
 	}
 
 	@Override
 	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		mScannerView = new ZXingScannerView(getActivity());
+		mScannerView = new ZXingScannerView(requireContext());
 
 		return mScannerView;
 	}
@@ -58,10 +58,10 @@ public class ScanFragment extends Fragment implements ZXingScannerView.ResultHan
 
 	@Override
 	public void handleResult(Result rawResult) {
-		SearchFragment fragment = (SearchFragment) getFragmentManager().findFragmentByTag("SEARCH_FRAGMENT");
+		SearchFragment fragment = (SearchFragment) requireFragmentManager().findFragmentByTag("SEARCH_FRAGMENT");
 		fragment.setIsbn(rawResult.getText());
 
-		getFragmentManager().popBackStack();
+		requireFragmentManager().popBackStack();
 	}
 
 	@Override
