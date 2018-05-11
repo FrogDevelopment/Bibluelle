@@ -27,7 +27,7 @@ public class GoogleRestHelper {
 
     private static final String PRINT_TYPE = "books";
     private static final int MAX_RESULTS = 40;
-    private static final String PREVIEW_FIELDS = "totalItems,items/volumeInfo(title,subtitle,authors,imageLinks(thumbnail),industryIdentifiers)";
+    private static final String PREVIEW_FIELDS = "totalItems,items/volumeInfo(title,publisher,authors,imageLinks(thumbnail),industryIdentifiers)";
     private static final String FULL_FIELDS = "totalItems,items(id,volumeInfo(title,subtitle,authors,imageLinks(thumbnail),publisher,publishedDate,description,pageCount,categories))";
     private static final String DETAIL_FIELDS = "totalItems,items(id,volumeInfo(subtitle,publisher,publishedDate,description,pageCount,categories))";
 
@@ -41,16 +41,20 @@ public class GoogleRestHelper {
                     GoogleBooks googleBooks = response.body();
 
                     if (googleBooks != null && googleBooks.getTotalItems() > 0) {
-                        previews = new ArrayList<>();
                         if (googleBooks.getItems() != null) {
+                            previews = new ArrayList<>();
+
                             for (GoogleBook googleBook : googleBooks.getItems()) {
-                                BookPreview preview = new BookPreview();
                                 VolumeInfo volumeInfo = googleBook.getVolumeInfo();
+
+                                BookPreview preview = new BookPreview();
                                 preview.title = volumeInfo.getTitle();
-                                preview.subTitle = volumeInfo.getSubtitle();
+
                                 if (volumeInfo.getAuthors() != null) {
                                     preview.author = TextUtils.join(",", volumeInfo.getAuthors());
                                 }
+
+                                preview.publisher = volumeInfo.getPublisher();
                                 if (volumeInfo.getImageLinks() != null) {
                                     String thumbnail = volumeInfo.getImageLinks().getThumbnail();
                                     preview.thumbnailUrl = thumbnail.replaceAll("&edge=curl", "");
@@ -66,17 +70,10 @@ public class GoogleRestHelper {
                                     }
                                 }
                             }
-                        } else {
-                            // fixme
-                            Toast.makeText(context, "No data", Toast.LENGTH_LONG).show();
                         }
-                    } else {
-                        // fixme
-                        Toast.makeText(context, "No data", Toast.LENGTH_LONG).show();
                     }
                 } else {
-                    // fixme
-                    Toast.makeText(context, "Error code : " + response.code(), Toast.LENGTH_LONG).show();
+                    Toasty.error(context, "Error code : " + response.code(), Toast.LENGTH_LONG).show();
                 }
 
                 listener.onDone(previews);
@@ -85,7 +82,7 @@ public class GoogleRestHelper {
             @Override
             public void onFailure(@NonNull Call<GoogleBooks> call, @NonNull Throwable t) {
                 LOGGER.error("", t);
-                Toast.makeText(context, "Failure : " + t.getMessage(), Toast.LENGTH_LONG).show();
+                Toasty.error(context, "Failure : " + t.getMessage(), Toast.LENGTH_LONG).show();
                 listener.onDone(null);
             }
         });
@@ -145,7 +142,7 @@ public class GoogleRestHelper {
             @Override
             public void onFailure(@NonNull Call<GoogleBooks> call, @NonNull Throwable t) {
                 LOGGER.error("", t);
-                Toast.makeText(context, "Failure : " + t.getMessage(), Toast.LENGTH_LONG).show();
+                Toasty.error(context, "Failure : " + t.getMessage(), Toast.LENGTH_LONG).show();
                 listener.onDone(null);
             }
         });
@@ -199,7 +196,7 @@ public class GoogleRestHelper {
             @Override
             public void onFailure(@NonNull Call<GoogleBooks> call, @NonNull Throwable t) {
                 LOGGER.error("", t);
-                Toast.makeText(context, "Failure : " + t.getMessage(), Toast.LENGTH_LONG).show();
+                Toasty.error(context, "Failure : " + t.getMessage(), Toast.LENGTH_LONG).show();
                 listener.onDone(null);
             }
         });

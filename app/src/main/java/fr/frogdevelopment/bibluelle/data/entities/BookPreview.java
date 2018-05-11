@@ -22,6 +22,9 @@ public class BookPreview implements Serializable {
 	public String author;
 
 	@Ignore
+	public String publisher;
+
+	@Ignore
 	public String thumbnailUrl;
 
 	@Ignore

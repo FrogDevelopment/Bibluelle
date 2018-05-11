@@ -65,7 +65,7 @@ public class BookDetailFragment extends Fragment {
 		View background = rootView.findViewById(R.id.detail_cover);
 		background.setOnClickListener(v -> {
 			Intent intent = new Intent(getActivity(), CoverActivity.class);
-			intent.putExtra("book", mBook);
+            intent.putExtra(CoverActivity.ARG_BOOK, mBook);
 			// cf https://guides.codepath.com/android/Shared-Element-Activity-Transition#3-start-activity
             ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(requireActivity(), background, "cover");
 
