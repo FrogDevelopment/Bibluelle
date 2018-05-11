@@ -24,7 +24,7 @@ public abstract class AbstractBooksSectionedAdapter<V extends AbstractBooksSecti
 	}
 
 	private final Map<String, List<BookPreview>> mItems;
-	private final OnClickListener mListener;
+	protected final OnClickListener mListener;
 	private final List<String> sections;
 
 	AbstractBooksSectionedAdapter(Map<String, List<BookPreview>> previews, OnClickListener listener) {
@@ -54,15 +54,15 @@ public abstract class AbstractBooksSectionedAdapter<V extends AbstractBooksSecti
 
 	@Override
 	protected void onBindItemViewHolder(BookViewHolder viewHolder, int section, int position) {
-		BookPreview preview = mItems.get(getSection(section)).get(position);
+		BookPreview preview = getItem(section, position);
 
 		viewHolder.bind(preview);
 
 		viewHolder.itemView.setTag(preview);
-		if (mListener != null) {
 			viewHolder.itemView.setOnClickListener(v -> mListener.onClick(v, preview));
-		} else {
-			viewHolder.itemView.setOnClickListener(null);
 		}
+
+	protected BookPreview getItem(int section, int position) {
+		return mItems.get(getSection(section)).get(position);
 	}
 }
