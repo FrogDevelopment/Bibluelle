@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <variable
+            name="preview"
+            type="fr.frogdevelopment.bibluelle.data.entities.BookPreview" />
+
+        <import type="android.view.View" />
+    </data>
+
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/linearLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?android:attr/selectableItemBackground"
+        android:paddingTop="4dp"
+        android:paddingBottom="4dp">
+
+        <TextView
+            android:id="@+id/item_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:text="@{preview.title}"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/item_cover"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_chainStyle="packed" />
+
+        <TextView
+            android:id="@+id/item_author"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:text="@{preview.author}"
+            android:textSize="16sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/item_cover"
+            app:layout_constraintTop_toBottomOf="@+id/item_title" />
+
+        <TextView
+            android:id="@+id/item_publisher"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:text="@{preview.publisher}"
+            android:textSize="16sp"
+            android:textStyle="italic"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/item_cover"
+            app:layout_constraintTop_toBottomOf="@+id/item_author" />
+
+        <ImageView
+            android:id="@+id/item_cover"
+            android:layout_width="64dp"
+            android:layout_height="102dp"
+            android:contentDescription="@null"
+            android:scaleType="fitCenter"
+            android:src="@drawable/no_image"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/item_present"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@color/colorPrimary"
+            android:contentDescription="@null"
+            android:src="@drawable/ic_check"
+            android:tint="@color/colorAccent"
+            android:visibility="@{preview.alreadySaved ? View.VISIBLE : View.GONE}"
+            app:layout_constraintBottom_toBottomOf="@+id/item_cover"
+            app:layout_constraintStart_toStartOf="@+id/item_cover" />
+
+    </android.support.constraint.ConstraintLayout>
+
+</layout>

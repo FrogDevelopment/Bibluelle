@@ -14,58 +14,13 @@
     <android.support.constraint.ConstraintLayout
         android:id="@+id/linearLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <TextView
-            android:id="@+id/item_title"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:text="@{preview.title}"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            app:layout_constraintEnd_toStartOf="@+id/item_present"
-            app:layout_constraintStart_toEndOf="@+id/item_cover"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_chainStyle="packed" />
-
-        <TextView
-            android:id="@+id/item_subtitle"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:text="@{preview.subTitle}"
-            android:textSize="14sp"
-            android:textStyle="italic"
-            app:layout_constraintEnd_toStartOf="@+id/item_present"
-            app:layout_constraintStart_toEndOf="@+id/item_cover"
-            app:layout_constraintTop_toBottomOf="@+id/item_title" />
-
-        <TextView
-            android:id="@+id/item_author"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginBottom="8dp"
-            android:text="@{preview.author}"
-            android:textSize="16sp"
-            app:layout_constraintEnd_toStartOf="@+id/item_present"
-            app:layout_constraintStart_toEndOf="@+id/item_cover"
-            app:layout_constraintTop_toBottomOf="@+id/item_subtitle" />
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp">
 
         <ImageView
             android:id="@+id/item_cover"
             android:layout_width="64dp"
             android:layout_height="102dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp"
             android:contentDescription="@null"
             android:scaleType="fitCenter"
             android:src="@drawable/no_image"
@@ -75,19 +30,32 @@
             app:layout_constraintTop_toTopOf="parent"
             app:thumbnail="@{preview}" />
 
-        <ImageView
-            android:id="@+id/item_present"
-            android:layout_width="wrap_content"
+        <TextView
+            android:id="@+id/item_title"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
             android:layout_marginBottom="8dp"
-            android:contentDescription="@null"
-            android:src="@drawable/ic_check"
-            android:visibility="@{preview.alreadySaved ? View.VISIBLE : View.GONE}"
+            android:text="@{preview.title}"
+            android:textSize="16sp"
+            android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/item_cover"
             app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/item_subtitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:text="@{preview.subTitle}"
+            android:textSize="14sp"
+            android:textStyle="italic"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/item_cover"
+            app:layout_constraintTop_toBottomOf="@+id/item_title" />
 
     </android.support.constraint.ConstraintLayout>
 
