@@ -49,7 +49,7 @@
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label=""
             android:parentActivityName=".details.BookDetailActivity"
-            android:theme="@style/FullscreenTheme">
+            android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="fr.frogdevelopment.bibluelle.details.BookDetailActivity" />
