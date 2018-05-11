@@ -1,22 +1,21 @@
 package fr.frogdevelopment.bibluelle.details;
 
-import android.graphics.drawable.ColorDrawable;
+import android.graphics.Matrix;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.MenuItem;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 
-import com.bumptech.glide.load.DataSource;
-import com.bumptech.glide.load.engine.GlideException;
-import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.target.Target;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.target.SimpleTarget;
+import com.bumptech.glide.request.transition.Transition;
 
 import fr.frogdevelopment.bibluelle.GlideApp;
-import fr.frogdevelopment.bibluelle.R;
 import fr.frogdevelopment.bibluelle.data.entities.Book;
 
 public class CoverActivity extends AppCompatActivity {
@@ -27,52 +26,46 @@ public class CoverActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_cover);
+        ImageView imageView = new ImageView(this);
+        imageView.setTransitionName("cover");
+
+        setContentView(imageView, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 
         Book book = (Book) getIntent().getSerializableExtra(ARG_BOOK);
-
         if (book.dominantRgb != 0) {
-            getWindow().getDecorView().setBackgroundColor(book.dominantRgb);
             getWindow().setStatusBarColor(book.dominantRgb);
-        }
-
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true);
-            if (book.dominantRgb != 0) {
-                actionBar.setBackgroundDrawable(new ColorDrawable(book.dominantRgb));
-            }
-        }
-
-        ImageView viewById = findViewById(R.id.fullscreen_content);
-
-        Object load;
-        if (TextUtils.isEmpty(book.coverUrl)) {
-            load = getFileStreamPath(book.getCoverFile());
-        } else {
-            load = book.coverUrl;
         }
 
         supportPostponeEnterTransition();
 
         GlideApp.with(this)
                 .asDrawable()
-                .load(load)
-                .listener(new RequestListener<Drawable>() {
+                .load(TextUtils.isEmpty(book.coverUrl) ? getFileStreamPath(book.getCoverFile()) : book.coverUrl)
+                .diskCacheStrategy(DiskCacheStrategy.DATA)
+                .into(new SimpleTarget<Drawable>() {
 
                     @Override
-                    public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                    public void onLoadFailed(@Nullable Drawable errorDrawable) {
                         supportStartPostponedEnterTransition();
-                        return false;
                     }
 
                     @Override
-                    public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                    public void onResourceReady(@NonNull Drawable resource, Transition<? super Drawable> transition) {
+                        final float imageWidth = resource.getIntrinsicWidth();
+                        final int screenWidth = getResources().getDisplayMetrics().widthPixels;
+                        final float scaleRatio = screenWidth / imageWidth;
+
+                        final Matrix matrix = imageView.getImageMatrix();
+                        matrix.postScale(scaleRatio, scaleRatio);
+
+                        imageView.setScaleType(ImageView.ScaleType.MATRIX);
+                        imageView.setImageMatrix(matrix);
+
+                        imageView.setImageDrawable(resource);
+
                         supportStartPostponedEnterTransition();
-                        return false;
                     }
-                })
-                .into(viewById);
+                });
     }
 
     @Override

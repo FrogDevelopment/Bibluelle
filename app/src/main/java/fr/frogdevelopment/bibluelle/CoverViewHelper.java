@@ -44,7 +44,7 @@ public class CoverViewHelper {
         if (TextUtils.isEmpty(preview.thumbnailUrl)) {
             loadFromFile(imageView, preview.getThumbnailFile());
         } else {
-            loadFromUrl(imageView, preview.thumbnailUrl, DiskCacheStrategy.ALL);
+            loadFromUrl(imageView, preview.thumbnailUrl);
         }
     }
 
@@ -53,31 +53,17 @@ public class CoverViewHelper {
         if (TextUtils.isEmpty(book.thumbnailUrl)) {
             loadFromFile(imageView, book.getThumbnailFile());
         } else {
-            loadFromUrl(imageView, book.thumbnailUrl, DiskCacheStrategy.ALL);
+            loadFromUrl(imageView, book.thumbnailUrl);
         }
     }
 
-    @BindingAdapter("cover")
-    public static void setCover(ImageView imageView, BookPreview preview) {
-        loadFromFile(imageView, preview.getCoverFile());
-    }
-
-    @BindingAdapter("cover")
-    public static void setCover(ImageView imageView, Book book) {
-        if (TextUtils.isEmpty(book.coverUrl)) {
-            loadFromFile(imageView, book.getCoverFile());
-        } else {
-            loadFromUrl(imageView, book.coverUrl, DiskCacheStrategy.DATA);
-        }
-    }
-
-    private static void loadFromUrl(ImageView imageView, String url, DiskCacheStrategy diskCacheStrategy) {
+    private static void loadFromUrl(ImageView imageView, String url) {
         final Context context = imageView.getContext();
 
         GlideApp.with(context)
                 .asDrawable()
                 .load(url)
-                .diskCacheStrategy(diskCacheStrategy)
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .listener(new TransitionRequestListener(context))
                 .into(new RippleTarget(imageView));
     }
@@ -113,6 +99,8 @@ public class CoverViewHelper {
 
                         final Matrix matrix = target.getImageMatrix();
                         matrix.postScale(scaleRatio, scaleRatio);
+
+                        target.setScaleType(ImageView.ScaleType.MATRIX);
                         target.setImageMatrix(matrix);
 
                         target.setImageDrawable(resource);
