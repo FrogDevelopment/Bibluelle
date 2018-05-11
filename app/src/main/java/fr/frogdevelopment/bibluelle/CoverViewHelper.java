@@ -57,13 +57,18 @@ public class CoverViewHelper {
         }
     }
 
+    @BindingAdapter("cover")
+    public static void setCover(ImageView imageView, BookPreview preview) {
+        loadFromFile(imageView, preview.getCoverFile());
+    }
+
     private static void loadFromUrl(ImageView imageView, String url) {
         final Context context = imageView.getContext();
 
         GlideApp.with(context)
                 .asDrawable()
                 .load(url)
-                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .diskCacheStrategy(DiskCacheStrategy.DATA)
                 .listener(new TransitionRequestListener(context))
                 .into(new RippleTarget(imageView));
     }
