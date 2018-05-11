@@ -53,6 +53,13 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="fr.frogdevelopment.bibluelle.details.BookDetailActivity" />
         </activity>
+        <activity
+            android:name=".search.scan.ScanActivity"
+            android:parentActivityName=".MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="fr.frogdevelopment.bibluelle.MainActivity" />
+        </activity>
     </application>
 
 </manifest>

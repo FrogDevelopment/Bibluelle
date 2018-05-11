@@ -55,6 +55,12 @@
     <string name="profile_msg_loading_uploading">Uploading …</string>
     <string name="profile_msg_loading_downloading">Downloading …</string>
 
+    <string name="scan_msg_help">Place a barcode in the rectangle to scan it.</string>
+    <string name="scan_msg_no_data">No data found for isbn : %1$s</string>
+    <string name="scan_auto_focus">Auto-focus</string>
+    <string name="global_off">Off</string>
+    <string name="global_on">On</string>
+
     <string-array name="search_language_codes">
         <item>en</item>
         <item>fr</item>

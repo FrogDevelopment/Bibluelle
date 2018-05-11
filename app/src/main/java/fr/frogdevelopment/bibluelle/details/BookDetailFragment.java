@@ -28,7 +28,6 @@ import fr.frogdevelopment.bibluelle.databinding.BookDetailBinding;
 
 public class BookDetailFragment extends Fragment {
 
-	public static final String ARG_KEY = "book";
 	private static final DateTimeFormatter LONG_DATE_FORMATTER = DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG);
 
 	private Book mBook;
@@ -37,7 +36,7 @@ public class BookDetailFragment extends Fragment {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		mBook = (Book) getArguments().getSerializable(ARG_KEY);
+		mBook = (Book) getArguments().getSerializable(BookDetailActivity.ARG_KEY);
         CollapsingToolbarLayout collapseToolbar = requireActivity().findViewById(R.id.toolbar_layout);
 		if (mBook != null && collapseToolbar != null) {
             AppBarLayout appBarLayout = requireActivity().findViewById(R.id.app_bar);
