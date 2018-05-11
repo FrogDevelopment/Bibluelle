@@ -160,7 +160,7 @@ public class BookListActivity extends AppCompatActivity {
 		CoverViewHelper.searchColors(sharedElement, book);
 
 		Bundle arguments = new Bundle();
-		arguments.putSerializable(BookDetailFragment.ARG_KEY, book);
+		arguments.putSerializable(BookDetailActivity.ARG_KEY, book);
 		arguments.putBoolean("IS_SEARCH", true);
 
 		if (mTwoPane) {

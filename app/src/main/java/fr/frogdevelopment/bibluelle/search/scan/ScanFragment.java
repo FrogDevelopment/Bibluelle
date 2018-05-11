@@ -1,7 +1,10 @@
-package fr.frogdevelopment.bibluelle.search;
+package fr.frogdevelopment.bibluelle.search.scan;
 
 import android.Manifest;
+import android.arch.lifecycle.LiveData;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -12,7 +15,8 @@ import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.RelativeLayout;
+import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.github.ybq.android.spinkit.SpinKitView;
@@ -21,7 +25,6 @@ import com.google.zxing.Result;
 import fr.frogdevelopment.bibluelle.R;
 import fr.frogdevelopment.bibluelle.data.DatabaseCreator;
 import fr.frogdevelopment.bibluelle.details.BookDetailActivity;
-import fr.frogdevelopment.bibluelle.details.BookDetailFragment;
 import fr.frogdevelopment.bibluelle.search.rest.google.GoogleRestHelper;
 import me.dm7.barcodescanner.zxing.ZXingScannerView;
 
@@ -30,6 +33,7 @@ public class ScanFragment extends Fragment implements ZXingScannerView.ResultHan
     private static final int ZXING_CAMERA_PERMISSION = 1;
     private ZXingScannerView mScannerView;
     private SpinKitView mSpinKitView;
+    private TextView mMsgView;
 
     public ScanFragment() {
         // Required empty public constructor
@@ -53,21 +57,29 @@ public class ScanFragment extends Fragment implements ZXingScannerView.ResultHan
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        mScannerView = new ZXingScannerView(requireContext());
+        View rootView = inflater.inflate(R.layout.fragment_scan, container, false);
 
-        RelativeLayout relativeLayout = new RelativeLayout(requireContext());
-        relativeLayout.setLayoutParams(new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-        mScannerView.addView(relativeLayout);
+        mScannerView = rootView.findViewById(R.id.scan_zxing);
+        mSpinKitView = rootView.findViewById(R.id.scan_spinner);
 
-        mSpinKitView = new SpinKitView(requireContext(), null, com.github.ybq.android.spinkit.R.style.SpinKitView_CubeGrid);
-        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-        layoutParams.addRule(RelativeLayout.CENTER_IN_PARENT, RelativeLayout.TRUE);
-        mSpinKitView.setLayoutParams(layoutParams);
-        mSpinKitView.setColor(getResources().getColor(R.color.colorAccent, requireContext().getTheme()));
-        relativeLayout.addView(mSpinKitView);
-        mSpinKitView.setVisibility(View.INVISIBLE);
+        SharedPreferences preferences = requireActivity().getPreferences(Context.MODE_PRIVATE);
 
-        return mScannerView;
+        boolean autoFocus = preferences.getBoolean("AUTO_FOCUS", true);
+
+        mScannerView.setAutoFocus(autoFocus);
+
+        Switch focusSwitch = rootView.findViewById(R.id.scan_switch_focus);
+        focusSwitch.setChecked(autoFocus);
+        focusSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            mScannerView.setAutoFocus(isChecked);
+            preferences.edit()
+                    .putBoolean("AUTO_FOCUS", isChecked)
+                    .apply();
+        });
+
+        mMsgView = rootView.findViewById(R.id.scan_msg_info);
+
+        return rootView;
     }
 
     @Override
@@ -77,6 +89,8 @@ public class ScanFragment extends Fragment implements ZXingScannerView.ResultHan
         mScannerView.startCamera();
 
         mSpinKitView.setVisibility(View.INVISIBLE);
+        mMsgView.setText(R.string.scan_msg_help);
+        mMsgView.setTextColor(getResources().getColor(android.R.color.black, requireContext().getTheme()));
     }
 
     @Override
@@ -85,20 +99,29 @@ public class ScanFragment extends Fragment implements ZXingScannerView.ResultHan
 
         mSpinKitView.setVisibility(View.VISIBLE);
 
-        GoogleRestHelper.searchBook(requireActivity(), isbn, book -> {
+        GoogleRestHelper.searchBook(requireContext(), isbn, book -> {
 
             if (book != null) {
+                mMsgView.setText(null);
 
-                DatabaseCreator.getInstance().getBookDao().isPresent(isbn).observe(this, isPresent -> {
+                LiveData<Boolean> liveData = DatabaseCreator.getInstance().getBookDao().isPresent(isbn);
+                liveData.observe(this, isPresent -> {
+
+                    liveData.removeObservers(ScanFragment.this);
+
                     book.alreadySaved = isPresent != null ? isPresent : false; // fixme
-                    Intent intent = new Intent(requireActivity(), BookDetailActivity.class);
-                    intent.putExtra(BookDetailFragment.ARG_KEY, book);
-                    intent.putExtra("IS_SEARCH", true);
+
+                    Intent intent = new Intent(requireContext(), BookDetailActivity.class);
+                    intent.putExtra(BookDetailActivity.ARG_KEY, book);
+                    intent.putExtra(BookDetailActivity.ARG_IS_SEARCH, true);
                     startActivity(intent);
                 });
             } else {
                 // fixme
                 mSpinKitView.setVisibility(View.INVISIBLE);
+                mScannerView.resumeCameraPreview(this);
+                mMsgView.setText(getString(R.string.scan_msg_no_data, isbn));
+                mMsgView.setTextColor(getResources().getColor(android.R.color.holo_red_dark, requireContext().getTheme()));
             }
         });
     }

@@ -1,5 +1,6 @@
 package fr.frogdevelopment.bibluelle.search;
 
+import android.arch.lifecycle.LiveData;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -15,9 +16,10 @@ import android.widget.Toast;
 import org.apache.commons.lang3.ArrayUtils;
 
 import fr.frogdevelopment.bibluelle.R;
+import fr.frogdevelopment.bibluelle.data.DatabaseCreator;
 import fr.frogdevelopment.bibluelle.details.BookDetailActivity;
-import fr.frogdevelopment.bibluelle.details.BookDetailFragment;
 import fr.frogdevelopment.bibluelle.search.rest.google.GoogleRestHelper;
+import fr.frogdevelopment.bibluelle.search.scan.ScanActivity;
 import fr.frogdevelopment.bibluelle.widget.MultiSpinner;
 
 public class SearchFragment extends Fragment {
@@ -46,16 +48,13 @@ public class SearchFragment extends Fragment {
 		mLangRestrict = view.findViewById(R.id.search_languages);
 		mLangRestrict.setMultiSpinnerListener(selected -> mSelectedLang = selected);
 
-		view.findViewById(R.id.search_scan).setOnClickListener(v -> onSearchByIsbn());
+		view.findViewById(R.id.search_scan).setOnClickListener(v -> onSearchByScanIsbn());
 		view.findViewById(R.id.search_button).setOnClickListener(v -> onSearch());
 	}
 
-	private int onSearchByIsbn() {
-		return requireFragmentManager()
-				.beginTransaction()
-				.replace(R.id.content_frame, new ScanFragment(), "SCAN")
-				.addToBackStack(null)
-				.commit();
+	private void onSearchByScanIsbn() {
+		Intent intent = new Intent(requireActivity(), ScanActivity.class);
+		startActivity(intent);
 	}
 
 	private void onSearch() {
@@ -103,11 +102,19 @@ public class SearchFragment extends Fragment {
 		GoogleRestHelper.searchBook(requireActivity(), isbn, book -> {
 			// fixme hide Spinner
 			if (book != null) {
-				book.alreadySaved = false;
-				Intent intent = new Intent(requireActivity(), BookDetailActivity.class);
-				intent.putExtra(BookDetailFragment.ARG_KEY, book);
-				intent.putExtra("IS_SEARCH", true);
-				startActivity(intent);
+
+				LiveData<Boolean> liveData = DatabaseCreator.getInstance().getBookDao().isPresent(isbn);
+				liveData.observe(this, isPresent -> {
+
+					liveData.removeObservers(SearchFragment.this);
+
+					book.alreadySaved = isPresent != null ? isPresent : false; // fixme
+
+					Intent intent = new Intent(requireActivity(), BookDetailActivity.class);
+					intent.putExtra(BookDetailActivity.ARG_KEY, book);
+					intent.putExtra(BookDetailActivity.ARG_IS_SEARCH, true);
+					startActivity(intent);
+				});
 			}
 		});
 	}

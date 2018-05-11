@@ -36,7 +36,6 @@ import fr.frogdevelopment.bibluelle.data.DatabaseCreator;
 import fr.frogdevelopment.bibluelle.data.entities.Book;
 import fr.frogdevelopment.bibluelle.data.entities.BookPreview;
 import fr.frogdevelopment.bibluelle.details.BookDetailActivity;
-import fr.frogdevelopment.bibluelle.details.BookDetailFragment;
 
 public class GalleryFragment extends Fragment {
 
@@ -154,7 +153,7 @@ public class GalleryFragment extends Fragment {
 			CoverViewHelper.searchColors(coverView, book);
 
 			Bundle arguments = new Bundle();
-			arguments.putSerializable(BookDetailFragment.ARG_KEY, book);
+			arguments.putSerializable(BookDetailActivity.ARG_KEY, book);
 
 			Intent intent = new Intent(requireContext(), BookDetailActivity.class);
 			intent.putExtras(arguments);

@@ -37,6 +37,9 @@ public class BookDetailActivity extends AppCompatActivity {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(BookDetailActivity.class);
 
+	public static final String ARG_KEY = "book";
+	public static final String ARG_IS_SEARCH = "IS_SEARCH";
+
 	private Book mBook;
 	private ActivityBookDetailBinding viewDataBinding;
 	private boolean mBookSaved = false;
@@ -56,9 +59,9 @@ public class BookDetailActivity extends AppCompatActivity {
 			actionBar.setDisplayHomeAsUpEnabled(true);
 		}
 
-		mBook = (Book) getIntent().getSerializableExtra(BookDetailFragment.ARG_KEY);
+		mBook = (Book) getIntent().getSerializableExtra(BookDetailActivity.ARG_KEY);
 
-		boolean isSearch = getIntent().getBooleanExtra("IS_SEARCH", false);
+		boolean isSearch = getIntent().getBooleanExtra(ARG_IS_SEARCH, false);
 
 		viewDataBinding.setBook(mBook);
 
@@ -77,8 +80,6 @@ public class BookDetailActivity extends AppCompatActivity {
 		// In this case, the fragment will automatically be re-added
 		// to its container so we don't need to manually add it.
 		if (savedInstanceState == null) {
-			// Create the detail fragment and add it to the activity
-			// using a fragment transaction.
 			Bundle arguments = new Bundle();
 			arguments.putAll(getIntent().getExtras());
 			BookDetailFragment fragment = new BookDetailFragment();
