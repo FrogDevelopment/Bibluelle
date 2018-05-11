@@ -19,6 +19,7 @@ import com.github.ybq.android.spinkit.SpinKitView;
 import com.google.zxing.Result;
 
 import fr.frogdevelopment.bibluelle.R;
+import fr.frogdevelopment.bibluelle.data.DatabaseCreator;
 import fr.frogdevelopment.bibluelle.details.BookDetailActivity;
 import fr.frogdevelopment.bibluelle.details.BookDetailFragment;
 import fr.frogdevelopment.bibluelle.search.rest.google.GoogleRestHelper;
@@ -26,80 +27,86 @@ import me.dm7.barcodescanner.zxing.ZXingScannerView;
 
 public class ScanFragment extends Fragment implements ZXingScannerView.ResultHandler {
 
-	private static final int              ZXING_CAMERA_PERMISSION = 1;
-	private              ZXingScannerView mScannerView;
-	private              SpinKitView      mSpinKitView;
+    private static final int ZXING_CAMERA_PERMISSION = 1;
+    private ZXingScannerView mScannerView;
+    private SpinKitView mSpinKitView;
 
-	public ScanFragment() {
-		// Required empty public constructor
-	}
+    public ScanFragment() {
+        // Required empty public constructor
+    }
 
-	@Override
-	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-		if (requestCode == ZXING_CAMERA_PERMISSION && (grantResults.length == 0 || grantResults[0] != PackageManager.PERMISSION_GRANTED)) {
-			Toast.makeText(requireContext(), "Please grant camera permission to use the QR Scanner", Toast.LENGTH_SHORT).show();
-		}
-	}
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == ZXING_CAMERA_PERMISSION && (grantResults.length == 0 || grantResults[0] != PackageManager.PERMISSION_GRANTED)) {
+            Toast.makeText(requireContext(), "Please grant camera permission to use the QR Scanner", Toast.LENGTH_SHORT).show();
+        }
+    }
 
-	@Override
-	public void onCreate(@Nullable Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
-		if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-			ActivityCompat.requestPermissions(requireActivity(), new String[]{Manifest.permission.CAMERA}, ZXING_CAMERA_PERMISSION);
-		}
-	}
+        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(requireActivity(), new String[]{Manifest.permission.CAMERA}, ZXING_CAMERA_PERMISSION);
+        }
+    }
 
-	@Override
-	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		mScannerView = new ZXingScannerView(requireContext());
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        mScannerView = new ZXingScannerView(requireContext());
 
-		RelativeLayout relativeLayout = new RelativeLayout(requireContext());
-		relativeLayout.setLayoutParams(new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-		mScannerView.addView(relativeLayout);
+        RelativeLayout relativeLayout = new RelativeLayout(requireContext());
+        relativeLayout.setLayoutParams(new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        mScannerView.addView(relativeLayout);
 
-		mSpinKitView = new SpinKitView(requireContext(), null, com.github.ybq.android.spinkit.R.style.SpinKitView_CubeGrid);
-		RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-		layoutParams.addRule(RelativeLayout.CENTER_IN_PARENT, RelativeLayout.TRUE);
-		mSpinKitView.setLayoutParams(layoutParams);
-		mSpinKitView.setColor(getResources().getColor(R.color.colorAccent, requireContext().getTheme()));
-		relativeLayout.addView(mSpinKitView);
-		mSpinKitView.setVisibility(View.INVISIBLE);
+        mSpinKitView = new SpinKitView(requireContext(), null, com.github.ybq.android.spinkit.R.style.SpinKitView_CubeGrid);
+        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+        layoutParams.addRule(RelativeLayout.CENTER_IN_PARENT, RelativeLayout.TRUE);
+        mSpinKitView.setLayoutParams(layoutParams);
+        mSpinKitView.setColor(getResources().getColor(R.color.colorAccent, requireContext().getTheme()));
+        relativeLayout.addView(mSpinKitView);
+        mSpinKitView.setVisibility(View.INVISIBLE);
 
-		return mScannerView;
-	}
+        return mScannerView;
+    }
 
-	@Override
-	public void onResume() {
-		super.onResume();
-		mScannerView.setResultHandler(this);
-		mScannerView.startCamera();
-	}
+    @Override
+    public void onResume() {
+        super.onResume();
+        mScannerView.setResultHandler(this);
+        mScannerView.startCamera();
 
-	@Override
-	public void handleResult(Result rawResult) {
-		String isbn = rawResult.getText();
+        mSpinKitView.setVisibility(View.INVISIBLE);
+    }
 
-		mSpinKitView.setVisibility(View.VISIBLE);
+    @Override
+    public void handleResult(Result rawResult) {
+        String isbn = rawResult.getText();
 
-		GoogleRestHelper.searchBook(requireActivity(), isbn, book -> {
+        mSpinKitView.setVisibility(View.VISIBLE);
 
-			mSpinKitView.setVisibility(View.INVISIBLE);
+        GoogleRestHelper.searchBook(requireActivity(), isbn, book -> {
 
-			if (book != null) {
-				book.alreadySaved = false;
-				Intent intent = new Intent(requireActivity(), BookDetailActivity.class);
-				intent.putExtra(BookDetailFragment.ARG_KEY, book);
-				intent.putExtra("IS_SEARCH", true);
-				startActivity(intent);
-			}
-		});
-	}
+            if (book != null) {
 
-	@Override
-	public void onPause() {
-		super.onPause();
-		mScannerView.stopCamera();
-	}
+                DatabaseCreator.getInstance().getBookDao().isPresent(isbn).observe(this, isPresent -> {
+                    book.alreadySaved = isPresent != null ? isPresent : false; // fixme
+                    Intent intent = new Intent(requireActivity(), BookDetailActivity.class);
+                    intent.putExtra(BookDetailFragment.ARG_KEY, book);
+                    intent.putExtra("IS_SEARCH", true);
+                    startActivity(intent);
+                });
+            } else {
+                // fixme
+                mSpinKitView.setVisibility(View.INVISIBLE);
+            }
+        });
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        mScannerView.stopCamera();
+    }
 
 }

@@ -26,7 +26,7 @@ public abstract class BookDao {
     @Delete
     abstract void deleteBook(Book book);
 
-    @Query("SELECT isbn, author, title, sub_title FROM book ORDER BY title")
+    @Query("SELECT isbn, author, title, sub_title FROM book ORDER BY published_date")
     public abstract LiveData<List<BookPreview>> loadAllPreviews();
 
     @Query("SELECT * FROM book WHERE isbn = :isbn")
@@ -37,6 +37,9 @@ public abstract class BookDao {
 
     @Query("SELECT isbn FROM book")
     public abstract LiveData<List<String>> loadAllISBN();
+
+    @Query("SELECT EXISTS(SELECT 1 FROM book WHERE isbn = :isbn)")
+    public abstract LiveData<Boolean> isPresent(String isbn);
 
 //	@Query("SELECT DISTINCT author FROM book")
 //	public abstract List<String> loadAllAuthors();
