@@ -5,13 +5,6 @@ node() {
     }
     
     stage('Build') {
-        sh './gradlew clean assembleRelease'
-        //lock('emulator') {
-        //   sh './gradlew connectedCheck'
-        //}
+        sh './gradlew clean assembleDebug'
     }
-
-    //stage('Archive') {
-    //  archiveArtifacts 'app/build/outputs/apk/*'
-    //}
 }
