@@ -3,6 +3,8 @@
 
     <string name="global_continue">Continue</string>
 
+    <string name="list_section_title" translatable="false">%s (%d)</string>
+
     <string name="title_information">INFORMATION</string>
     <string name="title_warning">ATTENTION</string>
     <string name="title_error">ERROR</string>

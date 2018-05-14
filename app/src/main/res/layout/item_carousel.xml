@@ -1,28 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
 
-    <data>
+    <ImageView
+        android:id="@+id/item_cover"
+        android:layout_width="256dp"
+        android:layout_height="408dp"
+        android:contentDescription="@null"
+        android:src="@drawable/no_image" />
 
-        <variable
-            name="preview"
-            type="fr.frogdevelopment.bibluelle.data.entities.BookPreview"/>
-    </data>
-
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="?attr/selectableItemBackground">
-
-        <ImageView
-            android:contentDescription="@null"
-            android:id="@+id/item_cover"
-            android:layout_width="256dp"
-            android:layout_height="408dp"
-            android:scaleType="fitCenter"
-            android:src="@drawable/no_image"
-            android:transitionName="cover"
-            app:cover="@{preview}"/>
-
-    </LinearLayout>
-</layout>
+</LinearLayout>

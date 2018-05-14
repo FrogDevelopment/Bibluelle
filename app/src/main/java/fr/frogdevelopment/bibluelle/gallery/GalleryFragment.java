@@ -22,151 +22,166 @@ import com.azoft.carousellayoutmanager.CarouselZoomPostLayoutListener;
 import com.truizlop.sectionedrecyclerview.SectionedSpanSizeLookup;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import fr.frogdevelopment.bibluelle.CoverViewHelper;
+import fr.frogdevelopment.bibluelle.GlideApp;
+import fr.frogdevelopment.bibluelle.GlideRequests;
 import fr.frogdevelopment.bibluelle.R;
-import fr.frogdevelopment.bibluelle.adapter.CarouselBooksAdapter;
-import fr.frogdevelopment.bibluelle.adapter.OnClickListener;
-import fr.frogdevelopment.bibluelle.adapter.sectioned.GridBooksSectionedAdapter;
-import fr.frogdevelopment.bibluelle.adapter.sectioned.ListBooksSectionedAdapter;
 import fr.frogdevelopment.bibluelle.data.DatabaseCreator;
 import fr.frogdevelopment.bibluelle.data.entities.Book;
 import fr.frogdevelopment.bibluelle.data.entities.BookPreview;
 import fr.frogdevelopment.bibluelle.details.BookDetailActivity;
+import fr.frogdevelopment.bibluelle.gallery.adapter.CarouselBooksAdapter;
+import fr.frogdevelopment.bibluelle.gallery.adapter.OnBookClickListener;
+import fr.frogdevelopment.bibluelle.gallery.adapter.sectioned.GridBooksSectionedAdapter;
+import fr.frogdevelopment.bibluelle.gallery.adapter.sectioned.ListBooksSectionedAdapter;
 
-public class GalleryFragment extends Fragment {
+public class GalleryFragment extends Fragment implements OnBookClickListener {
 
-	private RecyclerView mRecyclerView;
-	private Map<String, List<BookPreview>> mPreviews;
+    private RecyclerView mRecyclerView;
+    private SortedMap<String, List<BookPreview>> mPreviews;
+    private GlideRequests mGlideRequests;
 
-	@Override
-	public void onCreate(@Nullable Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setHasOptionsMenu(true);
-	}
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+    }
 
-	@Override
-	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		return inflater.inflate(R.layout.fragment_gallery, container, false);
-	}
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.fragment_gallery, container, false);
+    }
 
-	@Override
-	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-		super.onViewCreated(view, savedInstanceState);
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
-		mRecyclerView = view.findViewById(R.id.recycler_view);
-		mRecyclerView.setHasFixedSize(true);
+        mRecyclerView = view.findViewById(R.id.recycler_view);
+        mRecyclerView.setHasFixedSize(true);
 
-		DatabaseCreator.getInstance().getBookDao().loadAllPreviews().observe(this, books -> {
-			view.findViewById(R.id.spinner).setVisibility(View.GONE);
+        mGlideRequests = GlideApp.with(this);
 
-			mPreviews = new HashMap<>();
-			if (books != null) {
-				List<BookPreview> previews;
-				for (BookPreview book : books) {
-					// fixme dynamic section
-					if (this.mPreviews.containsKey(book.author)) {
-						previews = this.mPreviews.get(book.author);
-					} else {
-						previews = new ArrayList<>();
-						this.mPreviews.put(book.author, previews);
-					}
+        DatabaseCreator.getInstance().getBookDao().loadAllPreviews().observe(this, books -> {
+            view.findViewById(R.id.spinner).setVisibility(View.GONE);
 
-					previews.add(book);
-				}
-			}
+            mPreviews = new TreeMap<>();
+            if (books != null) {
+                List<BookPreview> previews;
+                for (BookPreview book : books) {
+                    // fixme dynamic section
+                    if (this.mPreviews.containsKey(book.author)) {
+                        previews = this.mPreviews.get(book.author);
+                    } else {
+                        previews = new ArrayList<>();
+                        this.mPreviews.put(book.author, previews);
+                    }
 
-			// default
-			setGridList(mPreviews);
-		});
-	}
+                    previews.add(book);
+                }
+            }
 
-	private void setSimpleList(Map<String, List<BookPreview>> previews) {
-		mRecyclerView.setAdapter(new ListBooksSectionedAdapter(previews, mListener));
+            // default
+            setGridList(mPreviews);
+        });
+    }
 
-		mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-	}
+    private void setSimpleList(SortedMap<String, List<BookPreview>> previews) {
+        // ADAPTER
+        ListBooksSectionedAdapter adapter = new ListBooksSectionedAdapter(requireContext(), previews, this, mGlideRequests);
+        mRecyclerView.setAdapter(adapter);
 
-	private void setCarouselList(Map<String, List<BookPreview>> previews) {
-		List<BookPreview> items = new ArrayList<>();
-		for (Map.Entry<String, List<BookPreview>> entry : previews.entrySet()) {
-			items.addAll(entry.getValue());
-		}
-		mRecyclerView.setAdapter(new CarouselBooksAdapter(items, mListener));
+        // LAYOUT MANAGER
+        LinearLayoutManager layout = new LinearLayoutManager(requireContext());
+        mRecyclerView.setLayoutManager(layout);
+    }
 
-		// https://github.com/Azoft/CarouselLayoutManager
-		final CarouselLayoutManager layoutManager = new CarouselLayoutManager(CarouselLayoutManager.HORIZONTAL);
-		layoutManager.setPostLayoutListener(new CarouselZoomPostLayoutListener());
-		layoutManager.setMaxVisibleItems(3);
+    private void setCarouselList(SortedMap<String, List<BookPreview>> previews) {
+        // ADAPTER
+        List<BookPreview> items = new ArrayList<>();
+        for (Map.Entry<String, List<BookPreview>> entry : previews.entrySet()) {
+            items.addAll(entry.getValue());
+        }
+        CarouselBooksAdapter adapter = new CarouselBooksAdapter(requireContext(), items, this, mGlideRequests);
+        mRecyclerView.setAdapter(adapter);
 
-		mRecyclerView.setLayoutManager(layoutManager);
-	}
+        // LAYOUT MANAGER https://github.com/Azoft/CarouselLayoutManager
+        final CarouselLayoutManager layoutManager = new CarouselLayoutManager(CarouselLayoutManager.HORIZONTAL);
+        layoutManager.setPostLayoutListener(new CarouselZoomPostLayoutListener());
+        layoutManager.setMaxVisibleItems(3);
 
-	private void setGridList(Map<String, List<BookPreview>> previews) {
-		GridBooksSectionedAdapter adapter = new GridBooksSectionedAdapter(previews, mListener);
-		mRecyclerView.setAdapter(adapter);
+        mRecyclerView.setLayoutManager(layoutManager);
+    }
 
-		final GridLayoutManager layoutManager = new GridLayoutManager(getActivity(), 3);
-		SectionedSpanSizeLookup lookup = new SectionedSpanSizeLookup(adapter, layoutManager);
-		layoutManager.setSpanSizeLookup(lookup);
-		mRecyclerView.setLayoutManager(layoutManager);
-	}
+    private void setGridList(SortedMap<String, List<BookPreview>> previews) {
+        // ADAPTER
+        GridBooksSectionedAdapter adapter = new GridBooksSectionedAdapter(requireContext(), previews, this, mGlideRequests);
+        mRecyclerView.setAdapter(adapter);
 
-	@Override
-	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-		inflater.inflate(R.menu.home, menu);
-		super.onCreateOptionsMenu(menu, inflater);
-	}
+        // LAYOUT MANAGER
+        final GridLayoutManager layoutManager = new GridLayoutManager(requireContext(), 3);
+        SectionedSpanSizeLookup lookup = new SectionedSpanSizeLookup(adapter, layoutManager);
+        layoutManager.setSpanSizeLookup(lookup);
+        mRecyclerView.setLayoutManager(layoutManager);
+    }
 
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.home, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
 
-			case R.id.action_list:
-				setSimpleList(mPreviews);
-				return true;
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
 
-			case R.id.action_grid:
-				setGridList(mPreviews);
-				return true;
+            case R.id.action_list:
+                setSimpleList(mPreviews);
+                return true;
 
-			case R.id.action_carousel:
-				setCarouselList(mPreviews);
-				return true;
+            case R.id.action_grid:
+                setGridList(mPreviews);
+                return true;
 
-			default:
-				return false;
-		}
-	}
+            case R.id.action_carousel:
+                setCarouselList(mPreviews);
+                return true;
 
-	private OnClickListener mListener = (v, preview) -> {
-		ImageView coverView = v.findViewById(R.id.item_cover);
+            default:
+                return false;
+        }
+    }
 
-		LiveData<Book> bookLiveData = DatabaseCreator.getInstance().getBookDao().getBook(preview.isbn);
-		bookLiveData.observe(requireActivity(), book -> {
+    @Override
+    public void onBookClick(View v, String isbn) {
+        ImageView coverView = v.findViewById(R.id.item_cover);
 
-			bookLiveData.removeObservers(requireActivity());
+        LiveData<Book> bookLiveData = DatabaseCreator.getInstance().getBookDao().getBook(isbn);
+        bookLiveData.observe(GalleryFragment.this.requireActivity(), book -> {
 
-			CoverViewHelper.searchColors(coverView, book);
+            bookLiveData.removeObservers(GalleryFragment.this.requireActivity());
 
-			Bundle arguments = new Bundle();
-			arguments.putSerializable(BookDetailActivity.ARG_KEY, book);
+            CoverViewHelper.searchColors(coverView, book);
 
-			Intent intent = new Intent(requireContext(), BookDetailActivity.class);
-			intent.putExtras(arguments);
+            Bundle arguments = new Bundle();
+            arguments.putSerializable(BookDetailActivity.ARG_KEY, book);
+
+            Intent intent = new Intent(GalleryFragment.this.requireContext(), BookDetailActivity.class);
+            intent.putExtras(arguments);
 //			if (coverView != null) {
 //				// cf https://guides.codepath.com/android/Shared-Element-Activity-Transition#3-start-activity
 //				ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(requireActivity(), coverView, "cover");
 //
 //				startActivity(intent, options.toBundle());
 //			} else {
-				startActivity(intent);
+            GalleryFragment.this.startActivity(intent);
 //			}
-		});
+        });
 
-	};
+    }
 
 }
