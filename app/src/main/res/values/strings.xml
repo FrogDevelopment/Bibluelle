@@ -60,6 +60,7 @@
     <string name="scan_auto_focus">Auto-focus</string>
     <string name="global_off">Off</string>
     <string name="global_on">On</string>
+    <string name="list_section_title">%s (%d)</string>
 
     <string-array name="search_language_codes">
         <item>en</item>
