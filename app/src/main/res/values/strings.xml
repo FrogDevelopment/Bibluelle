@@ -3,6 +3,8 @@
 
     <string name="global_continue">Continue</string>
 
+    <string name="list_section_title" translatable="false">%s (%d)</string>
+
     <string name="title_information">INFORMATION</string>
     <string name="title_warning">ATTENTION</string>
     <string name="title_error">ERROR</string>
@@ -60,7 +62,6 @@
     <string name="scan_auto_focus">Auto-focus</string>
     <string name="global_off">Off</string>
     <string name="global_on">On</string>
-    <string name="list_section_title">%s (%d)</string>
 
     <string-array name="search_language_codes">
         <item>en</item>
