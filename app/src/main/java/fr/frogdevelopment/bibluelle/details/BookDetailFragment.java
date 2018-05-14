@@ -65,7 +65,7 @@ public class BookDetailFragment extends Fragment {
 			Intent intent = new Intent(getActivity(), CoverActivity.class);
             intent.putExtra(CoverActivity.ARG_BOOK, mBook);
 			// cf https://guides.codepath.com/android/Shared-Element-Activity-Transition#3-start-activity
-            ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(requireActivity(), background, "cover");
+			ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(requireActivity(), requireActivity().findViewById(R.id.toolbar_cover), "cover");
 
 			startActivity(intent, options.toBundle());
 //			startActivity(intent);
