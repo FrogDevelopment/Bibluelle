@@ -12,7 +12,6 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.OvershootInterpolator;
 import android.widget.TextView;
 
 import org.threeten.bp.LocalDate;
@@ -20,7 +19,6 @@ import org.threeten.bp.format.DateTimeFormatter;
 import org.threeten.bp.format.DateTimeParseException;
 import org.threeten.bp.format.FormatStyle;
 
-import at.blogc.android.views.ExpandableTextView;
 import fr.frogdevelopment.bibluelle.AppBarStateChangeListener;
 import fr.frogdevelopment.bibluelle.R;
 import fr.frogdevelopment.bibluelle.data.entities.Book;
@@ -82,16 +80,6 @@ public class BookDetailFragment extends Fragment {
 			e.printStackTrace(); // fixme
 			publishedDate.setText("Publié le " + mBook.publishedDate);
 		}
-
-		ExpandableTextView description = rootView.findViewById(R.id.detail_description);
-		// set interpolators for both expanding and collapsing animations
-		description.setInterpolator(new OvershootInterpolator());
-
-		rootView.findViewById(R.id.detail_show_more)
-				.setOnClickListener(v -> {
-					v.setVisibility(View.GONE);
-					description.expand();
-				});
 
 		return rootView;
 	}

@@ -101,10 +101,10 @@ dependencies {
     // Architecture Components
     implementation 'android.arch.lifecycle:common-java8:1.1.1'
     // Room
-    implementation 'android.arch.persistence.room:runtime:1.0.0'
-    annotationProcessor "android.arch.persistence.room:compiler:1.0.0"
+    implementation 'android.arch.persistence.room:runtime:1.1.0'
+    annotationProcessor "android.arch.persistence.room:compiler:1.1.0"
     // Test helpers for Room
-    androidTestImplementation 'android.arch.persistence.room:testing:1.0.0'
+    androidTestImplementation 'android.arch.persistence.room:testing:1.1.0'
     // ViewModel and LiveData
     implementation 'android.arch.lifecycle:extensions:1.1.1'
     annotationProcessor 'android.arch.lifecycle:compiler:1.1.1'
@@ -150,9 +150,6 @@ dependencies {
 
     // https://github.com/Azoft/CarouselLayoutManager
     implementation 'com.azoft.carousellayoutmanager:carousel:1.2.1'
-
-    // https://github.com/Blogcat/Android-ExpandableTextView
-    implementation 'at.blogc:expandabletextview:1.0.5'
 
     // ProgressBar https://github.com/ybq/Android-SpinKit
     implementation 'com.github.ybq:Android-SpinKit:1.1.0'
