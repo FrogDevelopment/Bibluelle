@@ -180,10 +180,13 @@ public class GalleryFragment extends Fragment implements OnBookClickListener {
 
             Fade fade = new Fade();
             fade.excludeTarget(coverView, true);
+            // https://stackoverflow.com/questions/26567822/hiccups-in-activity-transitions-with-shared-elements
 //            fade.excludeTarget(requireActivity().findViewById(R.id.navigation), true);
 
             setEnterTransition(fade);
             setExitTransition(fade);
+
+            // https://stackoverflow.com/questions/36137400/ripple-effect-not-working-with-shared-element-transition-and-recyclerview
 
             ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(requireActivity(), coverView, "cover");
             startActivity(intent, options.toBundle());

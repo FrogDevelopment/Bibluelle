@@ -28,6 +28,7 @@ public class CoverActivity extends AppCompatActivity {
             getWindow().setStatusBarColor(book.dominantRgb);
         }
 
+        // https://stackoverflow.com/questions/26600263/how-do-i-prevent-the-status-bar-and-navigation-bar-from-animating-during-an-acti
         Fade fade = new Fade();
         fade.excludeTarget(android.R.id.statusBarBackground, true);
         fade.excludeTarget(android.R.id.navigationBarBackground, true);
