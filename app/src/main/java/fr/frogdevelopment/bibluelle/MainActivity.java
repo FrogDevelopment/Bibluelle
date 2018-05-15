@@ -91,7 +91,9 @@ public class MainActivity extends AppCompatActivity {
 
 		Pair<Fragment, String> pair = fragments.get(itemId);
 		if (pair.first != null) {
-			getSupportFragmentManager().beginTransaction()
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .setReorderingAllowed(true)
 					.replace(R.id.content_frame, pair.first, pair.second)
 					.commit();
 

@@ -5,10 +5,12 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.transition.Fade;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -161,25 +163,30 @@ public class GalleryFragment extends Fragment implements OnBookClickListener {
         ImageView coverView = v.findViewById(R.id.item_cover);
 
         LiveData<Book> bookLiveData = DatabaseCreator.getInstance().getBookDao().getBook(isbn);
-        bookLiveData.observe(GalleryFragment.this.requireActivity(), book -> {
+        bookLiveData.observe(requireActivity(), book -> {
 
-            bookLiveData.removeObservers(GalleryFragment.this.requireActivity());
+            bookLiveData.removeObservers(requireActivity());
 
             CoverViewHelper.searchColors(coverView, book);
 
             Bundle arguments = new Bundle();
             arguments.putSerializable(BookDetailActivity.ARG_KEY, book);
 
-            Intent intent = new Intent(GalleryFragment.this.requireContext(), BookDetailActivity.class);
+            Intent intent = new Intent(requireContext(), BookDetailActivity.class);
             intent.putExtras(arguments);
-//			if (coverView != null) {
-//				// cf https://guides.codepath.com/android/Shared-Element-Activity-Transition#3-start-activity
-//				ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(requireActivity(), coverView, "cover");
-//
-//				startActivity(intent, options.toBundle());
-//			} else {
-            GalleryFragment.this.startActivity(intent);
-//			}
+
+            // https://android-developers.googleblog.com/2018/02/continuous-shared-element-transitions.html
+            // https://guides.codepath.com/android/Shared-Element-Activity-Transition#3-start-activity
+
+            Fade fade = new Fade();
+            fade.excludeTarget(coverView, true);
+//            fade.excludeTarget(requireActivity().findViewById(R.id.navigation), true);
+
+            setEnterTransition(fade);
+            setExitTransition(fade);
+
+            ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(requireActivity(), coverView, "cover");
+            startActivity(intent, options.toBundle());
         });
 
     }

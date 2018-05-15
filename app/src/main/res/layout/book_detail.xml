@@ -63,11 +63,10 @@
                 android:contentDescription="@null"
                 android:focusable="true"
                 android:foreground="?android:attr/selectableItemBackground"
-                android:minHeight="128dp"
                 android:minWidth="128dp"
+                android:minHeight="128dp"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/detail_sub_title"
-                app:thumbnail="@{book}" />
+                app:layout_constraintTop_toBottomOf="@+id/detail_sub_title" />
 
             <TextView
                 android:id="@+id/detail_click_me"
@@ -142,9 +141,9 @@
                 android:id="@+id/detail_separator"
                 android:layout_width="0dp"
                 android:layout_height="1dp"
-                android:layout_marginEnd="8dp"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
                 android:background="@android:color/darker_gray"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -153,8 +152,8 @@
             <TableLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:weightSum="2"
                 android:layout_marginTop="8dp"
+                android:weightSum="2"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/detail_separator">

@@ -45,9 +45,8 @@
                 android:value="fr.frogdevelopment.bibluelle.search.BookListActivity" />
         </activity>
         <activity
-            android:name=".details.CoverActivity"
+            android:name=".cover.CoverActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
-            android:label=""
             android:parentActivityName=".details.BookDetailActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data

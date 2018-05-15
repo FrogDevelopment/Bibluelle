@@ -6,6 +6,7 @@
 
     <ImageView
         android:id="@+id/item_cover"
+        android:transitionName="cover"
         android:layout_width="100dp"
         android:layout_height="160dp"
         android:contentDescription="@null"

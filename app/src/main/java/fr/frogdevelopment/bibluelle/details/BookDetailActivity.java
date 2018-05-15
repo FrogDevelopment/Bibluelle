@@ -10,6 +10,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.transition.Fade;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
@@ -35,223 +36,229 @@ import fr.frogdevelopment.bibluelle.search.rest.google.GoogleRestHelper;
 
 public class BookDetailActivity extends AppCompatActivity {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(BookDetailActivity.class);
+    public static final String ARG_KEY = "book";
+    public static final String ARG_IS_SEARCH = "IS_SEARCH";
+    private static final Logger LOGGER = LoggerFactory.getLogger(BookDetailActivity.class);
+    boolean thumbnailSaved = false;
+    boolean coverSaved = false;
+    private Book mBook;
+    private ActivityBookDetailBinding viewDataBinding;
+    private boolean mBookSaved = false;
 
-	public static final String ARG_KEY = "book";
-	public static final String ARG_IS_SEARCH = "IS_SEARCH";
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
-	private Book mBook;
-	private ActivityBookDetailBinding viewDataBinding;
-	private boolean mBookSaved = false;
+        viewDataBinding = DataBindingUtil.setContentView(this, R.layout.activity_book_detail);
 
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
+        Toolbar toolbar = findViewById(R.id.detail_toolbar);
+        setSupportActionBar(toolbar);
 
-		viewDataBinding = DataBindingUtil.setContentView(this, R.layout.activity_book_detail);
+        // Show the Up button in the action bar.
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
 
-		Toolbar toolbar = findViewById(R.id.detail_toolbar);
-		setSupportActionBar(toolbar);
+        Fade fade = new Fade();
+        fade.excludeTarget(android.R.id.statusBarBackground, true);
+        fade.excludeTarget(android.R.id.navigationBarBackground, true);
 
-		// Show the Up button in the action bar.
-		ActionBar actionBar = getSupportActionBar();
-		if (actionBar != null) {
-			actionBar.setDisplayHomeAsUpEnabled(true);
-		}
+        getWindow().setEnterTransition(fade);
+        getWindow().setExitTransition(fade);
 
-		mBook = (Book) getIntent().getSerializableExtra(BookDetailActivity.ARG_KEY);
+        mBook = (Book) getIntent().getSerializableExtra(BookDetailActivity.ARG_KEY);
 
-		boolean isSearch = getIntent().getBooleanExtra(ARG_IS_SEARCH, false);
+        boolean isSearch = getIntent().getBooleanExtra(ARG_IS_SEARCH, false);
 
-		viewDataBinding.setBook(mBook);
+        viewDataBinding.setBook(mBook);
 
-		if (isSearch) {
-			handleFabActions(mBook.alreadySaved);
-		} else {
-			handleFabActions(true);
-		}
+        if (isSearch) {
+            handleFabActions(mBook.alreadySaved);
+        } else {
+            handleFabActions(true);
+        }
 
-		FloatingActionButton fabDelete = findViewById(R.id.fab_delete);
-		fabDelete.setOnClickListener(view -> deleteBook());
+        FloatingActionButton fabDelete = findViewById(R.id.fab_delete);
+        fabDelete.setOnClickListener(view -> deleteBook());
 
-		// savedInstanceState is non-null when there is fragment state
-		// saved from previous configurations of this activity
-		// (e.g. when rotating the screen from portrait to landscape).
-		// In this case, the fragment will automatically be re-added
-		// to its container so we don't need to manually add it.
-		if (savedInstanceState == null) {
-			Bundle arguments = new Bundle();
-			arguments.putAll(getIntent().getExtras());
-			BookDetailFragment fragment = new BookDetailFragment();
-			fragment.setArguments(arguments);
-			getSupportFragmentManager()
-					.beginTransaction()
-					.add(R.id.book_detail_container, fragment)
-					.commit();
-		}
-	}
+        // savedInstanceState is non-null when there is fragment state
+        // saved from previous configurations of this activity
+        // (e.g. when rotating the screen from portrait to landscape).
+        // In this case, the fragment will automatically be re-added
+        // to its container so we don't need to manually add it.
+        if (savedInstanceState == null) {
+            Bundle arguments = new Bundle();
+            arguments.putAll(getIntent().getExtras());
+            BookDetailFragment fragment = new BookDetailFragment();
+            fragment.setArguments(arguments);
 
-	private void handleFabActions(boolean saved) {
-		if (saved) {
-			FloatingActionButton fabSync = findViewById(R.id.fab_sync);
-			fabSync.setVisibility(View.VISIBLE);
-			fabSync.setOnClickListener(view -> syncBook());
-		} else {
-			FloatingActionButton fabAdd = findViewById(R.id.fab_save);
-			fabAdd.setOnClickListener(view -> saveBook());
-			fabAdd.setVisibility(View.VISIBLE);
-		}
-	}
+            getSupportFragmentManager()
+                    .beginTransaction()
+//                    .setReorderingAllowed(true)
+                    .replace(R.id.book_detail_container, fragment)
+                    .commit();
+        }
+    }
 
-	private void saveBook() {
-		if (mBook.alreadySaved) {
-			new AlertDialog.Builder(this)
-					.setTitle("Attention")
-					.setMessage("Book already saved ! You'll override existing data")
-					.setPositiveButton(android.R.string.ok, (dialog, which) -> doSaveBook())
-					.setNegativeButton(android.R.string.no, (dialog, which) -> {
-					})
-					.show();
-		} else {
-			doSaveBook();
-		}
-	}
+    private void handleFabActions(boolean saved) {
+        if (saved) {
+            FloatingActionButton fabSync = findViewById(R.id.fab_sync);
+            fabSync.setVisibility(View.VISIBLE);
+            fabSync.setOnClickListener(view -> syncBook());
+        } else {
+            FloatingActionButton fabAdd = findViewById(R.id.fab_save);
+            fabAdd.setOnClickListener(view -> saveBook());
+            fabAdd.setVisibility(View.VISIBLE);
+        }
+    }
 
-	private void doSaveBook() {
-		// save thumbnail
-		GlideApp.with(this)
-				.downloadOnly()
-				.load(mBook.thumbnailUrl)
-				.into(new SimpleTarget<File>() {
-					@Override
-					public void onResourceReady(@NonNull File resource, Transition<? super File> transition) {
-						thumbnailSaved = saveFile(resource, mBook.getThumbnailFile());
-						onSaveBook();
-					}
-				});
+    private void saveBook() {
+        if (mBook.alreadySaved) {
+            new AlertDialog.Builder(this)
+                    .setTitle("Attention")
+                    .setMessage("Book already saved ! You'll override existing data")
+                    .setPositiveButton(android.R.string.ok, (dialog, which) -> doSaveBook())
+                    .setNegativeButton(android.R.string.no, (dialog, which) -> {
+                    })
+                    .show();
+        } else {
+            doSaveBook();
+        }
+    }
 
-		// save image
-		GlideApp.with(this)
-				.downloadOnly()
-				.load(mBook.coverUrl)
-				.into(new SimpleTarget<File>() {
-					@Override
-					public void onResourceReady(@NonNull File resource, Transition<? super File> transition) {
-						coverSaved = saveFile(resource, mBook.getCoverFile());
-						onSaveBook();
-					}
-				});
-	}
+    private void doSaveBook() {
+        // save thumbnail
+        GlideApp.with(this)
+                .downloadOnly()
+                .load(mBook.thumbnailUrl)
+                .into(new SimpleTarget<File>() {
+                    @Override
+                    public void onResourceReady(@NonNull File resource, Transition<? super File> transition) {
+                        thumbnailSaved = saveFile(resource, mBook.getThumbnailFile());
+                        onSaveBook();
+                    }
+                });
 
-	boolean thumbnailSaved = false;
-	boolean coverSaved = false;
+        // save image
+        GlideApp.with(this)
+                .downloadOnly()
+                .load(mBook.coverUrl)
+                .into(new SimpleTarget<File>() {
+                    @Override
+                    public void onResourceReady(@NonNull File resource, Transition<? super File> transition) {
+                        coverSaved = saveFile(resource, mBook.getCoverFile());
+                        onSaveBook();
+                    }
+                });
+    }
 
-	private void onSaveBook() {
-		if (thumbnailSaved && coverSaved) {
-			// save book
-			BookDao.insert(mBook, this::onBookSaved);
+    private void onSaveBook() {
+        if (thumbnailSaved && coverSaved) {
+            // save book
+            BookDao.insert(mBook, this::onBookSaved);
 
-			handleFabActions(true);
-		}
-	}
+            handleFabActions(true);
+        }
+    }
 
-	private void onBookSaved() {
-		mBookSaved = true;
-		Toast.makeText(getApplicationContext(), "Book saved", Toast.LENGTH_LONG).show();
-	}
+    private void onBookSaved() {
+        mBookSaved = true;
+        Toast.makeText(getApplicationContext(), "Book saved", Toast.LENGTH_LONG).show();
+    }
 
-	private boolean saveFile(File file, String fileName) {
-		try (OutputStream fOut = openFileOutput(fileName, MODE_PRIVATE)) {
-			Bitmap bitmap = BitmapFactory.decodeStream(new FileInputStream(file));
-			bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fOut);
+    private boolean saveFile(File file, String fileName) {
+        try (OutputStream fOut = openFileOutput(fileName, MODE_PRIVATE)) {
+            Bitmap bitmap = BitmapFactory.decodeStream(new FileInputStream(file));
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fOut);
 
-			return true;
-		} catch (Exception e) {
-			e.printStackTrace(); // fixme
-			Toast.makeText(getApplicationContext(), "Error", Toast.LENGTH_LONG).show();
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace(); // fixme
+            Toast.makeText(getApplicationContext(), "Error", Toast.LENGTH_LONG).show();
 
-			return false;
-		}
-	}
+            return false;
+        }
+    }
 
-	private void deleteSavedFile(String fileName) {
-		boolean deleted = deleteFile(fileName);
-		if (!deleted) {
-			LOGGER.warn("File {} not deleted", fileName);
-		}
-	}
+    private void deleteSavedFile(String fileName) {
+        boolean deleted = deleteFile(fileName);
+        if (!deleted) {
+            LOGGER.warn("File {} not deleted", fileName);
+        }
+    }
 
-	private void deleteBook() {
-		new AlertDialog.Builder(this)
-				.setTitle("Suppression")
-				.setMessage("Vous êtes sur le point de supprimer ce livre de votre librairie !")
-				.setPositiveButton("Continuer", (dialog, which) -> onDeleteBook())
-				.setNegativeButton("Annuler", (d, w) -> {
-				})
-				.show();
-	}
+    private void deleteBook() {
+        new AlertDialog.Builder(this)
+                .setTitle("Suppression")
+                .setMessage("Vous êtes sur le point de supprimer ce livre de votre librairie !")
+                .setPositiveButton("Continuer", (dialog, which) -> onDeleteBook())
+                .setNegativeButton("Annuler", (d, w) -> {
+                })
+                .show();
+    }
 
-	private void onDeleteBook() {
-		// delete thumbnail
-		deleteSavedFile(mBook.getThumbnailFile());
-		// delete cover
-		deleteSavedFile(mBook.getCoverFile());
+    private void onDeleteBook() {
+        // delete thumbnail
+        deleteSavedFile(mBook.getThumbnailFile());
+        // delete cover
+        deleteSavedFile(mBook.getCoverFile());
 
-		// delete book
-		BookDao.delete(mBook, this::onBookDeleted);
-	}
+        // delete book
+        BookDao.delete(mBook, this::onBookDeleted);
+    }
 
-	private void onBookDeleted() {
-		Toast.makeText(getApplicationContext(), "Book deleted", Toast.LENGTH_LONG).show();
+    private void onBookDeleted() {
+        Toast.makeText(getApplicationContext(), "Book deleted", Toast.LENGTH_LONG).show();
 
-		Intent data = new Intent();
-		data.putExtra("isbn", mBook.isbn);
-		setResult(2, data);
+        Intent data = new Intent();
+        data.putExtra("isbn", mBook.isbn);
+        setResult(2, data);
 
-		finish();
-	}
+        finish();
+    }
 
-	private void syncBook() {
-		BookPreview preview = new BookPreview();
-		preview.isbn = mBook.isbn;
-		preview.title = mBook.title;
-		preview.author = mBook.author;
-		preview.thumbnailUrl = mBook.thumbnailUrl;
-		preview.alreadySaved = true;
+    private void syncBook() {
+        BookPreview preview = new BookPreview();
+        preview.isbn = mBook.isbn;
+        preview.title = mBook.title;
+        preview.author = mBook.author;
+        preview.thumbnailUrl = mBook.thumbnailUrl;
+        preview.alreadySaved = true;
 
-		GoogleRestHelper.searchDetails(this, preview, book -> {
+        GoogleRestHelper.searchDetails(this, preview, book -> {
 //			mSpinner.setVisibility(View.GONE); fixme
 
-			if (book != null) {
-				mBook = book;
-				viewDataBinding.setBook(mBook);
+            if (book != null) {
+                mBook = book;
+                viewDataBinding.setBook(mBook);
 
-				FloatingActionButton fabAdd = findViewById(R.id.fab_save);
-				fabAdd.setOnClickListener(view -> saveBook());
-				fabAdd.setVisibility(View.VISIBLE);
-			} else {
-				// fixme
-			}
-		});
-	}
+                FloatingActionButton fabAdd = findViewById(R.id.fab_save);
+                fabAdd.setOnClickListener(view -> saveBook());
+                fabAdd.setVisibility(View.VISIBLE);
+            } else {
+                // fixme
+            }
+        });
+    }
 
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		int id = item.getItemId();
-		if (id == android.R.id.home) {
-			onBackPressed();
-			return true;
-		}
-		return super.onOptionsItemSelected(item);
-	}
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == android.R.id.home) {
+            onBackPressed();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
-	@Override
-	public void onBackPressed() {
-		if (mBookSaved) {
-			Intent data = new Intent();
-			data.putExtra("isbn", mBook.isbn);
-			setResult(1, data);
-		}
-		super.onBackPressed();
-	}
+    @Override
+    public void onBackPressed() {
+        if (mBookSaved) {
+            Intent data = new Intent();
+            data.putExtra("isbn", mBook.isbn);
+            setResult(1, data);
+        }
+        super.onBackPressed();
+    }
 }
