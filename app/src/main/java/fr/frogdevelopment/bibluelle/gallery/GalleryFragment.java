@@ -29,7 +29,6 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import fr.frogdevelopment.bibluelle.CoverViewHelper;
 import fr.frogdevelopment.bibluelle.GlideApp;
 import fr.frogdevelopment.bibluelle.GlideRequests;
 import fr.frogdevelopment.bibluelle.R;
@@ -167,8 +166,6 @@ public class GalleryFragment extends Fragment implements OnBookClickListener {
 
             bookLiveData.removeObservers(requireActivity());
 
-            CoverViewHelper.searchColors(coverView, book);
-
             Bundle arguments = new Bundle();
             arguments.putSerializable(BookDetailActivity.ARG_KEY, book);
 
@@ -178,6 +175,7 @@ public class GalleryFragment extends Fragment implements OnBookClickListener {
             // https://android-developers.googleblog.com/2018/02/continuous-shared-element-transitions.html
             // https://guides.codepath.com/android/Shared-Element-Activity-Transition#3-start-activity
 
+            // https://stackoverflow.com/questions/26600263/how-do-i-prevent-the-status-bar-and-navigation-bar-from-animating-during-an-acti
             Fade fade = new Fade();
             fade.excludeTarget(coverView, true);
             // https://stackoverflow.com/questions/26567822/hiccups-in-activity-transitions-with-shared-elements

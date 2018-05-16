@@ -3,7 +3,9 @@ package fr.frogdevelopment.bibluelle.details;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.databinding.DataBindingUtil;
+import android.graphics.Bitmap;
 import android.graphics.Matrix;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.RippleDrawable;
 import android.os.Bundle;
@@ -15,6 +17,8 @@ import android.support.transition.Transition;
 import android.support.transition.TransitionInflater;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.graphics.ColorUtils;
+import android.support.v7.graphics.Palette;
 import android.text.TextUtils;
 import android.transition.Fade;
 import android.view.LayoutInflater;
@@ -31,6 +35,10 @@ import org.threeten.bp.format.DateTimeFormatter;
 import org.threeten.bp.format.DateTimeParseException;
 import org.threeten.bp.format.FormatStyle;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
 import fr.frogdevelopment.bibluelle.AppBarStateChangeListener;
 import fr.frogdevelopment.bibluelle.GlideApp;
 import fr.frogdevelopment.bibluelle.R;
@@ -43,25 +51,20 @@ public class BookDetailFragment extends Fragment {
     private static final DateTimeFormatter LONG_DATE_FORMATTER = DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG);
 
     private Book mBook;
+    private int topBackgroundColor;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         mBook = (Book) getArguments().getSerializable(BookDetailActivity.ARG_KEY);
-        CollapsingToolbarLayout collapseToolbar = requireActivity().findViewById(R.id.toolbar_layout);
-        if (mBook != null && collapseToolbar != null) {
-            AppBarLayout appBarLayout = requireActivity().findViewById(R.id.app_bar);
-            appBarLayout.addOnOffsetChangedListener(new AppBarStateChangeListener() {
-                @Override
-                public void onStateChanged(AppBarLayout appBarLayout, @AppBarStateChangeListener.State int state) {
-                    collapseToolbar.setTitleEnabled(state == AppBarStateChangeListener.COLLAPSED);
-                }
-            });
+    }
 
-            if (mBook.collapsedTitleColor != 0) {
-                collapseToolbar.setCollapsedTitleTextColor(mBook.collapsedTitleColor);
-            }
+    private static void addColor(double[] dominantLab, Map<Double, double[]> distances, Palette.Swatch swatch) {
+        if (swatch != null) {
+            double[] vibrantLab = new double[3];
+            ColorUtils.colorToLAB(swatch.getRgb(), vibrantLab);
+            distances.put(ColorUtils.distanceEuclidean(dominantLab, vibrantLab), vibrantLab);
         }
     }
 
@@ -91,6 +94,8 @@ public class BookDetailFragment extends Fragment {
 
                     @Override
                     public void onResourceReady(@NonNull Drawable resource, @Nullable com.bumptech.glide.request.transition.Transition<? super Drawable> transition) {
+                        setTopColors(resource);
+
                         startPostponedEnterTransition();
 
                         final float imageWidth = resource.getIntrinsicWidth();
@@ -105,6 +110,55 @@ public class BookDetailFragment extends Fragment {
                         super.onResourceReady(resource, transition);
                     }
                 });
+    }
+
+    private void setTopColors(@NonNull Drawable drawable) {
+        CollapsingToolbarLayout collapseToolbar = requireActivity().findViewById(R.id.toolbar_layout);
+        if (collapseToolbar != null) {
+
+            AppBarLayout appBarLayout = requireActivity().findViewById(R.id.app_bar);
+            appBarLayout.addOnOffsetChangedListener(new AppBarStateChangeListener() {
+                @Override
+                public void onStateChanged(AppBarLayout appBarLayout, @State int state) {
+                    collapseToolbar.setTitleEnabled(state == AppBarStateChangeListener.COLLAPSED);
+                }
+            });
+
+            Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
+
+            Palette.from(bitmap).generate(palette -> {
+
+                Palette.Swatch dominantSwatch = palette.getDominantSwatch();
+
+                if (dominantSwatch != null) {
+                    topBackgroundColor = dominantSwatch.getRgb();
+
+                    if (topBackgroundColor != 0) {
+                        collapseToolbar.setBackgroundColor(topBackgroundColor);
+                        collapseToolbar.setContentScrimColor(topBackgroundColor);
+                        collapseToolbar.setStatusBarScrimColor(topBackgroundColor);
+                    }
+
+                    double[] dominantLab = new double[3];
+                    ColorUtils.colorToLAB(topBackgroundColor, dominantLab);
+
+                    Map<Double, double[]> distances = new HashMap<>();
+                    addColor(dominantLab, distances, palette.getLightVibrantSwatch());
+                    addColor(dominantLab, distances, palette.getVibrantSwatch());
+                    addColor(dominantLab, distances, palette.getLightMutedSwatch());
+                    addColor(dominantLab, distances, palette.getMutedSwatch());
+                    addColor(dominantLab, distances, palette.getDarkMutedSwatch());
+                    addColor(dominantLab, distances, palette.getDarkVibrantSwatch());
+
+                    double[] max = distances.get(Collections.max(distances.keySet()));
+
+                    int topTextColor = ColorUtils.LABToColor(max[0], max[1], max[2]);
+                    if (topTextColor != 0) {
+                        collapseToolbar.setCollapsedTitleTextColor(topTextColor);
+                    }
+                }
+            });
+        }
     }
 
     @Override
@@ -144,6 +198,7 @@ public class BookDetailFragment extends Fragment {
 
             Intent intent = new Intent(requireContext(), CoverActivity.class);
             intent.putExtra(CoverActivity.ARG_BOOK, mBook);
+            intent.putExtra("topBackgroundColor", topBackgroundColor);
 
             Fade fade = new Fade();
             fade.excludeTarget(coverView, true);

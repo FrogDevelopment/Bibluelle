@@ -31,11 +31,8 @@
                 android:id="@+id/toolbar_layout"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@{book.dominantRgb}"
                 android:fitsSystemWindows="true"
-                app:contentScrim="@{book.dominantRgb}"
                 app:layout_scrollFlags="scroll|exitUntilCollapsed"
-                app:statusBarScrim="@{book.dominantRgb}"
                 app:title="@{book.title}"
                 app:titleEnabled="false"
                 app:toolbarId="@+id/toolbar">
