@@ -140,15 +140,15 @@ public class GalleryFragment extends Fragment implements OnBookClickListener {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
 
-            case R.id.action_list:
+            case R.id.gallery_action_list:
                 setSimpleList(mPreviews);
                 return true;
 
-            case R.id.action_grid:
+            case R.id.gallery_action_grid:
                 setGridList(mPreviews);
                 return true;
 
-            case R.id.action_carousel:
+            case R.id.gallery_action_carousel:
                 setCarouselList(mPreviews);
                 return true;
 

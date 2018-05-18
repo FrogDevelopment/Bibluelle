@@ -62,6 +62,9 @@
     <string name="global_off">Off</string>
     <string name="global_on">On</string>
     <string name="exit_press_back_twice_message">Press a second time to exit</string>
+    <string name="gallery_list_view">List</string>
+    <string name="gallery_grid_view">Grid</string>
+    <string name="gallery_carousel_view">Carousel</string>
 
     <string-array name="search_language_codes">
         <item>en</item>
