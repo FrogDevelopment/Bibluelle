@@ -37,6 +37,7 @@ public class ListBooksSectionedAdapter extends AbstractBooksSectionedAdapter<Lis
 
         mRequestBuilder
                 .clone()
+                .placeholder(R.drawable.no_image)
                 .load(mContext.getFileStreamPath(preview.getThumbnailFile()))
                 .diskCacheStrategy(DiskCacheStrategy.DATA)
                 .into(viewHolder.mBinding.itemCover);

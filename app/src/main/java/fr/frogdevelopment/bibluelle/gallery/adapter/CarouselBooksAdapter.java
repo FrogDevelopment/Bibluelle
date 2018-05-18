@@ -73,6 +73,7 @@ public class CarouselBooksAdapter extends RecyclerView.Adapter<CarouselBooksAdap
 
         mRequestBuilder
                 .clone()
+                .placeholder(R.drawable.no_image)
                 .load(mContext.getFileStreamPath(preview.getCoverFile()))
                 .diskCacheStrategy(DiskCacheStrategy.DATA)
                 .into(new DrawableImageViewTarget(viewHolder.mCoverView) {

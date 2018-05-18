@@ -41,6 +41,7 @@ public class GridBooksSectionedAdapter extends AbstractBooksSectionedAdapter<Gri
 
         mRequestBuilder
                 .clone()
+                .placeholder(R.drawable.no_image)
                 .load(mContext.getFileStreamPath(preview.getCoverFile()))
                 .diskCacheStrategy(DiskCacheStrategy.DATA)
                 .into(new DrawableImageViewTarget(viewHolder.mCoverView) {
