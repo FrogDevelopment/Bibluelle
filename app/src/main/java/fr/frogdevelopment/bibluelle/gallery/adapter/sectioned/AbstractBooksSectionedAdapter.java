@@ -12,27 +12,31 @@ import com.truizlop.sectionedrecyclerview.SimpleSectionedAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import fr.frogdevelopment.bibluelle.GlideRequest;
 import fr.frogdevelopment.bibluelle.GlideRequests;
 import fr.frogdevelopment.bibluelle.R;
 import fr.frogdevelopment.bibluelle.data.entities.BookPreview;
+import fr.frogdevelopment.bibluelle.gallery.adapter.FilterableAdapter;
 import fr.frogdevelopment.bibluelle.gallery.adapter.OnBookClickListener;
 
-public abstract class AbstractBooksSectionedAdapter<V extends RecyclerView.ViewHolder> extends SimpleSectionedAdapter<V> {
+public abstract class AbstractBooksSectionedAdapter<V extends RecyclerView.ViewHolder> extends SimpleSectionedAdapter<V> implements FilterableAdapter {
 
     protected final Context mContext;
     protected final OnBookClickListener mListener;
     protected final GlideRequest<Drawable> mRequestBuilder;
+    private final List<BookPreview> mPreviews;
     private final SortedMap<String, List<BookPreview>> mItems = new TreeMap<>();
     private final List<String> sections = new ArrayList<>();
     private final LayoutInflater mLayoutInflater;
 
     AbstractBooksSectionedAdapter(Context context, List<BookPreview> previews, OnBookClickListener listener, GlideRequests glideRequests) {
         this.mContext = context;
-
+        this.mPreviews = previews;
         transformData(previews);
 
         this.mListener = listener;
@@ -96,4 +100,52 @@ public abstract class AbstractBooksSectionedAdapter<V extends RecyclerView.ViewH
         return mItems.get(getSection(section)).get(position);
     }
 
+    @Override
+    public void reset() {
+        transformData(mPreviews);
+    }
+
+    public void filter(String query) {
+        SortedMap<String, List<BookPreview>> filteredItems = new TreeMap<>();
+        for (Map.Entry<String, List<BookPreview>> entry : mItems.entrySet()) {
+            List<BookPreview> previews = entry.getValue().stream().filter(p -> p.title.contains(query)).collect(Collectors.toList());
+            if (!previews.isEmpty()) {
+                filteredItems.put(entry.getKey(), previews);
+            }
+        }
+    }
+
+    //    public void animateTo(List<BookPreview> models) {
+//        applyAndAnimateRemovals(models);
+//        applyAndAnimateAdditions(models);
+//        applyAndAnimateMovedItems(models);
+//    }
+//
+//    private void applyAndAnimateRemovals(List<BookPreview> previews) {
+//        for (int i = mPreviews.size() - 1; i >= 0; i--) {
+//            final BookPreview model = mPreviews.get(i);
+//            if (!previews.contains(model)) {
+//                mRecyclerView.getAdapter().notifyItemRemoved(i);
+//            }
+//        }
+//    }
+//
+//    private void applyAndAnimateAdditions(List<BookPreview> previews) {
+//        for (int i = 0, count = previews.size(); i < count; i++) {
+//            final BookPreview model = previews.get(i);
+//            if (!mPreviews.contains(model)) {
+//                mRecyclerView.getAdapter().notifyItemInserted(i);
+//            }
+//        }
+//    }
+//
+//    private void applyAndAnimateMovedItems(List<BookPreview> previews) {
+//        for (int toPosition = previews.size() - 1; toPosition >= 0; toPosition--) {
+//            final BookPreview model = previews.get(toPosition);
+//            final int fromPosition = mPreviews.indexOf(model);
+//            if (fromPosition >= 0 && fromPosition != toPosition) {
+//                mRecyclerView.getAdapter().notifyItemMoved(fromPosition, toPosition);
+//            }
+//        }
+//    }
 }

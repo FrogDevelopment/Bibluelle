@@ -26,7 +26,6 @@ import com.azoft.carousellayoutmanager.CarouselZoomPostLayoutListener;
 import com.truizlop.sectionedrecyclerview.SectionedSpanSizeLookup;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import fr.frogdevelopment.bibluelle.GlideApp;
 import fr.frogdevelopment.bibluelle.GlideRequests;
@@ -36,6 +35,7 @@ import fr.frogdevelopment.bibluelle.data.entities.Book;
 import fr.frogdevelopment.bibluelle.data.entities.BookPreview;
 import fr.frogdevelopment.bibluelle.details.BookDetailActivity;
 import fr.frogdevelopment.bibluelle.gallery.adapter.CarouselBooksAdapter;
+import fr.frogdevelopment.bibluelle.gallery.adapter.FilterableAdapter;
 import fr.frogdevelopment.bibluelle.gallery.adapter.OnBookClickListener;
 import fr.frogdevelopment.bibluelle.gallery.adapter.sectioned.GridBooksSectionedAdapter;
 import fr.frogdevelopment.bibluelle.gallery.adapter.sectioned.ListBooksSectionedAdapter;
@@ -178,73 +178,19 @@ public class GalleryFragment extends Fragment implements OnBookClickListener, Se
 
     @Override
     public boolean onQueryTextSubmit(String text) {
-        final String query = text.toLowerCase();
-        if (TextUtils.isEmpty(query)) {
-            setGridList(mPreviews);
-        } else {
-            setGridList(mPreviews.stream().filter(p -> p.title.toLowerCase().contains(query)).collect(Collectors.toList()));
-        }
-
-        return true;
+        return false;
     }
 
     // https://stackoverflow.com/a/30429439/244911
     @Override
-    public boolean onQueryTextChange(String query) {
-//        query = query.toLowerCase();
-//
-//        final List<BookPreview> filteredModelList = new ArrayList<>();
-//        for (BookPreview preview : mPreviews) {
-//            final String title = preview.title.toLowerCase();
-//            if (title.contains(query)) {
-//                filteredModelList.add(preview);
-//            }
-//        }
-//
-//        animateTo(filteredModelList);
-
-//        mRecyclerView.scrollToPosition(0);
-
-//        return true;
+    public boolean onQueryTextChange(String text) {
+        final String query = text.toLowerCase();
         if (TextUtils.isEmpty(query)) {
-            setGridList(mPreviews);
-            return true;
+            ((FilterableAdapter) mRecyclerView.getAdapter()).reset();
         } else {
-            return false;
+            ((FilterableAdapter) mRecyclerView.getAdapter()).filter(query);
         }
-    }
 
-//    public void animateTo(List<BookPreview> models) {
-//        applyAndAnimateRemovals(models);
-//        applyAndAnimateAdditions(models);
-//        applyAndAnimateMovedItems(models);
-//    }
-//
-//    private void applyAndAnimateRemovals(List<BookPreview> previews) {
-//        for (int i = mPreviews.size() - 1; i >= 0; i--) {
-//            final BookPreview model = mPreviews.get(i);
-//            if (!previews.contains(model)) {
-//                mRecyclerView.getAdapter().notifyItemRemoved(i);
-//            }
-//        }
-//    }
-//
-//    private void applyAndAnimateAdditions(List<BookPreview> previews) {
-//        for (int i = 0, count = previews.size(); i < count; i++) {
-//            final BookPreview model = previews.get(i);
-//            if (!mPreviews.contains(model)) {
-//                mRecyclerView.getAdapter().notifyItemInserted(i);
-//            }
-//        }
-//    }
-//
-//    private void applyAndAnimateMovedItems(List<BookPreview> previews) {
-//        for (int toPosition = previews.size() - 1; toPosition >= 0; toPosition--) {
-//            final BookPreview model = previews.get(toPosition);
-//            final int fromPosition = mPreviews.indexOf(model);
-//            if (fromPosition >= 0 && fromPosition != toPosition) {
-//                mRecyclerView.getAdapter().notifyItemMoved(fromPosition, toPosition);
-//            }
-//        }
-//    }
+        return true;
+    }
 }
