@@ -1,8 +1,6 @@
 package fr.frogdevelopment.bibluelle.gallery;
 
-import android.app.SearchManager;
 import android.arch.lifecycle.LiveData;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -13,6 +11,7 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
+import android.text.TextUtils;
 import android.transition.Fade;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -27,6 +26,7 @@ import com.azoft.carousellayoutmanager.CarouselZoomPostLayoutListener;
 import com.truizlop.sectionedrecyclerview.SectionedSpanSizeLookup;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import fr.frogdevelopment.bibluelle.GlideApp;
 import fr.frogdevelopment.bibluelle.GlideRequests;
@@ -40,7 +40,7 @@ import fr.frogdevelopment.bibluelle.gallery.adapter.OnBookClickListener;
 import fr.frogdevelopment.bibluelle.gallery.adapter.sectioned.GridBooksSectionedAdapter;
 import fr.frogdevelopment.bibluelle.gallery.adapter.sectioned.ListBooksSectionedAdapter;
 
-public class GalleryFragment extends Fragment implements OnBookClickListener {
+public class GalleryFragment extends Fragment implements OnBookClickListener, SearchView.OnQueryTextListener {
 
     private RecyclerView mRecyclerView;
     private List<BookPreview> mPreviews;
@@ -69,28 +69,16 @@ public class GalleryFragment extends Fragment implements OnBookClickListener {
         DatabaseCreator.getInstance().getBookDao().loadAllPreviews().observe(this, books -> {
             view.findViewById(R.id.spinner).setVisibility(View.GONE);
 
-            // Get the intent, verify the action and get the query
-//            Intent intent = requireActivity().getIntent();
-//            if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
-//                String query = intent.getStringExtra(SearchManager.QUERY);
-//                if (TextUtils.isEmpty(query)) {
-//                    mPreviews = books;
-//                } else {
-//                    mPreviews = books.stream().filter(p -> p.title.contains(query)).collect(Collectors.toList());
-//                }
-//            } else {
-//                mPreviews = books;
-//            } // fixme do not start a new activity
-//                mPreviews = books;
+            mPreviews = books;
 
             // default
-            setGridList();
+            setGridList(mPreviews);
         });
     }
 
-    private void setSimpleList() {
+    private void setSimpleList(List<BookPreview> previews) {
         // ADAPTER
-        ListBooksSectionedAdapter adapter = new ListBooksSectionedAdapter(requireContext(), mPreviews, this, mGlideRequests);
+        ListBooksSectionedAdapter adapter = new ListBooksSectionedAdapter(requireContext(), previews, this, mGlideRequests);
         mRecyclerView.setAdapter(adapter);
 
         // LAYOUT MANAGER
@@ -98,9 +86,9 @@ public class GalleryFragment extends Fragment implements OnBookClickListener {
         mRecyclerView.setLayoutManager(layout);
     }
 
-    private void setCarouselList() {
+    private void setCarouselList(List<BookPreview> previews) {
         // ADAPTER
-        CarouselBooksAdapter adapter = new CarouselBooksAdapter(requireContext(), mPreviews, this, mGlideRequests);
+        CarouselBooksAdapter adapter = new CarouselBooksAdapter(requireContext(), previews, this, mGlideRequests);
         mRecyclerView.setAdapter(adapter);
 
         // LAYOUT MANAGER https://github.com/Azoft/CarouselLayoutManager
@@ -111,9 +99,9 @@ public class GalleryFragment extends Fragment implements OnBookClickListener {
         mRecyclerView.setLayoutManager(layoutManager);
     }
 
-    private void setGridList() {
+    private void setGridList(List<BookPreview> previews) {
         // ADAPTER
-        GridBooksSectionedAdapter adapter = new GridBooksSectionedAdapter(requireContext(), mPreviews, this, mGlideRequests);
+        GridBooksSectionedAdapter adapter = new GridBooksSectionedAdapter(requireContext(), previews, this, mGlideRequests);
         mRecyclerView.setAdapter(adapter);
 
         // LAYOUT MANAGER
@@ -129,12 +117,8 @@ public class GalleryFragment extends Fragment implements OnBookClickListener {
         super.onCreateOptionsMenu(menu, inflater);
 
         // Get the SearchView and set the searchable configuration
-        SearchManager searchManager = (SearchManager) requireContext().getSystemService(Context.SEARCH_SERVICE);
         SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
-        // Assumes current activity is the searchable activity
-        searchView.setSearchableInfo(searchManager.getSearchableInfo(requireActivity().getComponentName()));
-        searchView.setIconifiedByDefault(true); // Do not iconify the widget; expand it by default
-        searchView.setSubmitButtonEnabled(true);
+        searchView.setOnQueryTextListener(this);
     }
 
     @Override
@@ -142,15 +126,15 @@ public class GalleryFragment extends Fragment implements OnBookClickListener {
         switch (item.getItemId()) {
 
             case R.id.gallery_action_list:
-                setSimpleList();
+                setSimpleList(mPreviews);
                 return true;
 
             case R.id.gallery_action_grid:
-                setGridList();
+                setGridList(mPreviews);
                 return true;
 
             case R.id.gallery_action_carousel:
-                setCarouselList();
+                setCarouselList(mPreviews);
                 return true;
 
             default:
@@ -190,7 +174,77 @@ public class GalleryFragment extends Fragment implements OnBookClickListener {
             ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(requireActivity(), coverView, "cover");
             startActivity(intent, options.toBundle());
         });
-
     }
 
+    @Override
+    public boolean onQueryTextSubmit(String text) {
+        final String query = text.toLowerCase();
+        if (TextUtils.isEmpty(query)) {
+            setGridList(mPreviews);
+        } else {
+            setGridList(mPreviews.stream().filter(p -> p.title.toLowerCase().contains(query)).collect(Collectors.toList()));
+        }
+
+        return true;
+    }
+
+    // https://stackoverflow.com/a/30429439/244911
+    @Override
+    public boolean onQueryTextChange(String query) {
+//        query = query.toLowerCase();
+//
+//        final List<BookPreview> filteredModelList = new ArrayList<>();
+//        for (BookPreview preview : mPreviews) {
+//            final String title = preview.title.toLowerCase();
+//            if (title.contains(query)) {
+//                filteredModelList.add(preview);
+//            }
+//        }
+//
+//        animateTo(filteredModelList);
+
+//        mRecyclerView.scrollToPosition(0);
+
+//        return true;
+        if (TextUtils.isEmpty(query)) {
+            setGridList(mPreviews);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+//    public void animateTo(List<BookPreview> models) {
+//        applyAndAnimateRemovals(models);
+//        applyAndAnimateAdditions(models);
+//        applyAndAnimateMovedItems(models);
+//    }
+//
+//    private void applyAndAnimateRemovals(List<BookPreview> previews) {
+//        for (int i = mPreviews.size() - 1; i >= 0; i--) {
+//            final BookPreview model = mPreviews.get(i);
+//            if (!previews.contains(model)) {
+//                mRecyclerView.getAdapter().notifyItemRemoved(i);
+//            }
+//        }
+//    }
+//
+//    private void applyAndAnimateAdditions(List<BookPreview> previews) {
+//        for (int i = 0, count = previews.size(); i < count; i++) {
+//            final BookPreview model = previews.get(i);
+//            if (!mPreviews.contains(model)) {
+//                mRecyclerView.getAdapter().notifyItemInserted(i);
+//            }
+//        }
+//    }
+//
+//    private void applyAndAnimateMovedItems(List<BookPreview> previews) {
+//        for (int toPosition = previews.size() - 1; toPosition >= 0; toPosition--) {
+//            final BookPreview model = previews.get(toPosition);
+//            final int fromPosition = mPreviews.indexOf(model);
+//            if (fromPosition >= 0 && fromPosition != toPosition) {
+//                mRecyclerView.getAdapter().notifyItemMoved(fromPosition, toPosition);
+//            }
+//        }
+//    }
 }
