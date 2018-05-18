@@ -1,6 +1,8 @@
 package fr.frogdevelopment.bibluelle.gallery;
 
+import android.app.SearchManager;
 import android.arch.lifecycle.LiveData;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -10,6 +12,7 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
 import android.transition.Fade;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -23,11 +26,7 @@ import com.azoft.carousellayoutmanager.CarouselLayoutManager;
 import com.azoft.carousellayoutmanager.CarouselZoomPostLayoutListener;
 import com.truizlop.sectionedrecyclerview.SectionedSpanSizeLookup;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.SortedMap;
-import java.util.TreeMap;
 
 import fr.frogdevelopment.bibluelle.GlideApp;
 import fr.frogdevelopment.bibluelle.GlideRequests;
@@ -44,7 +43,7 @@ import fr.frogdevelopment.bibluelle.gallery.adapter.sectioned.ListBooksSectioned
 public class GalleryFragment extends Fragment implements OnBookClickListener {
 
     private RecyclerView mRecyclerView;
-    private SortedMap<String, List<BookPreview>> mPreviews;
+    private List<BookPreview> mPreviews;
     private GlideRequests mGlideRequests;
 
     @Override
@@ -70,30 +69,28 @@ public class GalleryFragment extends Fragment implements OnBookClickListener {
         DatabaseCreator.getInstance().getBookDao().loadAllPreviews().observe(this, books -> {
             view.findViewById(R.id.spinner).setVisibility(View.GONE);
 
-            mPreviews = new TreeMap<>();
-            if (books != null) {
-                List<BookPreview> previews;
-                for (BookPreview book : books) {
-                    // fixme dynamic section
-                    if (this.mPreviews.containsKey(book.author)) {
-                        previews = this.mPreviews.get(book.author);
-                    } else {
-                        previews = new ArrayList<>();
-                        this.mPreviews.put(book.author, previews);
-                    }
-
-                    previews.add(book);
-                }
-            }
+            // Get the intent, verify the action and get the query
+//            Intent intent = requireActivity().getIntent();
+//            if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
+//                String query = intent.getStringExtra(SearchManager.QUERY);
+//                if (TextUtils.isEmpty(query)) {
+//                    mPreviews = books;
+//                } else {
+//                    mPreviews = books.stream().filter(p -> p.title.contains(query)).collect(Collectors.toList());
+//                }
+//            } else {
+//                mPreviews = books;
+//            } // fixme do not start a new activity
+//                mPreviews = books;
 
             // default
-            setGridList(mPreviews);
+            setGridList();
         });
     }
 
-    private void setSimpleList(SortedMap<String, List<BookPreview>> previews) {
+    private void setSimpleList() {
         // ADAPTER
-        ListBooksSectionedAdapter adapter = new ListBooksSectionedAdapter(requireContext(), previews, this, mGlideRequests);
+        ListBooksSectionedAdapter adapter = new ListBooksSectionedAdapter(requireContext(), mPreviews, this, mGlideRequests);
         mRecyclerView.setAdapter(adapter);
 
         // LAYOUT MANAGER
@@ -101,13 +98,9 @@ public class GalleryFragment extends Fragment implements OnBookClickListener {
         mRecyclerView.setLayoutManager(layout);
     }
 
-    private void setCarouselList(SortedMap<String, List<BookPreview>> previews) {
+    private void setCarouselList() {
         // ADAPTER
-        List<BookPreview> items = new ArrayList<>();
-        for (Map.Entry<String, List<BookPreview>> entry : previews.entrySet()) {
-            items.addAll(entry.getValue());
-        }
-        CarouselBooksAdapter adapter = new CarouselBooksAdapter(requireContext(), items, this, mGlideRequests);
+        CarouselBooksAdapter adapter = new CarouselBooksAdapter(requireContext(), mPreviews, this, mGlideRequests);
         mRecyclerView.setAdapter(adapter);
 
         // LAYOUT MANAGER https://github.com/Azoft/CarouselLayoutManager
@@ -118,9 +111,9 @@ public class GalleryFragment extends Fragment implements OnBookClickListener {
         mRecyclerView.setLayoutManager(layoutManager);
     }
 
-    private void setGridList(SortedMap<String, List<BookPreview>> previews) {
+    private void setGridList() {
         // ADAPTER
-        GridBooksSectionedAdapter adapter = new GridBooksSectionedAdapter(requireContext(), previews, this, mGlideRequests);
+        GridBooksSectionedAdapter adapter = new GridBooksSectionedAdapter(requireContext(), mPreviews, this, mGlideRequests);
         mRecyclerView.setAdapter(adapter);
 
         // LAYOUT MANAGER
@@ -134,6 +127,14 @@ public class GalleryFragment extends Fragment implements OnBookClickListener {
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.home, menu);
         super.onCreateOptionsMenu(menu, inflater);
+
+        // Get the SearchView and set the searchable configuration
+        SearchManager searchManager = (SearchManager) requireContext().getSystemService(Context.SEARCH_SERVICE);
+        SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
+        // Assumes current activity is the searchable activity
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(requireActivity().getComponentName()));
+        searchView.setIconifiedByDefault(true); // Do not iconify the widget; expand it by default
+        searchView.setSubmitButtonEnabled(true);
     }
 
     @Override
@@ -141,15 +142,15 @@ public class GalleryFragment extends Fragment implements OnBookClickListener {
         switch (item.getItemId()) {
 
             case R.id.gallery_action_list:
-                setSimpleList(mPreviews);
+                setSimpleList();
                 return true;
 
             case R.id.gallery_action_grid:
-                setGridList(mPreviews);
+                setGridList();
                 return true;
 
             case R.id.gallery_action_carousel:
-                setCarouselList(mPreviews);
+                setCarouselList();
                 return true;
 
             default:

@@ -9,7 +9,6 @@ import android.view.ViewGroup;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
 import java.util.List;
-import java.util.SortedMap;
 
 import fr.frogdevelopment.bibluelle.GlideRequests;
 import fr.frogdevelopment.bibluelle.R;
@@ -19,7 +18,7 @@ import fr.frogdevelopment.bibluelle.gallery.adapter.OnBookClickListener;
 
 public class ListBooksSectionedAdapter extends AbstractBooksSectionedAdapter<ListBooksSectionedAdapter.ViewHolder> {
 
-    public ListBooksSectionedAdapter(Context context, SortedMap<String, List<BookPreview>> previews, OnBookClickListener listener, GlideRequests glideRequests) {
+    public ListBooksSectionedAdapter(Context context, List<BookPreview> previews, OnBookClickListener listener, GlideRequests glideRequests) {
         super(context, previews, listener, glideRequests);
     }
 

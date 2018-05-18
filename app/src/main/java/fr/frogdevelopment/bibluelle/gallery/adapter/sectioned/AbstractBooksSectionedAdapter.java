@@ -13,6 +13,7 @@ import com.truizlop.sectionedrecyclerview.SimpleSectionedAdapter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.SortedMap;
+import java.util.TreeMap;
 
 import fr.frogdevelopment.bibluelle.GlideRequest;
 import fr.frogdevelopment.bibluelle.GlideRequests;
@@ -25,14 +26,15 @@ public abstract class AbstractBooksSectionedAdapter<V extends RecyclerView.ViewH
     protected final Context mContext;
     protected final OnBookClickListener mListener;
     protected final GlideRequest<Drawable> mRequestBuilder;
-    private final SortedMap<String, List<BookPreview>> mItems;
-    private final List<String> sections;
+    private final SortedMap<String, List<BookPreview>> mItems = new TreeMap<>();
+    private final List<String> sections = new ArrayList<>();
     private final LayoutInflater mLayoutInflater;
 
-    AbstractBooksSectionedAdapter(Context context, SortedMap<String, List<BookPreview>> previews, OnBookClickListener listener, GlideRequests glideRequests) {
+    AbstractBooksSectionedAdapter(Context context, List<BookPreview> previews, OnBookClickListener listener, GlideRequests glideRequests) {
         this.mContext = context;
-        this.mItems = previews;
-        this.sections = new ArrayList<>(mItems.keySet());
+
+        transformData(previews);
+
         this.mListener = listener;
 
         this.mLayoutInflater = LayoutInflater.from(mContext);
@@ -40,6 +42,27 @@ public abstract class AbstractBooksSectionedAdapter<V extends RecyclerView.ViewH
         this.mRequestBuilder = glideRequests
                 .asDrawable()
                 .fitCenter();
+    }
+
+    private void transformData(List<BookPreview> previews) {
+        mItems.clear();
+        sections.clear();
+
+        List<BookPreview> previewsByAuthor;
+        for (BookPreview book : previews) {
+            if (this.mItems.containsKey(book.author)) {
+                previewsByAuthor = this.mItems.get(book.author);
+            } else {
+                previewsByAuthor = new ArrayList<>();
+                this.mItems.put(book.author, previewsByAuthor);
+            }
+
+            previewsByAuthor.add(book);
+        }
+
+        this.sections.addAll(mItems.keySet());
+
+        notifyDataSetChanged();
     }
 
     protected View inflate(@LayoutRes int resource, ViewGroup parent) {

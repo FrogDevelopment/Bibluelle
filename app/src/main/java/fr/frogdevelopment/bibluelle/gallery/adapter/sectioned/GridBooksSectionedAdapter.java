@@ -14,7 +14,6 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.target.DrawableImageViewTarget;
 
 import java.util.List;
-import java.util.SortedMap;
 
 import fr.frogdevelopment.bibluelle.GlideRequests;
 import fr.frogdevelopment.bibluelle.R;
@@ -23,7 +22,7 @@ import fr.frogdevelopment.bibluelle.gallery.adapter.OnBookClickListener;
 
 public class GridBooksSectionedAdapter extends AbstractBooksSectionedAdapter<GridBooksSectionedAdapter.ViewHolder> {
 
-    public GridBooksSectionedAdapter(Context context, SortedMap<String, List<BookPreview>> previews, OnBookClickListener listener, GlideRequests glideRequests) {
+    public GridBooksSectionedAdapter(Context context, List<BookPreview> previews, OnBookClickListener listener, GlideRequests glideRequests) {
         super(context, previews, listener, glideRequests);
     }
 
