@@ -12,6 +12,7 @@ import android.widget.Toast;
 import com.github.ybq.android.spinkit.SpinKitView;
 import com.jakewharton.threetenabp.AndroidThreeTen;
 
+import es.dmoral.toasty.Toasty;
 import fr.frogdevelopment.bibluelle.data.DatabaseCreator;
 import fr.frogdevelopment.bibluelle.gallery.GalleryFragment;
 import fr.frogdevelopment.bibluelle.manage.ManageFragment;
@@ -76,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
 				super.onBackPressed();
 			} else {
 				this.doubleBackToExitPressedOnce = true;
-				Toast.makeText(this, "R.string.exit_press_back_twice_message", Toast.LENGTH_SHORT).show();
+				Toasty.info(this, getString(R.string.exit_press_back_twice_message), Toast.LENGTH_SHORT).show();
 			}
 		} else {
 			this.doubleBackToExitPressedOnce = false;
