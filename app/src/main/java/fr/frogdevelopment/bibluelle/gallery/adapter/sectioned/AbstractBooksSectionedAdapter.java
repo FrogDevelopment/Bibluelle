@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.LayoutRes;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -120,8 +121,20 @@ public abstract class AbstractBooksSectionedAdapter<V extends RecyclerView.ViewH
 				preview = booksBySection.get(j);
 				if (!preview.title.toLowerCase().contains(query)) {
 					booksBySection.remove(j);
-					notifyItemRemoved(i + 1 + j);
-					notifyItemChanged(i); // update header count
+
+					// resolve previous item position
+					int position = 0;
+					for (int k = 0; k < i; k++) {
+						position += mItems.get(mSections.get(k)).size();
+					}
+
+					int sectionPosition = position + i;
+					notifyItemChanged(sectionPosition); // update header count
+					Log.d("ZUT", "author updated = " + preview.author + " at position " + sectionPosition);
+
+					int bookPosition = sectionPosition + j + 1;
+					notifyItemRemoved(bookPosition);
+					Log.d("ZUT", "book removed = " + preview.title + " at position " + bookPosition);
 				}
 			}
 
@@ -129,6 +142,7 @@ public abstract class AbstractBooksSectionedAdapter<V extends RecyclerView.ViewH
 				mItems.remove(section);
 				mSections.remove(i);
 				notifyItemRemoved(i);
+				Log.d("ZUT", "author removed = " + section + " at position " + i);
 			}
 		}
 	}
@@ -137,26 +151,46 @@ public abstract class AbstractBooksSectionedAdapter<V extends RecyclerView.ViewH
 	public void filterBack(String query) {
 		BookPreview preview;
 		List<BookPreview> booksBySection;
-		for (int i = mOriginalItems.size() - 1; i >= 0; i--) {
+		for (int i = 0; i < mOriginalItems.size(); i++) {
 			preview = mOriginalItems.get(i);
 			if (preview.title.toLowerCase().contains(query)) {
-
 				if (mSections.contains(preview.author)) {
 					if (!mItems.get(preview.author).contains(preview)) {
 						booksBySection = new ArrayList<>(mItems.get(preview.author));
 						booksBySection.add(preview);
 						booksBySection.sort(Comparator.comparing(b -> b.publishedDate));
 						mItems.put(preview.author, booksBySection);
-						notifyItemInserted(i + booksBySection.indexOf(preview));
-						notifyItemChanged(mSections.indexOf(preview.author)); // update header count
+						int sectionPosition = mSections.indexOf(preview.author);
+
+						// resolve previous item position
+						int position = 0;
+						for (int k = 0; k < sectionPosition; k++) {
+							position += mItems.get(mSections.get(k)).size();
+						}
+
+						notifyItemChanged(position + sectionPosition); // update header count
+						Log.d("ZUT", "author updated = " + preview.author + " at position " + (position + sectionPosition));
+
+						int bookPosition = position + sectionPosition + booksBySection.indexOf(preview) + 1;
+						notifyItemInserted(bookPosition);
+						Log.d("ZUT", "book inserted = " + preview.title + " at position " + bookPosition);
 					}
 				} else {
 					mSections.add(preview.author);
 					Collections.sort(mSections);
 					int sectionPosition = mSections.indexOf(preview.author);
-					notifyItemInserted(sectionPosition);
+					// resolve previous item position
+					int position = 0;
+					for (int k = 0; k < sectionPosition; k++) {
+						String section = mSections.get(k);
+						position += mItems.get(section).size();
+					}
+					notifyItemInserted(position);
+					Log.d("ZUT", "author inserted = " + preview.author + " at position " + position);
 					mItems.put(preview.author, Collections.singletonList(preview));
-					notifyItemInserted(sectionPosition + 1);
+					int bookPosition = position + 1;
+					notifyItemInserted(bookPosition);
+					Log.d("ZUT", "book inserted = " + preview.title + " at position " + bookPosition);
 				}
 			}
 		}
