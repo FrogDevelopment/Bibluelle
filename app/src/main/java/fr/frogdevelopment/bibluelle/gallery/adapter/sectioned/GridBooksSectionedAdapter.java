@@ -28,9 +28,7 @@ public class GridBooksSectionedAdapter extends AbstractBooksSectionedAdapter<Gri
 
     @Override
     protected ViewHolder onCreateItemViewHolder(ViewGroup parent, int viewType) {
-        View view = inflate(R.layout.item_grid, parent);
-
-        return new ViewHolder(view);
+        return new ViewHolder(inflate(R.layout.item_grid, parent));
     }
 
     @Override

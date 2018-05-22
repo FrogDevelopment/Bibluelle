@@ -3,6 +3,9 @@ package fr.frogdevelopment.bibluelle.data.entities;
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Ignore;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+
 import java.io.Serializable;
 
 public class BookPreview implements Serializable {
@@ -21,6 +24,9 @@ public class BookPreview implements Serializable {
 	@ColumnInfo(name = "author")
 	public String author;
 
+	@ColumnInfo(name = "published_date")
+	public String publishedDate;
+
 	@Ignore
 	public String publisher;
 
@@ -36,5 +42,25 @@ public class BookPreview implements Serializable {
 
 	public String getCoverFile() {
 		return isbn + "_cover";
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+
+		if (o == null || getClass() != o.getClass()) return false;
+
+		BookPreview that = (BookPreview) o;
+
+		return new EqualsBuilder()
+				.append(isbn, that.isbn)
+				.isEquals();
+	}
+
+	@Override
+	public int hashCode() {
+		return new HashCodeBuilder(17, 37)
+				.append(isbn)
+				.toHashCode();
 	}
 }
