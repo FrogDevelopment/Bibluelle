@@ -14,7 +14,6 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.target.DrawableImageViewTarget;
 
 import java.util.List;
-import java.util.SortedMap;
 
 import fr.frogdevelopment.bibluelle.GlideRequests;
 import fr.frogdevelopment.bibluelle.R;
@@ -23,15 +22,13 @@ import fr.frogdevelopment.bibluelle.gallery.adapter.OnBookClickListener;
 
 public class GridBooksSectionedAdapter extends AbstractBooksSectionedAdapter<GridBooksSectionedAdapter.ViewHolder> {
 
-    public GridBooksSectionedAdapter(Context context, SortedMap<String, List<BookPreview>> previews, OnBookClickListener listener, GlideRequests glideRequests) {
+    public GridBooksSectionedAdapter(Context context, List<BookPreview> previews, OnBookClickListener listener, GlideRequests glideRequests) {
         super(context, previews, listener, glideRequests);
     }
 
     @Override
     protected ViewHolder onCreateItemViewHolder(ViewGroup parent, int viewType) {
-        View view = inflate(R.layout.item_grid, parent);
-
-        return new ViewHolder(view);
+        return new ViewHolder(inflate(R.layout.item_grid, parent));
     }
 
     @Override
@@ -42,6 +39,7 @@ public class GridBooksSectionedAdapter extends AbstractBooksSectionedAdapter<Gri
 
         mRequestBuilder
                 .clone()
+                .placeholder(R.drawable.no_image)
                 .load(mContext.getFileStreamPath(preview.getCoverFile()))
                 .diskCacheStrategy(DiskCacheStrategy.DATA)
                 .into(new DrawableImageViewTarget(viewHolder.mCoverView) {

@@ -46,7 +46,6 @@
         </activity>
         <activity
             android:name=".cover.CoverActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize"
             android:parentActivityName=".details.BookDetailActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data

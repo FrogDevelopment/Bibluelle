@@ -1,16 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-      xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
     <item
-        android:id="@+id/action_list"
-        android:title="List"
-        app:showAsAction="never"/>
+        android:id="@+id/action_search"
+        android:title="@string/action_search"
+        app:actionViewClass="android.support.v7.widget.SearchView"
+        app:showAsAction="ifRoom" />
+
     <item
-        android:id="@+id/action_grid"
-        android:title="Grid"
-        app:showAsAction="never"/>
+        android:id="@+id/gallery_action_list"
+        android:title="@string/gallery_list_view"
+        app:showAsAction="never" />
     <item
-        android:id="@+id/action_carousel"
-        android:title="Carousel"
-        app:showAsAction="never"/>
+        android:id="@+id/gallery_action_grid"
+        android:title="@string/gallery_grid_view"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/gallery_action_carousel"
+        android:title="@string/gallery_carousel_view"
+        app:showAsAction="never" />
 </menu>

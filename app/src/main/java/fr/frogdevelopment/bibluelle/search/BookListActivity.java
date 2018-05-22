@@ -9,13 +9,11 @@ import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import fr.frogdevelopment.bibluelle.CoverViewHelper;
 import fr.frogdevelopment.bibluelle.R;
 import fr.frogdevelopment.bibluelle.data.DatabaseCreator;
 import fr.frogdevelopment.bibluelle.data.entities.Book;
@@ -63,7 +61,7 @@ public class BookListActivity extends AppCompatActivity {
         mSpinner = findViewById(R.id.spinner);
 
         RecyclerView recyclerView = findViewById(R.id.book_list);
-        mAdapter = new ListBooksAdapter(v -> showDetails(v.findViewById(R.id.item_cover), (BookPreview) v.getTag()));
+        mAdapter = new ListBooksAdapter(v -> showDetails((BookPreview) v.getTag()));
         recyclerView.setAdapter(mAdapter);
         recyclerView.addOnScrollListener(new EndlessRecyclerViewScrollListener(recyclerView.getLayoutManager()) {
             @Override
@@ -116,7 +114,7 @@ public class BookListActivity extends AppCompatActivity {
 
             if (previews != null) {
                 if (page == 0 && previews.size() == 1) {
-                    showDetails(null, previews.get(0));
+                    showDetails(previews.get(0));
                 } else {
                     mAdapter.addBooks(previews);
                 }
@@ -126,7 +124,7 @@ public class BookListActivity extends AppCompatActivity {
         });
     }
 
-    private void showDetails(ImageView coverView, BookPreview preview) {
+    private void showDetails(BookPreview preview) {
         mSpinner.setVisibility(View.VISIBLE);
 
         if (preview.alreadySaved) {
@@ -136,7 +134,7 @@ public class BookListActivity extends AppCompatActivity {
                 mSpinner.setVisibility(View.INVISIBLE);
 
                 if (book != null) {
-                    doShowDetails(coverView, book);
+                    doShowDetails(book);
                 }
             });
         } else {
@@ -144,15 +142,13 @@ public class BookListActivity extends AppCompatActivity {
                 mSpinner.setVisibility(View.INVISIBLE);
 
                 if (book != null) {
-                    doShowDetails(coverView, book);
+                    doShowDetails(book);
                 }
             });
         }
     }
 
-    private void doShowDetails(ImageView imageView, Book book) {
-        CoverViewHelper.searchColors(imageView, book);
-
+    private void doShowDetails(Book book) {
         Bundle arguments = new Bundle();
         arguments.putSerializable(BookDetailActivity.ARG_KEY, book);
         arguments.putBoolean(BookDetailActivity.ARG_IS_SEARCH, true);
