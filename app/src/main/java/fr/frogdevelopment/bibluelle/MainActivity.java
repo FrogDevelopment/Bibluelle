@@ -6,14 +6,9 @@ import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Pair;
 import android.util.SparseArray;
-import android.view.View;
 import android.widget.Toast;
 
-import com.github.ybq.android.spinkit.SpinKitView;
-import com.jakewharton.threetenabp.AndroidThreeTen;
-
 import es.dmoral.toasty.Toasty;
-import fr.frogdevelopment.bibluelle.data.DatabaseCreator;
 import fr.frogdevelopment.bibluelle.gallery.GalleryFragment;
 import fr.frogdevelopment.bibluelle.manage.ManageFragment;
 import fr.frogdevelopment.bibluelle.search.SearchFragment;
@@ -34,28 +29,9 @@ public class MainActivity extends AppCompatActivity {
 		mNavigationView = findViewById(R.id.navigation);
 		mNavigationView.setOnNavigationItemSelectedListener(item -> switchFragment(item.getItemId(), false));
 
-		SpinKitView spinner = findViewById(R.id.spinner);
-
 		buildFragmentsList();
 
-		AndroidThreeTen.init(this);
-
-		DatabaseCreator databaseCreator = DatabaseCreator.getInstance();
-
-		// listen fro database created
-		databaseCreator.isDatabaseCreated().observe(this, aBoolean -> {
-			spinner.setVisibility(View.GONE);
-
-			if (Boolean.TRUE.equals(aBoolean)) {
-				databaseCreator.isDatabaseCreated().removeObservers(MainActivity.this);
-				// when created => display main view
-				switchFragment(R.id.navigation_dashboard, true);
-//			} else {
-				// fixme
-			}
-		});
-
-		databaseCreator.createDb(this.getApplication());
+		switchFragment(R.id.navigation_dashboard, true);
 	}
 
 	private void buildFragmentsList() {
@@ -92,9 +68,9 @@ public class MainActivity extends AppCompatActivity {
 
 		Pair<Fragment, String> pair = fragments.get(itemId);
 		if (pair.first != null) {
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .setReorderingAllowed(true)
+			getSupportFragmentManager()
+					.beginTransaction()
+					.setReorderingAllowed(true)
 					.replace(R.id.content_frame, pair.first, pair.second)
 					.commit();
 

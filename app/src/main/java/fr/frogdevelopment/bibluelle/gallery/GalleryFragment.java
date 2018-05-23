@@ -1,6 +1,7 @@
 package fr.frogdevelopment.bibluelle.gallery;
 
 import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -67,7 +68,8 @@ public class GalleryFragment extends Fragment implements OnBookClickListener, Se
 
 		mGlideRequests = GlideApp.with(this);
 
-		DatabaseCreator.getInstance().getBookDao().loadAllPreviews().observe(this, books -> {
+		GalleryViewModel model = ViewModelProviders.of(this).get(GalleryViewModel.class);
+		model.getPreviews().observe(this, books -> {
 			view.findViewById(R.id.spinner).setVisibility(View.GONE);
 
 			mPreviews = books;
