@@ -1,6 +1,5 @@
 package fr.frogdevelopment.bibluelle.gallery;
 
-import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
@@ -13,7 +12,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.text.TextUtils;
-import android.transition.Fade;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -31,8 +29,6 @@ import java.util.List;
 import fr.frogdevelopment.bibluelle.GlideApp;
 import fr.frogdevelopment.bibluelle.GlideRequests;
 import fr.frogdevelopment.bibluelle.R;
-import fr.frogdevelopment.bibluelle.data.DatabaseCreator;
-import fr.frogdevelopment.bibluelle.data.entities.Book;
 import fr.frogdevelopment.bibluelle.data.entities.BookPreview;
 import fr.frogdevelopment.bibluelle.details.BookDetailActivity;
 import fr.frogdevelopment.bibluelle.gallery.adapter.CarouselBooksAdapter;
@@ -149,34 +145,28 @@ public class GalleryFragment extends Fragment implements OnBookClickListener, Se
 	public void onBookClick(View v, String isbn) {
 		ImageView coverView = v.findViewById(R.id.item_cover);
 
-		LiveData<Book> bookLiveData = DatabaseCreator.getInstance().getBookDao().getBook(isbn);
-		bookLiveData.observe(requireActivity(), book -> {
+		Bundle arguments = new Bundle();
+		arguments.putString("isbn", isbn);
 
-			bookLiveData.removeObservers(requireActivity());
+		Intent intent = new Intent(requireContext(), BookDetailActivity.class);
+		intent.putExtras(arguments);
 
-			Bundle arguments = new Bundle();
-			arguments.putSerializable(BookDetailActivity.ARG_KEY, book);
+		// https://android-developers.googleblog.com/2018/02/continuous-shared-element-transitions.html
+		// https://guides.codepath.com/android/Shared-Element-Activity-Transition#3-start-activity
 
-			Intent intent = new Intent(requireContext(), BookDetailActivity.class);
-			intent.putExtras(arguments);
-
-			// https://android-developers.googleblog.com/2018/02/continuous-shared-element-transitions.html
-			// https://guides.codepath.com/android/Shared-Element-Activity-Transition#3-start-activity
-
-			// https://stackoverflow.com/questions/26600263/how-do-i-prevent-the-status-bar-and-navigation-bar-from-animating-during-an-acti
-			Fade fade = new Fade();
-			fade.excludeTarget(coverView, true);
-			// https://stackoverflow.com/questions/26567822/hiccups-in-activity-transitions-with-shared-elements
+		// https://stackoverflow.com/questions/26600263/how-do-i-prevent-the-status-bar-and-navigation-bar-from-animating-during-an-acti
+//		Fade fade = new Fade();
+//		fade.excludeTarget(coverView, true);
+		// https://stackoverflow.com/questions/26567822/hiccups-in-activity-transitions-with-shared-elements
 //            fade.excludeTarget(requireActivity().findViewById(R.id.navigation), true);
 
-			setEnterTransition(fade);
-			setExitTransition(fade);
+//		setEnterTransition(fade);
+//		setExitTransition(fade);
 
-			// https://stackoverflow.com/questions/36137400/ripple-effect-not-working-with-shared-element-transition-and-recyclerview
+		// https://stackoverflow.com/questions/36137400/ripple-effect-not-working-with-shared-element-transition-and-recyclerview
 
-			ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(requireActivity(), coverView, "cover");
-			startActivity(intent, options.toBundle());
-		});
+		ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(requireActivity(), coverView, "cover");
+		startActivity(intent, options.toBundle());
 	}
 
 	@Override

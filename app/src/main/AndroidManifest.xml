@@ -49,14 +49,6 @@
                 android:value="fr.frogdevelopment.bibluelle.search.BookListActivity" />
         </activity>
         <activity
-            android:name=".cover.CoverActivity"
-            android:parentActivityName=".details.BookDetailActivity"
-            android:theme="@style/AppTheme.NoActionBar">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="fr.frogdevelopment.bibluelle.details.BookDetailActivity" />
-        </activity>
-        <activity
             android:name=".search.scan.ScanActivity"
             android:parentActivityName=".MainActivity">
             <meta-data
