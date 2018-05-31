@@ -1,3 +1,4 @@
 # Bibluelle
 Virtual library (or **Bibl**iothèque Virt**uelle**) on Android.
-<a href='http://51.38.36.45:8081/job/Frog%20Development/job/Bibluelle/job/master/'><img src='http://51.38.36.45:8081/job/Frog%20Development/job/Bibluelle/job/master/badge/icon'></a>
+[![Build Status](https://travis-ci.org/Diabol/delivery-pipeline-plugin.png)](https://travis-ci.org/Diabol/delivery-pipeline-plugin)
+[!http://51.38.36.45:8081/job/Frog Development/Bibluelle/master/badge/icon!|http://51.38.36.45:8081/job/Frog Development/Bibluelle/master]
