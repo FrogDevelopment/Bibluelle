@@ -1,0 +1,284 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="book"
+            type="fr.frogdevelopment.bibluelle.data.entities.Book" />
+
+        <import type="android.view.View" />
+
+        <import type="android.text.TextUtils" />
+
+    </data>
+
+    <android.support.design.widget.CoordinatorLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fitsSystemWindows="true"
+        tools:ignore="MergeRootFrame">
+
+        <android.support.design.widget.AppBarLayout
+            android:id="@+id/app_bar"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/app_bar_height"
+            android:fitsSystemWindows="true"
+            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+
+            <android.support.design.widget.CollapsingToolbarLayout
+                android:id="@+id/toolbar_layout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:fitsSystemWindows="true"
+                app:layout_scrollFlags="scroll|exitUntilCollapsed"
+                app:title="@{book.title}"
+                app:titleEnabled="false"
+                app:toolbarId="@+id/toolbar">
+
+                <ImageView
+                    android:id="@+id/toolbar_cover"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:contentDescription="@null"
+                    android:scaleType="matrix"
+                    android:transitionName="cover"
+                    app:layout_collapseMode="parallax"
+                    app:layout_collapseParallaxMultiplier="0.5" />
+
+                <android.support.v7.widget.Toolbar
+                    android:id="@+id/detail_toolbar"
+                    android:layout_width="match_parent"
+                    android:layout_height="?attr/actionBarSize"
+                    app:layout_collapseMode="pin"
+                    app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
+
+            </android.support.design.widget.CollapsingToolbarLayout>
+
+        </android.support.design.widget.AppBarLayout>
+
+        <android.support.v4.widget.NestedScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="8dp"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"
+            tools:context="fr.frogdevelopment.bibluelle.details.BookDetailFragment">
+
+            <android.support.constraint.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/detail_title"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="@{book.title}"
+                    android:textAlignment="center"
+                    android:textIsSelectable="true"
+                    android:textSize="25sp"
+                    android:textStyle="bold"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/detail_sub_title"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="@{book.subTitle}"
+                    android:textAlignment="center"
+                    android:textIsSelectable="true"
+                    android:textSize="18sp"
+                    android:textStyle="bold|italic"
+                    android:visibility="@{TextUtils.isEmpty(book.subTitle)? View.GONE: View.VISIBLE}"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/detail_title" />
+
+                <ImageView
+                    android:id="@+id/detail_cover"
+                    android:layout_width="64dp"
+                    android:layout_height="102dp"
+                    android:layout_marginTop="8dp"
+                    android:clickable="true"
+                    android:contentDescription="@null"
+                    android:focusable="true"
+                    android:foreground="?android:attr/selectableItemBackground"
+                    android:minWidth="128dp"
+                    android:minHeight="128dp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/detail_sub_title" />
+
+                <TextView
+                    android:id="@+id/detail_click_me"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_horizontal"
+                    android:text="@string/click_me"
+                    android:textSize="12sp"
+                    app:layout_constraintEnd_toEndOf="@+id/detail_cover"
+                    app:layout_constraintStart_toStartOf="@+id/detail_cover"
+                    app:layout_constraintTop_toBottomOf="@+id/detail_cover" />
+
+                <TextView
+                    android:id="@+id/detail_author"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="8dp"
+                    android:text="@{book.author}"
+                    android:textIsSelectable="true"
+                    android:textStyle="bold"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/detail_cover"
+                    app:layout_constraintTop_toBottomOf="@+id/detail_sub_title" />
+
+                <TextView
+                    android:id="@+id/detail_publisher"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="8dp"
+                    android:text="@{book.publisher}"
+                    android:textIsSelectable="true"
+                    android:textStyle="italic"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/detail_cover"
+                    app:layout_constraintTop_toBottomOf="@+id/detail_author" />
+
+                <TextView
+                    android:id="@+id/detail_nb_pages"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="8dp"
+                    android:text="@{@string/detail_page(book.pageCount)}"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/detail_cover"
+                    app:layout_constraintTop_toBottomOf="@+id/detail_publication_date" />
+
+                <TextView
+                    android:id="@+id/detail_publication_date"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="8dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/detail_cover"
+                    app:layout_constraintTop_toBottomOf="@+id/detail_publisher" />
+
+                <TextView
+                    android:id="@+id/detail_description"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="@{book.description}"
+                    android:textIsSelectable="true"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/detail_click_me" />
+
+                <View
+                    android:id="@+id/detail_separator"
+                    android:layout_width="0dp"
+                    android:layout_height="1dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginEnd="8dp"
+                    android:background="@android:color/darker_gray"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/detail_description" />
+
+                <TableLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:weightSum="2"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/detail_separator">
+
+                    <TableRow android:weightSum="3">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/isbn"
+                            android:textColor="@android:color/black" />
+
+                        <TextView
+                            android:id="@+id/detail_isbn"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="2"
+                            android:text="@{book.isbn}"
+                            android:textIsSelectable="true" />
+                    </TableRow>
+
+                    <TableRow android:weightSum="3">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/categories"
+                            android:textColor="@android:color/black" />
+
+                        <TextView
+                            android:id="@+id/detail_categories"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="2"
+                            android:text="@{book.categories}" />
+
+                    </TableRow>
+
+                </TableLayout>
+
+            </android.support.constraint.ConstraintLayout>
+        </android.support.v4.widget.NestedScrollView>
+
+        <com.github.clans.fab.FloatingActionMenu
+            android:id="@+id/fam"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            app:menu_icon="@drawable/fab_menu">
+
+            <com.github.clans.fab.FloatingActionButton
+                android:id="@+id/fab_sync"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/fab_sync"
+                android:visibility="gone"
+                app:fab_label="Re-sync book"
+                app:fab_size="mini" />
+
+            <com.github.clans.fab.FloatingActionButton
+                android:id="@+id/fab_save"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/fab_save"
+                android:visibility="gone"
+                app:fab_label="Save book"
+                app:fab_size="mini" />
+
+            <com.github.clans.fab.FloatingActionButton
+                android:id="@+id/fab_delete"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/fab_delete"
+                android:visibility="@{book.alreadySaved ? View.VISIBLE : View.GONE}"
+                app:fab_label="Delete book"
+                app:fab_size="mini" />
+
+        </com.github.clans.fab.FloatingActionMenu>
+
+    </android.support.design.widget.CoordinatorLayout>
+</layout>
