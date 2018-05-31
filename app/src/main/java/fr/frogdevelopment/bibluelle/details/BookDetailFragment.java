@@ -150,8 +150,8 @@ public class BookDetailFragment extends Fragment {
 							.beginTransaction()
 							.setReorderingAllowed(true)
 							.addSharedElement(mRootView.findViewById(R.id.toolbar_cover), "cover")
-							.replace(R.id.book_detail_container, fragment, CoverFragment.class.getSimpleName())
-							.addToBackStack(null)
+							.addToBackStack(CoverFragment.class.getSimpleName())
+							.replace(R.id.book_detail_container, fragment)
 							.commit();
 				});
 
