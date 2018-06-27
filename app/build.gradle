@@ -9,7 +9,7 @@ android {
         applicationId "fr.frogdevelopment.bibluelle"
 
         minSdkVersion 24
-        targetSdkVersion 27
+        targetSdkVersion 28
 
         // count nb tag to determine the current versionCode
         def cmd = 'git tag --list'
@@ -30,6 +30,7 @@ android {
     signingConfigs {
         Properties props = new Properties()
         def propFile = new File(System.getenv("SIGNING_PROPERTIES"))
+//        def propFile = new File("/home/ben/perso/signing.properties")
         if (propFile.canRead()) {
             props.load(new FileInputStream(propFile))
             if (props == null || props.isEmpty()) {
@@ -96,15 +97,15 @@ dependencies {
     implementation 'com.android.support:palette-v7:27.1.1'
     implementation 'com.android.support:appcompat-v7:27.1.1'
     implementation 'com.android.support:recyclerview-v7:27.1.1'
-    implementation 'com.android.support.constraint:constraint-layout:1.1.0'
+    implementation 'com.android.support.constraint:constraint-layout:1.1.2'
 
     // Architecture Components
     implementation 'android.arch.lifecycle:common-java8:1.1.1'
     // Room
-    implementation 'android.arch.persistence.room:runtime:1.1.0'
-    annotationProcessor "android.arch.persistence.room:compiler:1.1.0"
+    implementation 'android.arch.persistence.room:runtime:1.1.1'
+    annotationProcessor "android.arch.persistence.room:compiler:1.1.1"
     // Test helpers for Room
-    androidTestImplementation 'android.arch.persistence.room:testing:1.1.0'
+    androidTestImplementation 'android.arch.persistence.room:testing:1.1.1'
     // ViewModel and LiveData
     implementation 'android.arch.lifecycle:extensions:1.1.1'
     annotationProcessor 'android.arch.lifecycle:compiler:1.1.1'
@@ -114,7 +115,7 @@ dependencies {
     // FIREBASE + Drive API
     implementation 'com.google.android.gms:play-services-drive:15.0.1'
     implementation 'com.google.android.gms:play-services-auth:15.0.1'
-    implementation 'com.google.firebase:firebase-core:15.0.2'
+    implementation 'com.google.firebase:firebase-core:16.0.1'
 
     // ZXING
     implementation 'me.dm7.barcodescanner:zxing:1.9.8'
